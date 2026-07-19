@@ -49,22 +49,57 @@
   - [4.7 Architecture Principles](#47-architecture-principles)
 - [5. Product Features and User Story Specification](#5-product-features-and-user-story-specification)
   - [5.1 Feature-01: User Management](#51-feature-01-user-management)
-    - [5.1.1 US-01-01: Register a User](#511-us-01-01-register-a-user)
+    - [5.1.1 US-01-01: Create a User (ADMIN)](#511-us-01-01-create-a-user-admin)
+    - [5.1.2 US-01-02: Update a User Profile (USER)](#512-us-01-02-update-a-user-profile-user)
   - [5.2 Feature-02: System Security](#52-feature-02-system-security)
-    - [5.2.1 US-02-01: Login](#521-us-02-01-login)
-    - [5.2.2 US-02-02: Logout](#522-us-02-02-logout)
+    - [5.2.1 US-02-01: Login (ADMIN, USER)](#521-us-02-01-login-admin-user)
+    - [5.2.2 US-02-02: Logout (ADMIN, USER)](#522-us-02-02-logout-admin-user)
   - [5.3 Feature-03: Wallet Management](#53-feature-03-wallet-management)
-    - [5.3.1 US-03-01: Create a Wallet](#531-us-03-01-create-a-wallet)
+    - [5.3.1 US-03-01: Create a Wallet (USER)](#531-us-03-01-create-a-wallet-user)
+    - [5.3.2 US-03-02: View a list of Wallets (USER)](#532-us-03-02-view-a-list-of-wallets-user)
+    - [5.3.3 US-03-03: View a Wallet (USER)](#533-us-03-03-view-a-wallet-user)
+    - [5.3.4 US-03-04: Update a Wallet (USER)](#534-us-03-04-update-a-wallet-user)
+    - [5.3.5 US-03-05: Set a Wallet as default (USER)](#535-us-03-05-set-a-wallet-as-default-user)
   - [5.4 Feature-04: Category Management](#54-feature-04-category-management)
-    - [5.4.1 US-04-01: Create a Category](#541-us-04-01-create-a-category)
+    - [5.4.1 US-04-01: Create a Category (USER)](#541-us-04-01-create-a-category-user)
+    - [5.4.2 US-04-02: View a list of Categories (USER)](#542-us-04-02-view-a-list-of-categories-user)
+    - [5.4.3 US-04-03: View a Category (USER)](#543-us-04-03-view-a-category-user)
+    - [5.4.4 US-04-04: Update a Category (USER)](#544-us-04-04-update-a-category-user)
+    - [5.4.5 US-04-05: Delete a Category (USER)](#545-us-04-05-delete-a-category-user)
   - [5.5 Feature-05: Budget Management](#55-feature-05-budget-management)
-    - [5.5.1 US-05-01: Create a Budget for a Wallet](#551-us-05-01-create-a-budget-for-a-wallet)
+    - [5.5.1 US-05-01: Create a Budget for a Wallet (USER)](#551-us-05-01-create-a-budget-for-a-wallet-user)
+    - [5.5.2 US-05-02: View a list of Budgets (USER)](#552-us-05-02-view-a-list-of-budgets-user)
+    - [5.5.3 US-05-03: View a Budget (USER)](#553-us-05-03-view-a-budget-user)
+    - [5.5.4 US-05-04: Update a Budget (USER)](#554-us-05-04-update-a-budget-user)
+    - [5.5.5 US-05-05: Delete a Budget (USER)](#555-us-05-05-delete-a-budget-user)
   - [5.6 Feature-06: Transaction Management](#56-feature-06-transaction-management)
-    - [5.6.1 US-06-01: Create a Transaction for a Wallet](#561-us-06-01-create-a-transaction-for-a-wallet)
+    - [5.6.1 US-06-01: Create a Transaction for a Wallet (USER)](#561-us-06-01-create-a-transaction-for-a-wallet-user)
+    - [5.6.2 US-06-02: View a list of Transactions (USER)](#562-us-06-02-view-a-list-of-transactions-user)
+    - [5.6.3 US-06-03: View a Transaction (USER)](#563-us-06-03-view-a-transaction-user)
+    - [5.6.4 US-06-04: Update a Transaction (USER)](#564-us-06-04-update-a-transaction-user)
+    - [5.6.5 US-06-05: Delete a Transaction (USER)](#565-us-06-05-delete-a-transaction-user)
   - [5.7 Feature-07: Financial Reporting](#57-feature-07-financial-reporting)
+    - [5.7.1 US-07-01: View the Summary Report (USER)](#571-us-07-01-view-the-summary-report-user)
+    - [5.7.2 US-07-02: View Income Report (USER)](#572-us-07-02-view-income-report-user)
+    - [5.7.3 US-07-03: View Expense Report (USER)](#573-us-07-03-view-expense-report-user)
+    - [5.7.4 US-07-04: Filter Reports by Date (USER)](#574-us-07-04-filter-reports-by-date-user)
+    - [5.7.5 US-07-05: Filter Reports by Wallet or Category (USER)](#575-us-07-05-filter-reports-by-wallet-or-category-user)
   - [5.8 Feature-08: Financial Goal](#58-feature-08-financial-goal)
+    - [5.8.1 US-08-01: Create a Financial Goal (USER)](#581-us-08-01-create-a-financial-goal-user)
+    - [5.8.2 US-08-02: View a list of Financial Goals (USER)](#582-us-08-02-view-a-list-of-financial-goals-user)
+    - [5.8.3 US-08-03: View a Financial Goal (USER)](#583-us-08-03-view-a-financial-goal-user)
+    - [5.8.4 US-08-04: Update a Financial Goal (USER)](#584-us-08-04-update-a-financial-goal-user)
+    - [5.8.5 US-08-05: Close a Financial Goal (USER)](#585-us-08-05-close-a-financial-goal-user)
   - [5.9 Feature-09: Investment Portfolio](#59-feature-09-investment-portfolio)
+    - [5.9.1 US-09-01: View the Investment Portfolio (USER)](#591-us-09-01-view-the-investment-portfolio-user)
+    - [5.9.2 US-09-02: Update the Investment Portfolio Settings (USER)](#592-us-09-02-update-the-investment-portfolio-settings-user)
+    - [5.9.3 US-09-03: Add a Holding to the Investment Portfolio (USER)](#593-us-09-03-add-a-holding-to-the-investment-portfolio-user)
+    - [5.9.4 US-09-04: Update a Holding (USER)](#594-us-09-04-update-a-holding-user)
+    - [5.9.5 US-09-05: Remove a Holding (USER)](#595-us-09-05-remove-a-holding-user)
   - [5.10 Feature-10: Notification Handling](#510-feature-10-notification-handling)
+    - [5.10.1 US-10-01: View the list of Notifications (USER)](#5101-us-10-01-view-the-list-of-notifications-user)
+    - [5.10.2 US-10-02: View a Notification (USER)](#5102-us-10-02-view-a-notification-user)
+    - [5.10.3 US-10-03: Mark a Notification as Read (USER)](#5103-us-10-03-mark-a-notification-as-read-user)
   - [5.11 Feature-11: Data Overview Dashboard](#511-feature-11-data-overview-dashboard)
 - [6. API Design](#6-api-design)
   - [6.1 API Design Standards](#61-api-design-standards)
@@ -477,7 +512,7 @@ These scenarios represent the Scenarios (+1 View) of the "4+1 Views" Model.
 
 | Scenario ID | Feature | User Story | MVP | Notes |
 |-------------|---------|------------|-----|-------|
-| S-URM-01 | Feature-01: User Management | US-01-01 Register a User | ✔ | Entry point for new users |
+| S-URM-01 | Feature-01: User Management | US-01-01 Create a User (ADMIN) | ✔ | Entry point for new family member accounts |
 | S-SEC-01 | Feature-02: System Security | US-02-01 Login | ✔ | Required before protected actions |
 | S-WAL-01 | Feature-03: Wallet Management | US-03-01 Create a Wallet | ✔ | Core financial container |
 | S-CAT-01 | Feature-04: Category Management | US-04-01 Create a Category | ✔ | Used by transactions |
@@ -505,41 +540,93 @@ This chapter provides build-ready design details per Feature and User Story, ali
 
 ### 5.1 Feature-01: User Management
 
-#### 5.1.1 US-01-01: Register a User
+#### 5.1.1 US-01-01: Create a User (ADMIN)
+
+*(Details to be defined)*
+
+#### 5.1.2 US-01-02: Update a User Profile (USER)
 
 *(Details to be defined)*
 
 ### 5.2 Feature-02: System Security
 
-#### 5.2.1 US-02-01: Login
+#### 5.2.1 US-02-01: Login (ADMIN, USER)
 
 *(Details to be defined)*
 
-#### 5.2.2 US-02-02: Logout
+#### 5.2.2 US-02-02: Logout (ADMIN, USER)
 
 *(Details to be defined)*
 
 ### 5.3 Feature-03: Wallet Management
 
-#### 5.3.1 US-03-01: Create a Wallet
+#### 5.3.1 US-03-01: Create a Wallet (USER)
+
+*(Details to be defined)*
+
+#### 5.3.2 US-03-02: View a list of Wallets (USER)
+
+*(Details to be defined)*
+
+#### 5.3.3 US-03-03: View a Wallet (USER)
+
+*(Details to be defined)*
+
+#### 5.3.4 US-03-04: Update a Wallet (USER)
+
+*(Details to be defined)*
+
+#### 5.3.5 US-03-05: Set a Wallet as default (USER)
 
 *(Details to be defined)*
 
 ### 5.4 Feature-04: Category Management
 
-#### 5.4.1 US-04-01: Create a Category
+#### 5.4.1 US-04-01: Create a Category (USER)
+
+*(Details to be defined)*
+
+#### 5.4.2 US-04-02: View a list of Categories (USER)
+
+*(Details to be defined)*
+
+#### 5.4.3 US-04-03: View a Category (USER)
+
+*(Details to be defined)*
+
+#### 5.4.4 US-04-04: Update a Category (USER)
+
+*(Details to be defined)*
+
+#### 5.4.5 US-04-05: Delete a Category (USER)
 
 *(Details to be defined)*
 
 ### 5.5 Feature-05: Budget Management
 
-#### 5.5.1 US-05-01: Create a Budget for a Wallet
+#### 5.5.1 US-05-01: Create a Budget for a Wallet (USER)
+
+*(Details to be defined)*
+
+#### 5.5.2 US-05-02: View a list of Budgets (USER)
+
+*(Details to be defined)*
+
+#### 5.5.3 US-05-03: View a Budget (USER)
+
+*(Details to be defined)*
+
+#### 5.5.4 US-05-04: Update a Budget (USER)
+
+*(Details to be defined)*
+
+#### 5.5.5 US-05-05: Delete a Budget (USER)
 
 *(Details to be defined)*
 
 ### 5.6 Feature-06: Transaction Management
 
-#### 5.6.1 US-06-01: Create a Transaction for a Wallet
+#### 5.6.1 US-06-01: Create a Transaction for a Wallet (USER)
 
 **Goal:** Allow an authenticated User to create an income or expense Transaction for a Wallet they own.
 
@@ -576,19 +663,99 @@ This chapter provides build-ready design details per Feature and User Story, ali
 5. Optional: budget update and notification trigger.
 6. Controller returns a response.
 
+#### 5.6.2 US-06-02: View a list of Transactions (USER)
+
+*(Details to be defined)*
+
+#### 5.6.3 US-06-03: View a Transaction (USER)
+
+*(Details to be defined)*
+
+#### 5.6.4 US-06-04: Update a Transaction (USER)
+
+*(Details to be defined)*
+
+#### 5.6.5 US-06-05: Delete a Transaction (USER)
+
+*(Details to be defined)*
+
 ### 5.7 Feature-07: Financial Reporting
+
+#### 5.7.1 US-07-01: View the Summary Report (USER)
+
+*(Details to be defined)*
+
+#### 5.7.2 US-07-02: View Income Report (USER)
+
+*(Details to be defined)*
+
+#### 5.7.3 US-07-03: View Expense Report (USER)
+
+*(Details to be defined)*
+
+#### 5.7.4 US-07-04: Filter Reports by Date (USER)
+
+*(Details to be defined)*
+
+#### 5.7.5 US-07-05: Filter Reports by Wallet or Category (USER)
 
 *(Details to be defined)*
 
 ### 5.8 Feature-08: Financial Goal
 
+#### 5.8.1 US-08-01: Create a Financial Goal (USER)
+
+*(Details to be defined)*
+
+#### 5.8.2 US-08-02: View a list of Financial Goals (USER)
+
+*(Details to be defined)*
+
+#### 5.8.3 US-08-03: View a Financial Goal (USER)
+
+*(Details to be defined)*
+
+#### 5.8.4 US-08-04: Update a Financial Goal (USER)
+
+*(Details to be defined)*
+
+#### 5.8.5 US-08-05: Close a Financial Goal (USER)
+
 *(Details to be defined)*
 
 ### 5.9 Feature-09: Investment Portfolio
 
+#### 5.9.1 US-09-01: View the Investment Portfolio (USER)
+
+*(Details to be defined)*
+
+#### 5.9.2 US-09-02: Update the Investment Portfolio Settings (USER)
+
+*(Details to be defined)*
+
+#### 5.9.3 US-09-03: Add a Holding to the Investment Portfolio (USER)
+
+*(Details to be defined)*
+
+#### 5.9.4 US-09-04: Update a Holding (USER)
+
+*(Details to be defined)*
+
+#### 5.9.5 US-09-05: Remove a Holding (USER)
+
 *(Details to be defined)*
 
 ### 5.10 Feature-10: Notification Handling
+
+#### 5.10.1 US-10-01: View the list of Notifications (USER)
+
+*(Details to be defined)*
+
+#### 5.10.2 US-10-02: View a Notification (USER)
+
+*(Details to be defined)*
+
+#### 5.10.3 US-10-03: Mark a Notification as Read (USER)
 
 *(Details to be defined)*
 

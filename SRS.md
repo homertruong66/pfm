@@ -13,17 +13,108 @@
   - [1.1 Purpose](#11-purpose)
   - [1.2 Scope](#12-scope)
   - [1.3 Assumptions and Constraints](#13-assumptions-and-constraints)
+    - [1.3.1 Assumptions](#131-assumptions)
+    - [1.3.2 Constraints](#132-constraints)
   - [1.4 Definitions and Acronyms](#14-definitions-and-acronyms)
   - [1.5 Roles and Actors](#15-roles-and-actors)
   - [1.6 Out of Scope](#16-out-of-scope)
   - [1.7 Related Documents](#17-related-documents)
 - [2. Conceptual Domain Model](#2-conceptual-domain-model)
+  - [2.1 Domain Diagram](#21-domain-diagram)
+  - [2.2 Domain Entity](#22-domain-entity)
+  - [2.3 Entity Relationship and Cardinality](#23-entity-relationship-and-cardinality)
+  - [2.4 Business Rules](#24-business-rules)
 - [3. Functional Requirements (FR)](#3-functional-requirements-fr)
+  - [3.1 Wallet Management](#31-wallet-management)
+  - [3.2 Transaction Management](#32-transaction-management)
+  - [3.3 Category Management](#33-category-management)
+  - [3.4 Budget Tracking](#34-budget-tracking)
+  - [3.5 Financial Goal Tracking](#35-financial-goal-tracking)
+  - [3.6 Investment Management](#36-investment-management)
+  - [3.7 Financial Reporting](#37-financial-reporting)
+  - [3.8 Data Overview Dashboard](#38-data-overview-dashboard)
 - [4. Non-Functional Requirements (NFR)](#4-non-functional-requirements-nfr)
+  - [4.1 Performance](#41-performance)
+  - [4.2 Availability](#42-availability)
+  - [4.3 Scalability](#43-scalability)
+  - [4.4 Security](#44-security)
+    - [4.4.1 Authentication](#441-authentication)
+    - [4.4.2 Authorization](#442-authorization)
+  - [4.5 Privacy](#45-privacy)
+  - [4.6 Reliability](#46-reliability)
 - [5. User Experience Requirements (UXR)](#5-user-experience-requirements-uxr)
+  - [5.1 Clarity](#51-clarity)
+  - [5.2 Fast Onboarding](#52-fast-onboarding)
+  - [5.3 Immediate Feedback](#53-immediate-feedback)
 - [6. Business Flows](#6-business-flows)
+  - [6.1 Main Business Flow — End-to-End User Journey](#61-main-business-flow--end-to-end-user-journey)
+  - [6.2 Supporting BF — Wallet Management](#62-supporting-bf--wallet-management)
+  - [6.3 Supporting BF — Category Management](#63-supporting-bf--category-management)
+  - [6.4 Supporting BF — Budget Management](#64-supporting-bf--budget-management)
+  - [6.5 Supporting BF — Transaction Management](#65-supporting-bf--transaction-management)
+  - [6.6 Supporting BF — Financial Goal Management](#66-supporting-bf--financial-goal-management)
+  - [6.7 Supporting BF — Investment Management](#67-supporting-bf--investment-management)
+  - [6.8 Supporting BF — Reporting and Dashboard](#68-supporting-bf--reporting-and-dashboard)
+  - [6.9 Supporting BF — Notification Handling](#69-supporting-bf--notification-handling)
 - [7. Features and User Stories](#7-features-and-user-stories)
+  - [7.1 Feature-01: User Management](#71-feature-01-user-management)
+    - [7.1.1 US-01: Create a User (ADMIN)](#711-us-01-create-a-user-admin)
+    - [7.1.2 US-02: Update a User Profile (USER)](#712-us-02-update-a-user-profile-user)
+  - [7.2 Feature-02: System Security](#72-feature-02-system-security)
+    - [7.2.1 US-01: Login (ADMIN, USER) [MVP]](#721-us-01-login-admin-user-mvp)
+    - [7.2.2 US-02: Logout (ADMIN, USER) [MVP]](#722-us-02-logout-admin-user-mvp)
+  - [7.3 Feature-03: Wallet Management](#73-feature-03-wallet-management)
+    - [7.3.1 US-01: Create a Wallet (USER) [MVP]](#731-us-01-create-a-wallet-user-mvp)
+    - [7.3.2 US-02: View a list of Wallets (USER) [MVP]](#732-us-02-view-a-list-of-wallets-user-mvp)
+    - [7.3.3 US-03: View a Wallet (USER) [MVP]](#733-us-03-view-a-wallet-user-mvp)
+    - [7.3.4 US-04: Update a Wallet (USER)](#734-us-04-update-a-wallet-user)
+    - [7.3.5 US-05: Set a Wallet as default (USER)](#735-us-05-set-a-wallet-as-default-user)
+  - [7.4 Feature-04: Category Management](#74-feature-04-category-management)
+    - [7.4.1 US-01: Create a Category (USER) [MVP]](#741-us-01-create-a-category-user-mvp)
+    - [7.4.2 US-02: View a list of Categories (USER) [MVP]](#742-us-02-view-a-list-of-categories-user-mvp)
+    - [7.4.3 US-03: View a Category (USER)](#743-us-03-view-a-category-user)
+    - [7.4.4 US-04: Update a Category (USER)](#744-us-04-update-a-category-user)
+    - [7.4.5 US-05: Delete a Category (USER)](#745-us-05-delete-a-category-user)
+  - [7.5 Feature-05: Budget Management](#75-feature-05-budget-management)
+    - [7.5.1 US-01: Create a Budget for a Wallet (USER) [MVP]](#751-us-01-create-a-budget-for-a-wallet-user-mvp)
+    - [7.5.2 US-02: View a list of Budgets (USER) [MVP]](#752-us-02-view-a-list-of-budgets-user-mvp)
+    - [7.5.3 US-03: View a Budget (USER) [MVP]](#753-us-03-view-a-budget-user-mvp)
+    - [7.5.4 US-04: Update a Budget (USER)](#754-us-04-update-a-budget-user)
+    - [7.5.5 US-05: Delete a Budget (USER)](#755-us-05-delete-a-budget-user)
+  - [7.6 Feature-06: Transaction Management](#76-feature-06-transaction-management)
+    - [7.6.1 US-01: Create a Transaction for a Wallet (USER) [MVP]](#761-us-01-create-a-transaction-for-a-wallet-user-mvp)
+    - [7.6.2 US-02: View a list of Transactions (USER) [MVP]](#762-us-02-view-a-list-of-transactions-user-mvp)
+    - [7.6.3 US-03: View a Transaction (USER) [MVP]](#763-us-03-view-a-transaction-user-mvp)
+    - [7.6.4 US-04: Update a Transaction (USER)](#764-us-04-update-a-transaction-user)
+    - [7.6.5 US-05: Delete a Transaction (USER)](#765-us-05-delete-a-transaction-user)
+  - [7.7 Feature-07: Financial Reporting](#77-feature-07-financial-reporting)
+    - [7.7.1 US-01: View the Summary Report (USER) [MVP]](#771-us-01-view-the-summary-report-user-mvp)
+    - [7.7.2 US-02: View Income Report (USER)](#772-us-02-view-income-report-user)
+    - [7.7.3 US-03: View Expense Report (USER)](#773-us-03-view-expense-report-user)
+    - [7.7.4 US-04: Filter Reports by Date (USER)](#774-us-04-filter-reports-by-date-user)
+    - [7.7.5 US-05: Filter Reports by Wallet or Category (USER)](#775-us-05-filter-reports-by-wallet-or-category-user)
+  - [7.8 Feature-08: Financial Goal](#78-feature-08-financial-goal)
+    - [7.8.1 US-01: Create a Financial Goal (USER)](#781-us-01-create-a-financial-goal-user)
+    - [7.8.2 US-02: View a list of Financial Goals (USER)](#782-us-02-view-a-list-of-financial-goals-user)
+    - [7.8.3 US-03: View a Financial Goal (USER)](#783-us-03-view-a-financial-goal-user)
+    - [7.8.4 US-04: Update a Financial Goal (USER)](#784-us-04-update-a-financial-goal-user)
+    - [7.8.5 US-05: Close a Financial Goal (USER)](#785-us-05-close-a-financial-goal-user)
+  - [7.9 Feature-09: Investment Portfolio](#79-feature-09-investment-portfolio)
+    - [7.9.1 US-01: View the Investment Portfolio (USER)](#791-us-01-view-the-investment-portfolio-user)
+    - [7.9.2 US-02: Update the Investment Portfolio Settings (USER)](#792-us-02-update-the-investment-portfolio-settings-user)
+    - [7.9.3 US-03: Add a Holding to the Investment Portfolio (USER)](#793-us-03-add-a-holding-to-the-investment-portfolio-user)
+    - [7.9.4 US-04: Update a Holding (USER)](#794-us-04-update-a-holding-user)
+    - [7.9.5 US-05: Remove a Holding (USER)](#795-us-05-remove-a-holding-user)
+  - [7.10 Feature-10: Notification Handling](#710-feature-10-notification-handling)
+    - [7.10.1 US-01: View the list of Notifications (USER) [MVP]](#7101-us-01-view-the-list-of-notifications-user-mvp)
+    - [7.10.2 US-02: View a Notification (USER) [MVP]](#7102-us-02-view-a-notification-user-mvp)
+    - [7.10.3 US-03: Mark a Notification as Read (USER)](#7103-us-03-mark-a-notification-as-read-user)
+  - [7.11 Feature-11: Data Overview Dashboard](#711-feature-11-data-overview-dashboard)
+  - [Feature-level Release (Overview)](#feature-level-release-overview)
 - [8. External Dependencies](#8-external-dependencies)
+  - [8.1 Third-Party APIs](#81-third-party-apis)
+  - [8.2 Internal Systems / Legacy Services](#82-internal-systems--legacy-services)
+  - [8.3 Infrastructure Dependencies](#83-infrastructure-dependencies)
 
 ---
 
@@ -87,24 +178,37 @@ While the course focuses on building and demonstrating an MVP implementation, th
 
 ### 1.5 Roles and Actors
 
+PFM is used within a family context, where one shared deployment (e.g. a home server on the household LAN) is used by multiple family members. Two roles participate:
 
 | Role | Description | Example persona |
 |------|-------------|-----------------|
-| {ROLE} | {One-line description of what this actor does in the system} | {Real-world example} |
+| ADMIN | Sets up, deploys, and maintains the PFM application for the household (e.g. installing/running the app on the home LAN, creating accounts for family members). The ADMIN does not view or manage other members' financial data through this role — administration is limited to the application instance and accounts, not personal finances. | The family member who manages the home server/app instance |
+| USER | An individual family member who records and manages their own personal finances independently within the shared application instance. Each USER's Wallets, Transactions, Budgets, Goals, and Investments are private to that USER (see §4.4.2 Authorization). | Dad, Mom, Sister, Brother |
+
+> A single person may hold both roles (e.g. Dad administers the app and also uses it as a USER), but the two responsibilities are distinct.
 
 ### 1.6 Out of Scope
+
 The following are explicitly excluded from this specification:
-- {Feature or capability not covered}
-- {Integration excluded}
-- {Assumption about what a later phase handles}
+
+- **Multi-family / multi-tenant support.** The product is scoped to a single family/household running one shared deployment (§1.5, RUNBOOK). It is not a multi-organization SaaS product serving unrelated households from one instance.
+- **Joint or shared financial entities.** Every Wallet, Category, Budget, and FinancialGoal belongs to exactly one User (§2.3 Composition rules) — there is no concept of a jointly-owned Wallet or Budget that multiple family members co-manage.
+- **Cross-member financial visibility or oversight.** No role, including ADMIN, can view, aggregate, or report on another family member's financial data (§4.4.2). A family-wide combined dashboard or report spanning multiple Users is not supported.
+- **Parental controls / spending approval workflows.** There is no mechanism for one family member (e.g. a parent) to approve, limit, or restrict another family member's (e.g. a child's) transactions or spending.
+- **Remote/internet-facing access.** The deployment target is a home LAN only (RUNBOOK) — public hosting, HTTPS/domain setup, and access from outside the household network are not addressed.
+- **Bank and institution integrations.** Automatic transaction import (open banking, bank feeds, card sync) is not supported; all Transactions are entered manually by the User (§1.3.1).
+- **Live market data feeds.** Asset current market price (§2.2) is a stored, manually-maintained attribute — automated/real-time price fetching from external market data providers is out of scope.
+- **External notification channels.** Notification (§2.2) is in-app only; email, SMS, and push notifications are not covered.
+- **Self-service account recovery.** Password reset / account recovery flows (e.g. via email or SMS) are not addressed; account issues are handled manually by the ADMIN (RUNBOOK §8).
+- **Tax and regulatory features.** Tax filing support and multi-currency conversion using live FX rates are not covered.
 
 ### 1.7 Related Documents
 
 
 | Document | Location | Purpose |
 |----------|----------|---------|
-| SDS | {path or URL} | Software Design Specification — architecture and API design |
-| RUNBOOK | {path or URL} | Operational guide — setup, deployment, troubleshooting |
+| SDS | [SDS.md](SDS.md) | Software Design Specification — architecture and API design |
+| RUNBOOK | [RUNBOOK.md](RUNBOOK.md) | Operational guide — how the ADMIN deploys and runs the PFM app on a household LAN so every family member (USER) can reach it from their own device; also covers account setup, backup, and troubleshooting |
 
 ---
 
@@ -144,25 +248,27 @@ classDiagram
     User "1" *-- "1" InvestmentPortfolio : owns
     User "1" *-- "0..n" Notification : receives
     User "1" *-- "0..n" Wallet : owns
+    User "1" *-- "0..n" FinancialGoal : sets
+    User "1" *-- "0..n" Category : defines
 
     InvestmentPortfolio "1" *-- "0..n" Holding : contains
 
-    Holding "0..n" --> "1" Asset : references
+    Holding "0..n" o-- "1" Asset : references
 
     Wallet "1" *-- "0..n" Transaction : records
     Wallet "1" *-- "0..n" Budget : defines
 
     Transaction "0..n" o-- "0..1" Category : classified by
-    Transaction "0..n" --> "0..1" FinancialGoal : contributes to
+    Transaction "0..n" o-- "0..1" FinancialGoal : contributes to
 
     Budget "0..n" o-- "0..n" Category : scoped by
 
-    Category "0..n" --> "1" Category : parent
+    Category "0..n" o-- "1" Category : parent
 ```
 
 > **Notation:**
-> - `*--` Solid diamond (◆) — **Composition**: child cannot exist without parent (strict lifecycle).
-> - `o--` Hollow diamond (◇) — **Aggregation**: child exists independently (loose reference).
+> - `*--` Solid diamond (◆) — **Composition**: child cannot exist without parent (strict lifecycle — deleted when the parent is deleted).
+> - `o--` Hollow diamond (◇) — **Aggregation**: child exists independently (loose reference, no cascade delete). The referencing side — whichever class holds the pointer/FK and needs to navigate to the other — is written first and carries the diamond, regardless of which side is "1" or "N"; this notation is about delete-cascade behavior, not classic whole-part containment.
 
 >
 > **Aggregate Roots:** User, Wallet, InvestmentPortfolio, FinancialGoal, and Category are the aggregate roots — each is the single entry point for its cluster of related entities, marked with `<<AggregateRoot>>` above.
@@ -171,13 +277,13 @@ classDiagram
 
 | Entity | Description | Key Business Attributes | Ownership / Lifecycle |
 |--------|-------------|-------------------------|-----------------------|
-| User | A registered individual who uses the PFM system to manage their personal finances. | Full name, email, registration date | Independent — Aggregate Root; all personal financial data is anchored to this entity |
+| User | A family member account, created by the ADMIN, that uses the PFM system to manage their personal finances. | Full name, email, account creation date | Independent — Aggregate Root; all personal financial data is anchored to this entity |
 | Wallet | A named representation of a real-world financial account, cash reserve, or e-wallet that holds a current balance. | Name, type (cash / bank / e-wallet), current balance, currency, default flag | Owned by User — deleted when the User is deleted |
 | Transaction | A financial event recorded against a Wallet, representing money flowing in (income) or out (expense). | Type (income / expense), amount, date, note, associated category | Part of Wallet — deleted when the Wallet is deleted |
-| Category | A user-defined label used to classify Transactions and scope Budgets; may be organized hierarchically with a parent Category. | Name, applicable type (income / expense / both), parent category | Independent — Aggregate Root; persists independently of any Transaction or Budget |
+| Category | A user-defined label used to classify Transactions and scope Budgets; may be organized hierarchically with a parent Category. | Name, applicable type (income / expense / both), parent category | Owned by User — deleted when the User is deleted; persists independently of any Transaction or Budget that references it |
 | Budget | A spending limit set for one or more Categories within a Wallet for a specific time period, used to track and control expenses. | Period (e.g. monthly), limit amount, total spent, remaining amount | Part of Wallet — deleted when the Wallet is deleted |
-| FinancialGoal | A savings or spending target that a User defines with a monetary goal and a deadline to work toward. | Name, target amount, target date, current progress amount | Independent — Aggregate Root; lifecycle managed explicitly by the User |
-| InvestmentPortfolio | A single container per User that groups all investment Holdings and provides a high-level view of investment performance. | Name, total current value, portfolio settings | Part of User (1:1) — created when User registers, deleted when User is deleted |
+| FinancialGoal | A savings or spending target that a User defines with a monetary goal and a deadline to work toward. | Name, target amount, target date, current progress amount | Owned by User — deleted when the User is deleted |
+| InvestmentPortfolio | A single container per User that groups all investment Holdings and provides a high-level view of investment performance. | Name, total current value, portfolio settings | Part of User (1:1) — created when the ADMIN creates the User account, deleted when User is deleted |
 | Holding | A single investment position inside an InvestmentPortfolio, representing an amount invested in a specific Asset. | Asset reference, quantity, purchase price, current value | Part of InvestmentPortfolio — deleted when the InvestmentPortfolio is deleted |
 | Asset | A tradable or investable instrument (e.g. stock, fund, crypto) that can be referenced by one or more Holdings. | Name, ticker / symbol, asset type, current market price | Independent — shared reference; exists regardless of whether any Holding references it |
 | Notification | A system-generated message that alerts the User to a relevant financial event or condition (e.g. budget limit reached). | Message content, notification type, read status, triggered date | Part of User — deleted when the User is deleted |
@@ -193,14 +299,16 @@ classDiagram
 | User | owns | Wallet | Composition | 1 User → 0..n Wallets | A Wallet belongs to exactly one User and is deleted when that User is deleted |
 | User | owns | InvestmentPortfolio | Composition | 1 User → 1 InvestmentPortfolio | Exactly one portfolio per User; created on registration and deleted with the User |
 | User | receives | Notification | Composition | 1 User → 0..n Notifications | Notifications are private to the User and deleted when the User is deleted |
+| User | sets | FinancialGoal | Composition | 1 User → 0..n FinancialGoals | A FinancialGoal belongs to exactly one User and is deleted when that User is deleted |
+| User | defines | Category | Composition | 1 User → 0..n Categories | A Category belongs to exactly one User and is deleted when that User is deleted; it is not shared across family members |
 | Wallet | records | Transaction | Composition | 1 Wallet → 0..n Transactions | A Transaction belongs to exactly one Wallet and is deleted when that Wallet is deleted |
 | Wallet | defines | Budget | Composition | 1 Wallet → 0..n Budgets | A Budget belongs to exactly one Wallet and is deleted when that Wallet is deleted |
 | InvestmentPortfolio | contains | Holding | Composition | 1 InvestmentPortfolio → 0..n Holdings | Holdings are deleted when the InvestmentPortfolio is deleted |
-| Holding | references | Asset | Association | 0..n Holdings → 1 Asset | An Asset exists independently; a Holding must reference exactly one Asset but deleting the Holding does not affect the Asset |
+| Holding | references | Asset | Aggregation | 0..n Holdings → 1 Asset | An Asset exists independently; a Holding must reference exactly one Asset but deleting the Holding does not affect the Asset |
 | Transaction | classified by | Category | Aggregation | 0..n Transactions → 0..1 Category | Category assignment is optional; deleting a Category does not delete its Transactions (they become uncategorized) |
-| Transaction | contributes to | FinancialGoal | Association | 0..n Transactions → 0..1 FinancialGoal | A FinancialGoal exists independently; a Transaction may optionally be linked to one Goal to track progress |
+| Transaction | contributes to | FinancialGoal | Aggregation | 0..n Transactions → 0..1 FinancialGoal | A FinancialGoal exists independently; a Transaction may optionally be linked to one Goal to track progress |
 | Budget | scoped by | Category | Aggregation | 0..n Budgets → 0..n Categories | A Budget tracks spending across its associated Categories; deleting a Category does not delete the Budget |
-| Category | child of | Category | Association | 0..n Categories → 1 parent Category | A Category may have at most one parent (sub-category hierarchy); root-level Categories have no parent |
+| Category | child of | Category | Aggregation | 0..n Categories → 1 parent Category | A Category may have at most one parent (sub-category hierarchy); root-level Categories have no parent; a Category's parent MUST belong to the same User (see BR-06) |
 
 > **Type** must match the diagram notation. A Composition row means the child row in §2.1 uses `*--`.
 
@@ -212,7 +320,19 @@ classDiagram
 
 | Rule ID | Statement | Entities Involved | Enforced In |
 |---------|-----------|-------------------|-------------|
-| BR-{nn} | {Declarative statement of the rule — use MUST/MUST NOT} | {Comma-separated entity names} | {§3.x FR / §7.x.x US-ID / SDS §x} |
+| BR-01 | A Wallet MUST belong to exactly one User; it MUST NOT be shared or transferred between Users. | User, Wallet | §3.1 |
+| BR-02 | A Wallet MUST always have a name, a type (cash / bank / e-wallet), and a current balance. | Wallet | §3.1 |
+| BR-03 | A Transaction MUST specify an amount, a type (income or expense), a date, and exactly one Wallet; it MUST NOT exist without an associated Wallet. | Transaction, Wallet | §3.2 |
+| BR-04 | A Transaction's Category, if assigned, MUST belong to the same User who owns the Transaction's Wallet. | Transaction, Category, Wallet, User | §3.2, §3.3 |
+| BR-05 | A Category MUST have a name and an applicable type (income / expense / both); deleting a Category MUST NOT delete the Transactions previously classified under it (they become uncategorized). | Category, Transaction | §3.3 |
+| BR-06 | A Category's parent Category, if set, MUST belong to the same User as the child Category — an entire Category tree MUST belong to a single User; cross-User parent links are prohibited. | Category, User | §3.3 |
+| BR-07 | A Budget MUST be scoped to exactly one Wallet, one or more Categories, and a defined period (e.g. monthly). | Budget, Wallet, Category | §3.4 |
+| BR-08 | The System MUST compute a Budget's actual spending from the Transactions in its scoped Categories and indicate whether the User is within or exceeding the limit. | Budget, Transaction, Category | §3.4 |
+| BR-09 | A FinancialGoal MUST have a target amount and a target date, and MUST belong to exactly one User. | FinancialGoal, User | §3.5 |
+| BR-10 | The System MUST derive a FinancialGoal's progress only from Transactions explicitly linked to that Goal. | FinancialGoal, Transaction | §3.5 |
+| BR-11 | Every Holding MUST reference exactly one Asset and MUST belong to the User's single InvestmentPortfolio. | Holding, Asset, InvestmentPortfolio, User | §3.6 |
+| BR-12 | A Financial Report MUST be computed only from the requesting User's own Wallets, Transactions, and Categories. | User, Wallet, Transaction, Category | §3.7 |
+| BR-13 | The Dashboard MUST display only the current User's own Wallets, Transactions, Budgets, and Goals. | User, Wallet, Transaction, Budget, FinancialGoal | §3.8 |
 
 ---
 
@@ -363,7 +483,7 @@ After adding or editing data, Users should instantly see updated balances, budge
 
 This flow describes the typical end-to-end interaction of a User with the PFM system during daily financial management.
 
-1. The User registers a new account.
+1. A predefined ADMIN (seeded via a migration/setup script — see RUNBOOK §8) creates a new User account for a family member. There is no self-service registration; a User cannot create their own account.
 2. The User logs into the System.
 3. The User creates a Wallet W1 (e.g. Cash Wallet).
 4. The User creates a Category C1 (e.g. Salary), C2 (e.g. Food).
@@ -473,46 +593,43 @@ This flow describes how the System communicates important events.
 
 ### 7.1 Feature-01: User Management
 
-Provides basic User account creation and profile management, allowing Users to register and maintain their personal information.
+Provides User account provisioning by the ADMIN and profile management by the User. There is no self-service registration (§1.6 Out of Scope) — a User account can only be created by the ADMIN.
 
-#### 7.1.1 US-01: Register a User [MVP]
+#### 7.1.1 US-01: Create a User (ADMIN)
 
-**As a** Visitor, **I want to** register a User account **so that** I can log in and use the PFM application.
+**As an** ADMIN, **I want to** create a new User account for a family member **so that** they can log in and use the PFM application.
 
 **Acceptance Criteria:**
 
 ```gherkin
 Background:
-  Given the Visitor is on the "Register" screen
+  Given the ADMIN is on the "Create User" screen
 
-Scenario: Register successfully with email
-  When the Visitor enters full name "Homer Truong"
-    And the Visitor enters email "homer@example.com"
-    And the Visitor enters password "P@ssw0rd123"
-    And the Visitor confirms password "P@ssw0rd123"
-    And the Visitor taps "Register"
+Scenario: Create a User account successfully
+  When the ADMIN enters full name "Homer Truong"
+    And the ADMIN enters email "homer@example.com"
+    And the ADMIN enters an initial password
+    And the ADMIN taps "Create"
   Then the System creates a new User account
-    And the System shows message "Register successful"
-    And the User is redirected to the "Login" screen
+    And the System shows message "User account created"
+    And the new User can log in with the assigned email and initial password
 
-Scenario: Reject registration when required fields are missing
-  When the Visitor taps "Register" without entering email
+Scenario: Reject creation when required fields are missing
+  When the ADMIN taps "Create" without entering email
   Then the System does not create a new User account
     And the System shows validation error "Email is required"
 
-Scenario: Reject registration when account already exists
+Scenario: Reject creation when account already exists
   Given an existing User account with email "homer@example.com"
-  When the Visitor enters full name "Homer Truong"
-    And the Visitor enters email "homer@example.com"
-    And the Visitor enters password "P@ssw0rd123"
-    And the Visitor confirms password "P@ssw0rd123"
-    And the Visitor taps "Register"
+  When the ADMIN enters full name "Homer Truong"
+    And the ADMIN enters email "homer@example.com"
+    And the ADMIN enters an initial password
+    And the ADMIN taps "Create"
   Then the System does not create a new User account
     And the System shows error "Account already exists"
-    And the System suggests "Go to Login"
 ```
 
-#### 7.1.2 US-02: Update a User Profile
+#### 7.1.2 US-02: Update a User Profile (USER)
 
 ---
 
@@ -520,9 +637,9 @@ Scenario: Reject registration when account already exists
 
 Ensures secure access to the System by allowing Users to log in and log out safely, protecting personal financial data. Moreover, each User is authorized to see only his/her financial data.
 
-#### 7.2.1 US-01: Login [MVP]
+#### 7.2.1 US-01: Login (ADMIN, USER) [MVP]
 
-#### 7.2.2 US-02: Logout [MVP]
+#### 7.2.2 US-02: Logout (ADMIN, USER) [MVP]
 
 ---
 
@@ -530,15 +647,15 @@ Ensures secure access to the System by allowing Users to log in and log out safe
 
 Allows Users to create and manage Wallets that represent different sources of money and view current balances.
 
-#### 7.3.1 US-01: Create a Wallet [MVP]
+#### 7.3.1 US-01: Create a Wallet (USER) [MVP]
 
-#### 7.3.2 US-02: View a list of Wallets [MVP]
+#### 7.3.2 US-02: View a list of Wallets (USER) [MVP]
 
-#### 7.3.3 US-03: View a Wallet [MVP]
+#### 7.3.3 US-03: View a Wallet (USER) [MVP]
 
-#### 7.3.4 US-04: Update a Wallet
+#### 7.3.4 US-04: Update a Wallet (USER)
 
-#### 7.3.5 US-05: Set a Wallet as default
+#### 7.3.5 US-05: Set a Wallet as default (USER)
 
 ---
 
@@ -546,15 +663,15 @@ Allows Users to create and manage Wallets that represent different sources of mo
 
 Enables Users to define and manage Categories used to classify income and expense Transactions.
 
-#### 7.4.1 US-01: Create a Category [MVP]
+#### 7.4.1 US-01: Create a Category (USER) [MVP]
 
-#### 7.4.2 US-02: View a list of Categories [MVP]
+#### 7.4.2 US-02: View a list of Categories (USER) [MVP]
 
-#### 7.4.3 US-03: View a Category
+#### 7.4.3 US-03: View a Category (USER)
 
-#### 7.4.4 US-04: Update a Category
+#### 7.4.4 US-04: Update a Category (USER)
 
-#### 7.4.5 US-05: Delete a Category
+#### 7.4.5 US-05: Delete a Category (USER)
 
 ---
 
@@ -562,15 +679,15 @@ Enables Users to define and manage Categories used to classify income and expens
 
 Allows Users to plan and monitor spending by defining Budgets for specific Categories and Wallets.
 
-#### 7.5.1 US-01: Create a Budget for a Wallet [MVP]
+#### 7.5.1 US-01: Create a Budget for a Wallet (USER) [MVP]
 
-#### 7.5.2 US-02: View a list of Budgets [MVP]
+#### 7.5.2 US-02: View a list of Budgets (USER) [MVP]
 
-#### 7.5.3 US-03: View a Budget [MVP]
+#### 7.5.3 US-03: View a Budget (USER) [MVP]
 
-#### 7.5.4 US-04: Update a Budget
+#### 7.5.4 US-04: Update a Budget (USER)
 
-#### 7.5.5 US-05: Delete a Budget
+#### 7.5.5 US-05: Delete a Budget (USER)
 
 ---
 
@@ -578,7 +695,7 @@ Allows Users to plan and monitor spending by defining Budgets for specific Categ
 
 Enables Users to record, view, and manage income and expense Transactions associated with their Wallets.
 
-#### 7.6.1 US-01: Create a Transaction for a Wallet [MVP]
+#### 7.6.1 US-01: Create a Transaction for a Wallet (USER) [MVP]
 
 **As a** User, **I want to** create a transaction for a wallet **so that** I can track my income and expenses and keep wallet balance updated.
 
@@ -647,13 +764,13 @@ Scenario: Reject expense transaction when balance is insufficient (MVP rule)
    And the System shows error "Insufficient balance"
 ```
 
-#### 7.6.2 US-02: View a list of Transactions [MVP]
+#### 7.6.2 US-02: View a list of Transactions (USER) [MVP]
 
-#### 7.6.3 US-03: View a Transaction [MVP]
+#### 7.6.3 US-03: View a Transaction (USER) [MVP]
 
-#### 7.6.4 US-04: Update a Transaction
+#### 7.6.4 US-04: Update a Transaction (USER)
 
-#### 7.6.5 US-05: Delete a Transaction
+#### 7.6.5 US-05: Delete a Transaction (USER)
 
 ---
 
@@ -661,15 +778,15 @@ Scenario: Reject expense transaction when balance is insufficient (MVP rule)
 
 Provides Users with summarized financial information and reports to help them understand their overall financial situation.
 
-#### 7.7.1 US-01: View the Summary Report [MVP]
+#### 7.7.1 US-01: View the Summary Report (USER) [MVP]
 
-#### 7.7.2 US-02: View Income Report
+#### 7.7.2 US-02: View Income Report (USER)
 
-#### 7.7.3 US-03: View Expense Report
+#### 7.7.3 US-03: View Expense Report (USER)
 
-#### 7.7.4 US-04: Filter Reports by Date
+#### 7.7.4 US-04: Filter Reports by Date (USER)
 
-#### 7.7.5 US-05: Filter Reports by Wallet or Category
+#### 7.7.5 US-05: Filter Reports by Wallet or Category (USER)
 
 ---
 
@@ -677,15 +794,15 @@ Provides Users with summarized financial information and reports to help them un
 
 Allows Users to define financial Goals and track progress toward achieving them.
 
-#### 7.8.1 US-01: Create a Financial Goal
+#### 7.8.1 US-01: Create a Financial Goal (USER)
 
-#### 7.8.2 US-02: View a list of Financial Goals
+#### 7.8.2 US-02: View a list of Financial Goals (USER)
 
-#### 7.8.3 US-03: View a Financial Goal
+#### 7.8.3 US-03: View a Financial Goal (USER)
 
-#### 7.8.4 US-04: Update a Financial Goal
+#### 7.8.4 US-04: Update a Financial Goal (USER)
 
-#### 7.8.5 US-05: Close a Financial Goal
+#### 7.8.5 US-05: Close a Financial Goal (USER)
 
 ---
 
@@ -693,15 +810,15 @@ Allows Users to define financial Goals and track progress toward achieving them.
 
 Enables Users to record and monitor investment information inside their single Investment Portfolio (Investment Index) to get a basic performance overview.
 
-#### 7.9.1 US-01: View the Investment Portfolio
+#### 7.9.1 US-01: View the Investment Portfolio (USER)
 
-#### 7.9.2 US-02: Update the Investment Portfolio Settings
+#### 7.9.2 US-02: Update the Investment Portfolio Settings (USER)
 
-#### 7.9.3 US-03: Add a Holding to the Investment Portfolio
+#### 7.9.3 US-03: Add a Holding to the Investment Portfolio (USER)
 
-#### 7.9.4 US-04: Update a Holding
+#### 7.9.4 US-04: Update a Holding (USER)
 
-#### 7.9.5 US-05: Remove a Holding
+#### 7.9.5 US-05: Remove a Holding (USER)
 
 ---
 
@@ -709,11 +826,11 @@ Enables Users to record and monitor investment information inside their single I
 
 Informs Users about important financial events or system conditions through Notifications.
 
-#### 7.10.1 US-01: View the list of Notifications [MVP]
+#### 7.10.1 US-01: View the list of Notifications (USER) [MVP]
 
-#### 7.10.2 US-02: View a Notification [MVP]
+#### 7.10.2 US-02: View a Notification (USER) [MVP]
 
-#### 7.10.3 US-03: Mark a Notification as Read
+#### 7.10.3 US-03: Mark a Notification as Read (USER)
 
 ---
 
