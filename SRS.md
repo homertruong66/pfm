@@ -4,6 +4,7 @@
 | Version | Date | Author | Change |
 |---------|------|--------|--------|
 | 1.0 | 15-Jul-2026 | Homer Truong | Initial draft |
+| 1.1 | 19-Jul-2026 | Homer Truong | Reordered System Security/User Management and renamed Features/User Stories to abbreviation IDs (e.g. `SS-US-01`) across §7 |
 
 ---
 
@@ -57,59 +58,59 @@
   - [6.8 Supporting BF — Reporting and Dashboard](#68-supporting-bf--reporting-and-dashboard)
   - [6.9 Supporting BF — Notification Handling](#69-supporting-bf--notification-handling)
 - [7. Features and User Stories](#7-features-and-user-stories)
-  - [7.1 Feature-01: User Management](#71-feature-01-user-management)
-    - [7.1.1 US-01: Create a User (ADMIN)](#711-us-01-create-a-user-admin)
-    - [7.1.2 US-02: Update a User Profile (USER)](#712-us-02-update-a-user-profile-user)
-  - [7.2 Feature-02: System Security](#72-feature-02-system-security)
-    - [7.2.1 US-01: Login (ADMIN, USER) [MVP]](#721-us-01-login-admin-user-mvp)
-    - [7.2.2 US-02: Logout (ADMIN, USER) [MVP]](#722-us-02-logout-admin-user-mvp)
-  - [7.3 Feature-03: Wallet Management](#73-feature-03-wallet-management)
-    - [7.3.1 US-01: Create a Wallet (USER) [MVP]](#731-us-01-create-a-wallet-user-mvp)
-    - [7.3.2 US-02: View a list of Wallets (USER) [MVP]](#732-us-02-view-a-list-of-wallets-user-mvp)
-    - [7.3.3 US-03: View a Wallet (USER) [MVP]](#733-us-03-view-a-wallet-user-mvp)
-    - [7.3.4 US-04: Update a Wallet (USER)](#734-us-04-update-a-wallet-user)
-    - [7.3.5 US-05: Set a Wallet as default (USER)](#735-us-05-set-a-wallet-as-default-user)
-  - [7.4 Feature-04: Category Management](#74-feature-04-category-management)
-    - [7.4.1 US-01: Create a Category (USER) [MVP]](#741-us-01-create-a-category-user-mvp)
-    - [7.4.2 US-02: View a list of Categories (USER) [MVP]](#742-us-02-view-a-list-of-categories-user-mvp)
-    - [7.4.3 US-03: View a Category (USER)](#743-us-03-view-a-category-user)
-    - [7.4.4 US-04: Update a Category (USER)](#744-us-04-update-a-category-user)
-    - [7.4.5 US-05: Delete a Category (USER)](#745-us-05-delete-a-category-user)
-  - [7.5 Feature-05: Budget Management](#75-feature-05-budget-management)
-    - [7.5.1 US-01: Create a Budget for a Wallet (USER) [MVP]](#751-us-01-create-a-budget-for-a-wallet-user-mvp)
-    - [7.5.2 US-02: View a list of Budgets (USER) [MVP]](#752-us-02-view-a-list-of-budgets-user-mvp)
-    - [7.5.3 US-03: View a Budget (USER) [MVP]](#753-us-03-view-a-budget-user-mvp)
-    - [7.5.4 US-04: Update a Budget (USER)](#754-us-04-update-a-budget-user)
-    - [7.5.5 US-05: Delete a Budget (USER)](#755-us-05-delete-a-budget-user)
-  - [7.6 Feature-06: Transaction Management](#76-feature-06-transaction-management)
-    - [7.6.1 US-01: Create a Transaction for a Wallet (USER) [MVP]](#761-us-01-create-a-transaction-for-a-wallet-user-mvp)
-    - [7.6.2 US-02: View a list of Transactions (USER) [MVP]](#762-us-02-view-a-list-of-transactions-user-mvp)
-    - [7.6.3 US-03: View a Transaction (USER) [MVP]](#763-us-03-view-a-transaction-user-mvp)
-    - [7.6.4 US-04: Update a Transaction (USER)](#764-us-04-update-a-transaction-user)
-    - [7.6.5 US-05: Delete a Transaction (USER)](#765-us-05-delete-a-transaction-user)
-  - [7.7 Feature-07: Financial Reporting](#77-feature-07-financial-reporting)
-    - [7.7.1 US-01: View the Summary Report (USER) [MVP]](#771-us-01-view-the-summary-report-user-mvp)
-    - [7.7.2 US-02: View Income Report (USER)](#772-us-02-view-income-report-user)
-    - [7.7.3 US-03: View Expense Report (USER)](#773-us-03-view-expense-report-user)
-    - [7.7.4 US-04: Filter Reports by Date (USER)](#774-us-04-filter-reports-by-date-user)
-    - [7.7.5 US-05: Filter Reports by Wallet or Category (USER)](#775-us-05-filter-reports-by-wallet-or-category-user)
-  - [7.8 Feature-08: Financial Goal](#78-feature-08-financial-goal)
-    - [7.8.1 US-01: Create a Financial Goal (USER)](#781-us-01-create-a-financial-goal-user)
-    - [7.8.2 US-02: View a list of Financial Goals (USER)](#782-us-02-view-a-list-of-financial-goals-user)
-    - [7.8.3 US-03: View a Financial Goal (USER)](#783-us-03-view-a-financial-goal-user)
-    - [7.8.4 US-04: Update a Financial Goal (USER)](#784-us-04-update-a-financial-goal-user)
-    - [7.8.5 US-05: Close a Financial Goal (USER)](#785-us-05-close-a-financial-goal-user)
-  - [7.9 Feature-09: Investment Portfolio](#79-feature-09-investment-portfolio)
-    - [7.9.1 US-01: View the Investment Portfolio (USER)](#791-us-01-view-the-investment-portfolio-user)
-    - [7.9.2 US-02: Update the Investment Portfolio Settings (USER)](#792-us-02-update-the-investment-portfolio-settings-user)
-    - [7.9.3 US-03: Add a Holding to the Investment Portfolio (USER)](#793-us-03-add-a-holding-to-the-investment-portfolio-user)
-    - [7.9.4 US-04: Update a Holding (USER)](#794-us-04-update-a-holding-user)
-    - [7.9.5 US-05: Remove a Holding (USER)](#795-us-05-remove-a-holding-user)
-  - [7.10 Feature-10: Notification Handling](#710-feature-10-notification-handling)
-    - [7.10.1 US-01: View the list of Notifications (USER) [MVP]](#7101-us-01-view-the-list-of-notifications-user-mvp)
-    - [7.10.2 US-02: View a Notification (USER) [MVP]](#7102-us-02-view-a-notification-user-mvp)
-    - [7.10.3 US-03: Mark a Notification as Read (USER)](#7103-us-03-mark-a-notification-as-read-user)
-  - [7.11 Feature-11: Data Overview Dashboard](#711-feature-11-data-overview-dashboard)
+  - [7.1 System Security (SS)](#71-system-security-ss)
+    - [7.1.1 SS-US-01: Login (ADMIN, USER) [MVP]](#711-ss-us-01-login-admin-user-mvp)
+    - [7.1.2 SS-US-02: Logout (ADMIN, USER) [MVP]](#712-ss-us-02-logout-admin-user-mvp)
+  - [7.2 User Management (UM)](#72-user-management-um)
+    - [7.2.1 UM-US-01: Create a User (ADMIN)](#721-um-us-01-create-a-user-admin)
+    - [7.2.2 UM-US-02: Update a User Profile (USER)](#722-um-us-02-update-a-user-profile-user)
+  - [7.3 Wallet Management (WM)](#73-wallet-management-wm)
+    - [7.3.1 WM-US-01: Create a Wallet (USER) [MVP]](#731-wm-us-01-create-a-wallet-user-mvp)
+    - [7.3.2 WM-US-02: View a list of Wallets (USER) [MVP]](#732-wm-us-02-view-a-list-of-wallets-user-mvp)
+    - [7.3.3 WM-US-03: View a Wallet (USER) [MVP]](#733-wm-us-03-view-a-wallet-user-mvp)
+    - [7.3.4 WM-US-04: Update a Wallet (USER)](#734-wm-us-04-update-a-wallet-user)
+    - [7.3.5 WM-US-05: Set a Wallet as default (USER)](#735-wm-us-05-set-a-wallet-as-default-user)
+  - [7.4 Category Management (CM)](#74-category-management-cm)
+    - [7.4.1 CM-US-01: Create a Category (USER) [MVP]](#741-cm-us-01-create-a-category-user-mvp)
+    - [7.4.2 CM-US-02: View a list of Categories (USER) [MVP]](#742-cm-us-02-view-a-list-of-categories-user-mvp)
+    - [7.4.3 CM-US-03: View a Category (USER)](#743-cm-us-03-view-a-category-user)
+    - [7.4.4 CM-US-04: Update a Category (USER)](#744-cm-us-04-update-a-category-user)
+    - [7.4.5 CM-US-05: Delete a Category (USER)](#745-cm-us-05-delete-a-category-user)
+  - [7.5 Budget Management (BM)](#75-budget-management-bm)
+    - [7.5.1 BM-US-01: Create a Budget for a Wallet (USER) [MVP]](#751-bm-us-01-create-a-budget-for-a-wallet-user-mvp)
+    - [7.5.2 BM-US-02: View a list of Budgets (USER) [MVP]](#752-bm-us-02-view-a-list-of-budgets-user-mvp)
+    - [7.5.3 BM-US-03: View a Budget (USER) [MVP]](#753-bm-us-03-view-a-budget-user-mvp)
+    - [7.5.4 BM-US-04: Update a Budget (USER)](#754-bm-us-04-update-a-budget-user)
+    - [7.5.5 BM-US-05: Delete a Budget (USER)](#755-bm-us-05-delete-a-budget-user)
+  - [7.6 Transaction Management (TM)](#76-transaction-management-tm)
+    - [7.6.1 TM-US-01: Create a Transaction for a Wallet (USER) [MVP]](#761-tm-us-01-create-a-transaction-for-a-wallet-user-mvp)
+    - [7.6.2 TM-US-02: View a list of Transactions (USER) [MVP]](#762-tm-us-02-view-a-list-of-transactions-user-mvp)
+    - [7.6.3 TM-US-03: View a Transaction (USER) [MVP]](#763-tm-us-03-view-a-transaction-user-mvp)
+    - [7.6.4 TM-US-04: Update a Transaction (USER)](#764-tm-us-04-update-a-transaction-user)
+    - [7.6.5 TM-US-05: Delete a Transaction (USER)](#765-tm-us-05-delete-a-transaction-user)
+  - [7.7 Financial Reporting (RPT)](#77-financial-reporting-rpt)
+    - [7.7.1 RPT-US-01: View the Summary Report (USER) [MVP]](#771-rpt-us-01-view-the-summary-report-user-mvp)
+    - [7.7.2 RPT-US-02: View Income Report (USER)](#772-rpt-us-02-view-income-report-user)
+    - [7.7.3 RPT-US-03: View Expense Report (USER)](#773-rpt-us-03-view-expense-report-user)
+    - [7.7.4 RPT-US-04: Filter Reports by Date (USER)](#774-rpt-us-04-filter-reports-by-date-user)
+    - [7.7.5 RPT-US-05: Filter Reports by Wallet or Category (USER)](#775-rpt-us-05-filter-reports-by-wallet-or-category-user)
+  - [7.8 Financial Goal (FG)](#78-financial-goal-fg)
+    - [7.8.1 FG-US-01: Create a Financial Goal (USER)](#781-fg-us-01-create-a-financial-goal-user)
+    - [7.8.2 FG-US-02: View a list of Financial Goals (USER)](#782-fg-us-02-view-a-list-of-financial-goals-user)
+    - [7.8.3 FG-US-03: View a Financial Goal (USER)](#783-fg-us-03-view-a-financial-goal-user)
+    - [7.8.4 FG-US-04: Update a Financial Goal (USER)](#784-fg-us-04-update-a-financial-goal-user)
+    - [7.8.5 FG-US-05: Close a Financial Goal (USER)](#785-fg-us-05-close-a-financial-goal-user)
+  - [7.9 Investment Portfolio (IP)](#79-investment-portfolio-ip)
+    - [7.9.1 IP-US-01: View the Investment Portfolio (USER)](#791-ip-us-01-view-the-investment-portfolio-user)
+    - [7.9.2 IP-US-02: Update the Investment Portfolio Settings (USER)](#792-ip-us-02-update-the-investment-portfolio-settings-user)
+    - [7.9.3 IP-US-03: Add a Holding to the Investment Portfolio (USER)](#793-ip-us-03-add-a-holding-to-the-investment-portfolio-user)
+    - [7.9.4 IP-US-04: Update a Holding (USER)](#794-ip-us-04-update-a-holding-user)
+    - [7.9.5 IP-US-05: Remove a Holding (USER)](#795-ip-us-05-remove-a-holding-user)
+  - [7.10 Notification Handling (NH)](#710-notification-handling-nh)
+    - [7.10.1 NH-US-01: View the list of Notifications (USER) [MVP]](#7101-nh-us-01-view-the-list-of-notifications-user-mvp)
+    - [7.10.2 NH-US-02: View a Notification (USER) [MVP]](#7102-nh-us-02-view-a-notification-user-mvp)
+    - [7.10.3 NH-US-03: Mark a Notification as Read (USER)](#7103-nh-us-03-mark-a-notification-as-read-user)
+  - [7.11 Data Overview Dashboard (DOD)](#711-data-overview-dashboard-dod)
   - [Feature-level Release (Overview)](#feature-level-release-overview)
 - [8. External Dependencies](#8-external-dependencies)
   - [8.1 Third-Party APIs](#81-third-party-apis)
@@ -591,11 +592,21 @@ This flow describes how the System communicates important events.
 
 ---
 
-### 7.1 Feature-01: User Management
+### 7.1 System Security (SS)
+
+Ensures secure access to the System by allowing Users to log in and log out safely, protecting personal financial data. Moreover, each User is authorized to see only his/her financial data.
+
+#### 7.1.1 SS-US-01: Login (ADMIN, USER) [MVP]
+
+#### 7.1.2 SS-US-02: Logout (ADMIN, USER) [MVP]
+
+---
+
+### 7.2 User Management (UM)
 
 Provides User account provisioning by the ADMIN and profile management by the User. There is no self-service registration (§1.6 Out of Scope) — a User account can only be created by the ADMIN.
 
-#### 7.1.1 US-01: Create a User (ADMIN)
+#### 7.2.1 UM-US-01: Create a User (ADMIN)
 
 **As an** ADMIN, **I want to** create a new User account for a family member **so that** they can log in and use the PFM application.
 
@@ -629,73 +640,63 @@ Scenario: Reject creation when account already exists
     And the System shows error "Account already exists"
 ```
 
-#### 7.1.2 US-02: Update a User Profile (USER)
+#### 7.2.2 UM-US-02: Update a User Profile (USER)
 
 ---
 
-### 7.2 Feature-02: System Security
-
-Ensures secure access to the System by allowing Users to log in and log out safely, protecting personal financial data. Moreover, each User is authorized to see only his/her financial data.
-
-#### 7.2.1 US-01: Login (ADMIN, USER) [MVP]
-
-#### 7.2.2 US-02: Logout (ADMIN, USER) [MVP]
-
----
-
-### 7.3 Feature-03: Wallet Management
+### 7.3 Wallet Management (WM)
 
 Allows Users to create and manage Wallets that represent different sources of money and view current balances.
 
-#### 7.3.1 US-01: Create a Wallet (USER) [MVP]
+#### 7.3.1 WM-US-01: Create a Wallet (USER) [MVP]
 
-#### 7.3.2 US-02: View a list of Wallets (USER) [MVP]
+#### 7.3.2 WM-US-02: View a list of Wallets (USER) [MVP]
 
-#### 7.3.3 US-03: View a Wallet (USER) [MVP]
+#### 7.3.3 WM-US-03: View a Wallet (USER) [MVP]
 
-#### 7.3.4 US-04: Update a Wallet (USER)
+#### 7.3.4 WM-US-04: Update a Wallet (USER)
 
-#### 7.3.5 US-05: Set a Wallet as default (USER)
+#### 7.3.5 WM-US-05: Set a Wallet as default (USER)
 
 ---
 
-### 7.4 Feature-04: Category Management
+### 7.4 Category Management (CM)
 
 Enables Users to define and manage Categories used to classify income and expense Transactions.
 
-#### 7.4.1 US-01: Create a Category (USER) [MVP]
+#### 7.4.1 CM-US-01: Create a Category (USER) [MVP]
 
-#### 7.4.2 US-02: View a list of Categories (USER) [MVP]
+#### 7.4.2 CM-US-02: View a list of Categories (USER) [MVP]
 
-#### 7.4.3 US-03: View a Category (USER)
+#### 7.4.3 CM-US-03: View a Category (USER)
 
-#### 7.4.4 US-04: Update a Category (USER)
+#### 7.4.4 CM-US-04: Update a Category (USER)
 
-#### 7.4.5 US-05: Delete a Category (USER)
+#### 7.4.5 CM-US-05: Delete a Category (USER)
 
 ---
 
-### 7.5 Feature-05: Budget Management
+### 7.5 Budget Management (BM)
 
 Allows Users to plan and monitor spending by defining Budgets for specific Categories and Wallets.
 
-#### 7.5.1 US-01: Create a Budget for a Wallet (USER) [MVP]
+#### 7.5.1 BM-US-01: Create a Budget for a Wallet (USER) [MVP]
 
-#### 7.5.2 US-02: View a list of Budgets (USER) [MVP]
+#### 7.5.2 BM-US-02: View a list of Budgets (USER) [MVP]
 
-#### 7.5.3 US-03: View a Budget (USER) [MVP]
+#### 7.5.3 BM-US-03: View a Budget (USER) [MVP]
 
-#### 7.5.4 US-04: Update a Budget (USER)
+#### 7.5.4 BM-US-04: Update a Budget (USER)
 
-#### 7.5.5 US-05: Delete a Budget (USER)
+#### 7.5.5 BM-US-05: Delete a Budget (USER)
 
 ---
 
-### 7.6 Feature-06: Transaction Management
+### 7.6 Transaction Management (TM)
 
 Enables Users to record, view, and manage income and expense Transactions associated with their Wallets.
 
-#### 7.6.1 US-01: Create a Transaction for a Wallet (USER) [MVP]
+#### 7.6.1 TM-US-01: Create a Transaction for a Wallet (USER) [MVP]
 
 **As a** User, **I want to** create a transaction for a wallet **so that** I can track my income and expenses and keep wallet balance updated.
 
@@ -764,77 +765,77 @@ Scenario: Reject expense transaction when balance is insufficient (MVP rule)
    And the System shows error "Insufficient balance"
 ```
 
-#### 7.6.2 US-02: View a list of Transactions (USER) [MVP]
+#### 7.6.2 TM-US-02: View a list of Transactions (USER) [MVP]
 
-#### 7.6.3 US-03: View a Transaction (USER) [MVP]
+#### 7.6.3 TM-US-03: View a Transaction (USER) [MVP]
 
-#### 7.6.4 US-04: Update a Transaction (USER)
+#### 7.6.4 TM-US-04: Update a Transaction (USER)
 
-#### 7.6.5 US-05: Delete a Transaction (USER)
+#### 7.6.5 TM-US-05: Delete a Transaction (USER)
 
 ---
 
-### 7.7 Feature-07: Financial Reporting
+### 7.7 Financial Reporting (RPT)
 
 Provides Users with summarized financial information and reports to help them understand their overall financial situation.
 
-#### 7.7.1 US-01: View the Summary Report (USER) [MVP]
+#### 7.7.1 RPT-US-01: View the Summary Report (USER) [MVP]
 
-#### 7.7.2 US-02: View Income Report (USER)
+#### 7.7.2 RPT-US-02: View Income Report (USER)
 
-#### 7.7.3 US-03: View Expense Report (USER)
+#### 7.7.3 RPT-US-03: View Expense Report (USER)
 
-#### 7.7.4 US-04: Filter Reports by Date (USER)
+#### 7.7.4 RPT-US-04: Filter Reports by Date (USER)
 
-#### 7.7.5 US-05: Filter Reports by Wallet or Category (USER)
+#### 7.7.5 RPT-US-05: Filter Reports by Wallet or Category (USER)
 
 ---
 
-### 7.8 Feature-08: Financial Goal
+### 7.8 Financial Goal (FG)
 
 Allows Users to define financial Goals and track progress toward achieving them.
 
-#### 7.8.1 US-01: Create a Financial Goal (USER)
+#### 7.8.1 FG-US-01: Create a Financial Goal (USER)
 
-#### 7.8.2 US-02: View a list of Financial Goals (USER)
+#### 7.8.2 FG-US-02: View a list of Financial Goals (USER)
 
-#### 7.8.3 US-03: View a Financial Goal (USER)
+#### 7.8.3 FG-US-03: View a Financial Goal (USER)
 
-#### 7.8.4 US-04: Update a Financial Goal (USER)
+#### 7.8.4 FG-US-04: Update a Financial Goal (USER)
 
-#### 7.8.5 US-05: Close a Financial Goal (USER)
+#### 7.8.5 FG-US-05: Close a Financial Goal (USER)
 
 ---
 
-### 7.9 Feature-09: Investment Portfolio
+### 7.9 Investment Portfolio (IP)
 
 Enables Users to record and monitor investment information inside their single Investment Portfolio (Investment Index) to get a basic performance overview.
 
-#### 7.9.1 US-01: View the Investment Portfolio (USER)
+#### 7.9.1 IP-US-01: View the Investment Portfolio (USER)
 
-#### 7.9.2 US-02: Update the Investment Portfolio Settings (USER)
+#### 7.9.2 IP-US-02: Update the Investment Portfolio Settings (USER)
 
-#### 7.9.3 US-03: Add a Holding to the Investment Portfolio (USER)
+#### 7.9.3 IP-US-03: Add a Holding to the Investment Portfolio (USER)
 
-#### 7.9.4 US-04: Update a Holding (USER)
+#### 7.9.4 IP-US-04: Update a Holding (USER)
 
-#### 7.9.5 US-05: Remove a Holding (USER)
+#### 7.9.5 IP-US-05: Remove a Holding (USER)
 
 ---
 
-### 7.10 Feature-10: Notification Handling
+### 7.10 Notification Handling (NH)
 
 Informs Users about important financial events or system conditions through Notifications.
 
-#### 7.10.1 US-01: View the list of Notifications (USER) [MVP]
+#### 7.10.1 NH-US-01: View the list of Notifications (USER) [MVP]
 
-#### 7.10.2 US-02: View a Notification (USER) [MVP]
+#### 7.10.2 NH-US-02: View a Notification (USER) [MVP]
 
-#### 7.10.3 US-03: Mark a Notification as Read (USER)
+#### 7.10.3 NH-US-03: Mark a Notification as Read (USER)
 
 ---
 
-### 7.11 Feature-11: Data Overview Dashboard
+### 7.11 Data Overview Dashboard (DOD)
 
 ---
 
@@ -845,8 +846,8 @@ The MVP includes eight core features to ensure a usable and valuable first relea
 
 | No. | Feature | MVP | Release 1 | Release 2 | Note |
 |-----|---------|-----|-----------|-----------|------|
-| 1 | User Management | ✔ | ✔ | ✔ | Core user identity and profile management |
-| 2 | System Security | ✔ | ✔ | ✔ | Authentication, authorization, and data protection |
+| 1 | System Security | ✔ | ✔ | ✔ | Authentication, authorization, and data protection |
+| 2 | User Management | ✔ | ✔ | ✔ | Core user identity and profile management |
 | 3 | Wallet Management | ✔ | ✔ | ✔ | Core financial structure |
 | 4 | Category Management | ✔ | ✔ | | Basic categorization is sufficient for early stages |
 | 5 | Budget Management | ✔ | ✔ | ✔ | Essential for spending control and planning |

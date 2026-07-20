@@ -4,6 +4,7 @@
 | Version | Date | Author | Change |
 |---------|------|--------|--------|
 | 1.0 | 15-Jul-2026 | Homer Truong | Initial draft |
+| 1.1 | 19-Jul-2026 | Homer Truong | Reordered System Security/User Management, renamed Features/User Stories to abbreviation IDs (e.g. `SS-US-01`), and filled in §2 Domain Model (attributes, relationships, STDs, `Role` entity), §3 UI Design, and §4.3.3 Database Design |
 
 ---
 
@@ -30,6 +31,7 @@
     - [2.2.8 Asset](#228-asset)
     - [2.2.9 Holding](#229-holding)
     - [2.2.10 Notification](#2210-notification)
+    - [2.2.11 Role](#2211-role)
   - [2.3 Domain Object Relationships](#23-domain-object-relationships)
   - [2.4 Domain Object State Transition Diagram (STD)](#24-domain-object-state-transition-diagram-std)
 - [3. UI Design](#3-ui-design)
@@ -48,59 +50,59 @@
   - [4.6 Key Scenarios](#46-key-scenarios)
   - [4.7 Architecture Principles](#47-architecture-principles)
 - [5. Product Features and User Story Specification](#5-product-features-and-user-story-specification)
-  - [5.1 Feature-01: User Management](#51-feature-01-user-management)
-    - [5.1.1 US-01-01: Create a User (ADMIN)](#511-us-01-01-create-a-user-admin)
-    - [5.1.2 US-01-02: Update a User Profile (USER)](#512-us-01-02-update-a-user-profile-user)
-  - [5.2 Feature-02: System Security](#52-feature-02-system-security)
-    - [5.2.1 US-02-01: Login (ADMIN, USER)](#521-us-02-01-login-admin-user)
-    - [5.2.2 US-02-02: Logout (ADMIN, USER)](#522-us-02-02-logout-admin-user)
-  - [5.3 Feature-03: Wallet Management](#53-feature-03-wallet-management)
-    - [5.3.1 US-03-01: Create a Wallet (USER)](#531-us-03-01-create-a-wallet-user)
-    - [5.3.2 US-03-02: View a list of Wallets (USER)](#532-us-03-02-view-a-list-of-wallets-user)
-    - [5.3.3 US-03-03: View a Wallet (USER)](#533-us-03-03-view-a-wallet-user)
-    - [5.3.4 US-03-04: Update a Wallet (USER)](#534-us-03-04-update-a-wallet-user)
-    - [5.3.5 US-03-05: Set a Wallet as default (USER)](#535-us-03-05-set-a-wallet-as-default-user)
-  - [5.4 Feature-04: Category Management](#54-feature-04-category-management)
-    - [5.4.1 US-04-01: Create a Category (USER)](#541-us-04-01-create-a-category-user)
-    - [5.4.2 US-04-02: View a list of Categories (USER)](#542-us-04-02-view-a-list-of-categories-user)
-    - [5.4.3 US-04-03: View a Category (USER)](#543-us-04-03-view-a-category-user)
-    - [5.4.4 US-04-04: Update a Category (USER)](#544-us-04-04-update-a-category-user)
-    - [5.4.5 US-04-05: Delete a Category (USER)](#545-us-04-05-delete-a-category-user)
-  - [5.5 Feature-05: Budget Management](#55-feature-05-budget-management)
-    - [5.5.1 US-05-01: Create a Budget for a Wallet (USER)](#551-us-05-01-create-a-budget-for-a-wallet-user)
-    - [5.5.2 US-05-02: View a list of Budgets (USER)](#552-us-05-02-view-a-list-of-budgets-user)
-    - [5.5.3 US-05-03: View a Budget (USER)](#553-us-05-03-view-a-budget-user)
-    - [5.5.4 US-05-04: Update a Budget (USER)](#554-us-05-04-update-a-budget-user)
-    - [5.5.5 US-05-05: Delete a Budget (USER)](#555-us-05-05-delete-a-budget-user)
-  - [5.6 Feature-06: Transaction Management](#56-feature-06-transaction-management)
-    - [5.6.1 US-06-01: Create a Transaction for a Wallet (USER)](#561-us-06-01-create-a-transaction-for-a-wallet-user)
-    - [5.6.2 US-06-02: View a list of Transactions (USER)](#562-us-06-02-view-a-list-of-transactions-user)
-    - [5.6.3 US-06-03: View a Transaction (USER)](#563-us-06-03-view-a-transaction-user)
-    - [5.6.4 US-06-04: Update a Transaction (USER)](#564-us-06-04-update-a-transaction-user)
-    - [5.6.5 US-06-05: Delete a Transaction (USER)](#565-us-06-05-delete-a-transaction-user)
-  - [5.7 Feature-07: Financial Reporting](#57-feature-07-financial-reporting)
-    - [5.7.1 US-07-01: View the Summary Report (USER)](#571-us-07-01-view-the-summary-report-user)
-    - [5.7.2 US-07-02: View Income Report (USER)](#572-us-07-02-view-income-report-user)
-    - [5.7.3 US-07-03: View Expense Report (USER)](#573-us-07-03-view-expense-report-user)
-    - [5.7.4 US-07-04: Filter Reports by Date (USER)](#574-us-07-04-filter-reports-by-date-user)
-    - [5.7.5 US-07-05: Filter Reports by Wallet or Category (USER)](#575-us-07-05-filter-reports-by-wallet-or-category-user)
-  - [5.8 Feature-08: Financial Goal](#58-feature-08-financial-goal)
-    - [5.8.1 US-08-01: Create a Financial Goal (USER)](#581-us-08-01-create-a-financial-goal-user)
-    - [5.8.2 US-08-02: View a list of Financial Goals (USER)](#582-us-08-02-view-a-list-of-financial-goals-user)
-    - [5.8.3 US-08-03: View a Financial Goal (USER)](#583-us-08-03-view-a-financial-goal-user)
-    - [5.8.4 US-08-04: Update a Financial Goal (USER)](#584-us-08-04-update-a-financial-goal-user)
-    - [5.8.5 US-08-05: Close a Financial Goal (USER)](#585-us-08-05-close-a-financial-goal-user)
-  - [5.9 Feature-09: Investment Portfolio](#59-feature-09-investment-portfolio)
-    - [5.9.1 US-09-01: View the Investment Portfolio (USER)](#591-us-09-01-view-the-investment-portfolio-user)
-    - [5.9.2 US-09-02: Update the Investment Portfolio Settings (USER)](#592-us-09-02-update-the-investment-portfolio-settings-user)
-    - [5.9.3 US-09-03: Add a Holding to the Investment Portfolio (USER)](#593-us-09-03-add-a-holding-to-the-investment-portfolio-user)
-    - [5.9.4 US-09-04: Update a Holding (USER)](#594-us-09-04-update-a-holding-user)
-    - [5.9.5 US-09-05: Remove a Holding (USER)](#595-us-09-05-remove-a-holding-user)
-  - [5.10 Feature-10: Notification Handling](#510-feature-10-notification-handling)
-    - [5.10.1 US-10-01: View the list of Notifications (USER)](#5101-us-10-01-view-the-list-of-notifications-user)
-    - [5.10.2 US-10-02: View a Notification (USER)](#5102-us-10-02-view-a-notification-user)
-    - [5.10.3 US-10-03: Mark a Notification as Read (USER)](#5103-us-10-03-mark-a-notification-as-read-user)
-  - [5.11 Feature-11: Data Overview Dashboard](#511-feature-11-data-overview-dashboard)
+  - [5.1 System Security (SS)](#51-system-security-ss)
+    - [5.1.1 SS-US-01: Login (ADMIN, USER)](#511-ss-us-01-login-admin-user)
+    - [5.1.2 SS-US-02: Logout (ADMIN, USER)](#512-ss-us-02-logout-admin-user)
+  - [5.2 User Management (UM)](#52-user-management-um)
+    - [5.2.1 UM-US-01: Create a User (ADMIN)](#521-um-us-01-create-a-user-admin)
+    - [5.2.2 UM-US-02: Update a User Profile (USER)](#522-um-us-02-update-a-user-profile-user)
+  - [5.3 Wallet Management (WM)](#53-wallet-management-wm)
+    - [5.3.1 WM-US-01: Create a Wallet (USER)](#531-wm-us-01-create-a-wallet-user)
+    - [5.3.2 WM-US-02: View a list of Wallets (USER)](#532-wm-us-02-view-a-list-of-wallets-user)
+    - [5.3.3 WM-US-03: View a Wallet (USER)](#533-wm-us-03-view-a-wallet-user)
+    - [5.3.4 WM-US-04: Update a Wallet (USER)](#534-wm-us-04-update-a-wallet-user)
+    - [5.3.5 WM-US-05: Set a Wallet as default (USER)](#535-wm-us-05-set-a-wallet-as-default-user)
+  - [5.4 Category Management (CM)](#54-category-management-cm)
+    - [5.4.1 CM-US-01: Create a Category (USER)](#541-cm-us-01-create-a-category-user)
+    - [5.4.2 CM-US-02: View a list of Categories (USER)](#542-cm-us-02-view-a-list-of-categories-user)
+    - [5.4.3 CM-US-03: View a Category (USER)](#543-cm-us-03-view-a-category-user)
+    - [5.4.4 CM-US-04: Update a Category (USER)](#544-cm-us-04-update-a-category-user)
+    - [5.4.5 CM-US-05: Delete a Category (USER)](#545-cm-us-05-delete-a-category-user)
+  - [5.5 Budget Management (BM)](#55-budget-management-bm)
+    - [5.5.1 BM-US-01: Create a Budget for a Wallet (USER)](#551-bm-us-01-create-a-budget-for-a-wallet-user)
+    - [5.5.2 BM-US-02: View a list of Budgets (USER)](#552-bm-us-02-view-a-list-of-budgets-user)
+    - [5.5.3 BM-US-03: View a Budget (USER)](#553-bm-us-03-view-a-budget-user)
+    - [5.5.4 BM-US-04: Update a Budget (USER)](#554-bm-us-04-update-a-budget-user)
+    - [5.5.5 BM-US-05: Delete a Budget (USER)](#555-bm-us-05-delete-a-budget-user)
+  - [5.6 Transaction Management (TM)](#56-transaction-management-tm)
+    - [5.6.1 TM-US-01: Create a Transaction for a Wallet (USER)](#561-tm-us-01-create-a-transaction-for-a-wallet-user)
+    - [5.6.2 TM-US-02: View a list of Transactions (USER)](#562-tm-us-02-view-a-list-of-transactions-user)
+    - [5.6.3 TM-US-03: View a Transaction (USER)](#563-tm-us-03-view-a-transaction-user)
+    - [5.6.4 TM-US-04: Update a Transaction (USER)](#564-tm-us-04-update-a-transaction-user)
+    - [5.6.5 TM-US-05: Delete a Transaction (USER)](#565-tm-us-05-delete-a-transaction-user)
+  - [5.7 Financial Reporting (RPT)](#57-financial-reporting-rpt)
+    - [5.7.1 RPT-US-01: View the Summary Report (USER)](#571-rpt-us-01-view-the-summary-report-user)
+    - [5.7.2 RPT-US-02: View Income Report (USER)](#572-rpt-us-02-view-income-report-user)
+    - [5.7.3 RPT-US-03: View Expense Report (USER)](#573-rpt-us-03-view-expense-report-user)
+    - [5.7.4 RPT-US-04: Filter Reports by Date (USER)](#574-rpt-us-04-filter-reports-by-date-user)
+    - [5.7.5 RPT-US-05: Filter Reports by Wallet or Category (USER)](#575-rpt-us-05-filter-reports-by-wallet-or-category-user)
+  - [5.8 Financial Goal (FG)](#58-financial-goal-fg)
+    - [5.8.1 FG-US-01: Create a Financial Goal (USER)](#581-fg-us-01-create-a-financial-goal-user)
+    - [5.8.2 FG-US-02: View a list of Financial Goals (USER)](#582-fg-us-02-view-a-list-of-financial-goals-user)
+    - [5.8.3 FG-US-03: View a Financial Goal (USER)](#583-fg-us-03-view-a-financial-goal-user)
+    - [5.8.4 FG-US-04: Update a Financial Goal (USER)](#584-fg-us-04-update-a-financial-goal-user)
+    - [5.8.5 FG-US-05: Close a Financial Goal (USER)](#585-fg-us-05-close-a-financial-goal-user)
+  - [5.9 Investment Portfolio (IP)](#59-investment-portfolio-ip)
+    - [5.9.1 IP-US-01: View the Investment Portfolio (USER)](#591-ip-us-01-view-the-investment-portfolio-user)
+    - [5.9.2 IP-US-02: Update the Investment Portfolio Settings (USER)](#592-ip-us-02-update-the-investment-portfolio-settings-user)
+    - [5.9.3 IP-US-03: Add a Holding to the Investment Portfolio (USER)](#593-ip-us-03-add-a-holding-to-the-investment-portfolio-user)
+    - [5.9.4 IP-US-04: Update a Holding (USER)](#594-ip-us-04-update-a-holding-user)
+    - [5.9.5 IP-US-05: Remove a Holding (USER)](#595-ip-us-05-remove-a-holding-user)
+  - [5.10 Notification Handling (NH)](#510-notification-handling-nh)
+    - [5.10.1 NH-US-01: View the list of Notifications (USER)](#5101-nh-us-01-view-the-list-of-notifications-user)
+    - [5.10.2 NH-US-02: View a Notification (USER)](#5102-nh-us-02-view-a-notification-user)
+    - [5.10.3 NH-US-03: Mark a Notification as Read (USER)](#5103-nh-us-03-mark-a-notification-as-read-user)
+  - [5.11 Data Overview Dashboard (DOD)](#511-data-overview-dashboard-dod)
 - [6. API Design](#6-api-design)
   - [6.1 API Design Standards](#61-api-design-standards)
   - [6.2 Data Transfer Objects (DTOs) & Domain Mapping](#62-data-transfer-objects-dtos--domain-mapping)
@@ -147,13 +149,13 @@
 
 ### 1.1 Purpose
 
-This document defines the Software Design Specification (SDS) for the Personal Finance Management (PFM) system.
+This document defines the **Software Design Specification (SDS)** for the Personal Finance Management (PFM) system.
 The purpose of this document is to describe how the PFM product is designed to satisfy the requirements defined in the SRS, following structures and practices commonly used in real-world software projects.
 
 ### 1.2 Scope
 
 This SDS describes the design of the PFM product as a whole, independent of a specific release. The design is intended to evolve across multiple releases.
-Within the KPITAI course, learners will implement an MVP subset of this design for learning purposes, while the SDS remains the reference design for future extensions.
+Within this course, learners will implement an MVP subset of this design for learning purposes, while the SDS remains the reference design for future extensions.
 
 ### 1.3 Assumptions and Constraints
 
@@ -183,15 +185,16 @@ Within the KPITAI course, learners will implement an MVP subset of this design f
 
 | Document | Location | Purpose |
 |----------|----------|---------|
-| SRS | {path or URL} | Software Requirements Specification |
-| RUNBOOK | {path or URL} | Operational guide — setup, deployment, troubleshooting |
+| SRS | [SRS.md](SRS.md) | Software Requirements Specification — product requirements, Conceptual Domain Model, and Features/User Stories this design implements |
+| RUNBOOK | [RUNBOOK.md](RUNBOOK.md) | Operational guide — setup, deployment, troubleshooting |
 
 ---
 
 ## 2. Technical Domain Model
 
 > This section is the **technical implementation** of the Conceptual Domain Model in **SRS §2**.
-> Every entity in SRS §2.2 MUST have a corresponding Domain Object here. Any class introduced
+
+> Every **Domain Entity** in SRS §2.2 MUST have a corresponding **Domain Object** here. Any class introduced
 > for purely technical reasons (e.g., audit records, session tokens) must be marked
 > "Technical-Only" in §2.0 and has no SRS counterpart.
 >
@@ -199,17 +202,17 @@ Within the KPITAI course, learners will implement an MVP subset of this design f
 > Domain Object describe the in-memory shape; the Physical Schema describes storage.
 >
 > **Sync obligation:** when SRS §2 is amended, this section MUST be updated in the same PR.
-> **Last synced with SRS §2:** {YYYY-MM-DD}
+> **Last synced with SRS §2:** {19-Jul-26}
 
 This section describes the core business concepts of the PFM domain and their relationships, independent of technical implementation.
 
 ### 2.1 Domain Layer Traceability
 
-> Single table that keeps the three representations in sync: conceptual (SRS) → code (here) →
-> storage (§4.3.3). A reviewer should be able to verify all three columns in one glance.
+> Single table that keeps the three representations in sync: **Domain Entity** (SRS) → **Domain Object** (SDS here) →
+> **Database Entity** (SDS §4.3.3 below). A reviewer should be able to verify all three columns in one glance.
 > Any mismatch between this table and the actual codebase is a spec violation.
 
-| SRS §2.2 Entity | SDS §2.1 Domain Object | SDS §4.3.3 DB Table / Collection | Notes |
+| SRS Domain Entity | SDS Domain Object | SDS §4.3.3 Database Entity | Notes |
 |-----------------|------------------------|----------------------------------|-------|
 | User | `User` | `users` | Aggregate Root |
 | Wallet | `Wallet` | `wallets` | Aggregate Root; FK → `users` |
@@ -221,11 +224,13 @@ This section describes the core business concepts of the PFM domain and their re
 | Holding | `Holding` | `holdings` | FK → `investment_portfolios`, FK → `assets` |
 | Asset | `Asset` | `assets` | Shared reference; no FK to user-owned entities |
 | Notification | `Notification` | `notifications` | FK → `users` |
+| — (SRS §1.5 Roles and Actors) | `Role` | `roles` | Shared reference/lookup; no SRS §2.2 Domain Entity counterpart — added to model ADMIN/USER as data (§2.2.11) |
 | — | — | `budget_categories` | Technical-only join table for Budget ↔ Category many-to-many (SRS §2.3) |
+| — | — | `user_roles` | Technical-only join table for User ↔ Role many-to-many (§2.3.14) |
 
 ### 2.2 Domain Object
 
-> Anemic domain objects — data shape only. Business logic lives in the Service Layer (§4.3.2).
+> **Anemic Domain Objects** — data shape only. Business logic lives in the Service Layer (§4.3.2).
 > Use language-agnostic types: `string`, `int`, `bool`, `datetime`, `uuid`, `enum`, `list[T]`.
 > Do **not** include DB types (`VARCHAR`, `BIGINT`), PKs, or indexes here.
 
@@ -237,6 +242,11 @@ This section describes the core business concepts of the PFM domain and their re
 | Attribute | Type | Nullable | Description |
 |-----------|------|----------|-------------|
 | `id` | `uuid` | No | Unique identifier |
+| `full_name` | `string` | No | Family member's display name |
+| `email` | `string` | No | Login identifier; unique across the system |
+| `created_at` | `datetime` | No | When the ADMIN created the account |
+
+> A User's permissions come from its `Role`s (§2.2.11), not a single field here — SRS §1.5 explicitly allows one person to hold both ADMIN and USER simultaneously (e.g. the family member who administers the app also uses it as a USER), so `User ↔ Role` is modeled as many-to-many (§2.3.14).
 
 #### 2.2.2 Wallet
 
@@ -246,6 +256,11 @@ This section describes the core business concepts of the PFM domain and their re
 | Attribute | Type | Nullable | Description |
 |-----------|------|----------|-------------|
 | `id` | `uuid` | No | Unique identifier |
+| `name` | `string` | No | User-facing wallet name (e.g. "Checking") |
+| `type` | `enum` (`CASH`, `BANK`, `E_WALLET`) | No | Kind of financial account represented |
+| `currency` | `string` | No | Currency code the balance is denominated in |
+| `current_balance` | `decimal` | No | Running balance, maintained as Transactions are recorded |
+| `is_default` | `bool` | No | Whether this is the User's default Wallet for new Transactions |
 
 #### 2.2.3 Category
 
@@ -255,6 +270,8 @@ This section describes the core business concepts of the PFM domain and their re
 | Attribute | Type | Nullable | Description |
 |-----------|------|----------|-------------|
 | `id` | `uuid` | No | Unique identifier |
+| `name` | `string` | No | User-facing category label (e.g. "Food & Dining") |
+| `applicable_type` | `enum` (`INCOME`, `EXPENSE`, `BOTH`) | No | Restricts which Transaction types may use this Category |
 
 #### 2.2.4 Budget
 
@@ -264,6 +281,10 @@ This section describes the core business concepts of the PFM domain and their re
 | Attribute | Type | Nullable | Description |
 |-----------|------|----------|-------------|
 | `id` | `uuid` | No | Unique identifier |
+| `period` | `enum` (`MONTHLY`) | No | Recurring period the limit applies to; extensible to `WEEKLY`/`YEARLY` in later releases |
+| `limit_amount` | `decimal` | No | Maximum spend allowed for the period |
+| `total_spent` | `decimal` | No | Sum of Transactions against the Budget's scoped Categories for the current period (derived) |
+| `remaining_amount` | `decimal` | No | `limit_amount - total_spent` (derived) |
 
 #### 2.2.5 Transaction
 
@@ -273,6 +294,10 @@ This section describes the core business concepts of the PFM domain and their re
 | Attribute | Type | Nullable | Description |
 |-----------|------|----------|-------------|
 | `id` | `uuid` | No | Unique identifier |
+| `type` | `enum` (`INCOME`, `EXPENSE`) | No | Whether the Transaction adds to or subtracts from the Wallet balance |
+| `amount` | `decimal` | No | Must be greater than 0 |
+| `date` | `datetime` | No | When the financial event occurred |
+| `note` | `string` | Yes | Optional free-text memo |
 
 #### 2.2.6 FinancialGoal
 
@@ -282,6 +307,11 @@ This section describes the core business concepts of the PFM domain and their re
 | Attribute | Type | Nullable | Description |
 |-----------|------|----------|-------------|
 | `id` | `uuid` | No | Unique identifier |
+| `name` | `string` | No | User-facing goal name (e.g. "Emergency Fund") |
+| `target_amount` | `decimal` | No | Monetary target the User is saving/spending toward |
+| `target_date` | `datetime` | No | Deadline the User set for reaching the goal |
+| `current_progress_amount` | `decimal` | No | Derived from Transactions linked to this Goal |
+| `status` | `enum` (`OPEN`, `CLOSED`) | No | Lifecycle state — see §2.4 |
 
 #### 2.2.7 InvestmentPortfolio
 
@@ -291,6 +321,10 @@ This section describes the core business concepts of the PFM domain and their re
 | Attribute | Type | Nullable | Description |
 |-----------|------|----------|-------------|
 | `id` | `uuid` | No | Unique identifier |
+| `name` | `string` | No | User-facing portfolio name (e.g. "My Portfolio") |
+| `total_current_value` | `decimal` | No | Sum of `current_value` across all Holdings (derived) |
+
+> **Note:** SRS US-09-02 ("Update the Investment Portfolio Settings") does not itemize which settings are configurable; concrete settings fields are TBD in a future release once that scope is defined.
 
 #### 2.2.8 Asset
 
@@ -300,6 +334,10 @@ This section describes the core business concepts of the PFM domain and their re
 | Attribute | Type | Nullable | Description |
 |-----------|------|----------|-------------|
 | `id` | `uuid` | No | Unique identifier |
+| `name` | `string` | No | Full name of the tradable/investable instrument |
+| `ticker_symbol` | `string` | No | Short trading symbol (e.g. "AAPL") |
+| `asset_type` | `enum` (`STOCK`, `FUND`, `CRYPTO`) | No | Extensible; SRS §2.2 lists these as examples |
+| `current_market_price` | `decimal` | No | Manually maintained — no live market data feed (SRS §1.6 Out of Scope) |
 
 #### 2.2.9 Holding
 
@@ -309,6 +347,9 @@ This section describes the core business concepts of the PFM domain and their re
 | Attribute | Type | Nullable | Description |
 |-----------|------|----------|-------------|
 | `id` | `uuid` | No | Unique identifier |
+| `quantity` | `decimal` | No | Units of the Asset held |
+| `purchase_price` | `decimal` | No | Price per unit at time of purchase |
+| `current_value` | `decimal` | No | `quantity × Asset.current_market_price` (derived) |
 
 #### 2.2.10 Notification
 
@@ -318,31 +359,135 @@ This section describes the core business concepts of the PFM domain and their re
 | Attribute | Type | Nullable | Description |
 |-----------|------|----------|-------------|
 | `id` | `uuid` | No | Unique identifier |
+| `message_content` | `string` | No | Human-readable notification text |
+| `notification_type` | `enum` (`BUDGET_ALERT`, `GOAL_PROGRESS`, `SYSTEM`) | No | Extensible; SRS gives "budget limit reached" as the canonical example |
+| `is_read` | `bool` | No | Whether the User has viewed the Notification — see §2.4 |
+| `triggered_at` | `datetime` | No | When the underlying condition/event fired |
+
+#### 2.2.11 Role
+
+> **SRS Entity:** — (no dedicated §2.2 Domain Entity; models the ADMIN/USER roles described in SRS §1.5 Roles and Actors as data, rather than as a fixed field, so a User can hold more than one)
+> **Type:** Entity (shared reference / lookup)
+
+| Attribute | Type | Nullable | Description |
+|-----------|------|----------|-------------|
+| `id` | `uuid` | No | Unique identifier |
+| `code` | `enum` (`ADMIN`, `USER`) | No | The role a User can hold — see §2.3.14 |
 
 ### 2.3 Domain Object Relationships
 
-> Documentation of how objects reference each other in memory/code.
+> Documentation of how Domain Objects reference each other in memory/code.
+> Derived from SRS §2.3 Entity Relationship and Cardinality.
 
-#### 2.3.1 {Object Name} – {Object Name}
-- **Relationship Type:** {Composition (Owner) | Aggregation (Reference)}
-- **Cardinality:** {0..n, 1..n, 0..1, 1..1, n..n}
-- **Navigation:** {Bidirectional | Unidirectional}
-- **Implementation:** {e.g., List<Entity> vs Foreign Key ID only}
+#### 2.3.1 User – Wallet
+- **Relationship Type:** Composition (Owner)
+- **Cardinality:** 1..1 (User) to 0..n (Wallet)
+- **Navigation:** Unidirectional (Wallet → User)
+- **Implementation:** `Wallet.user_id` (Foreign Key ID only); Users' Wallets are loaded via `WalletRepository.find_by_user_id`, not an in-memory collection on `User`
+
+#### 2.3.2 User – InvestmentPortfolio
+- **Relationship Type:** Composition (Owner)
+- **Cardinality:** 1..1 (User) to 1..1 (InvestmentPortfolio)
+- **Navigation:** Unidirectional (InvestmentPortfolio → User)
+- **Implementation:** `InvestmentPortfolio.user_id` (Foreign Key ID only); created when the ADMIN creates the User account (UM-US-01)
+
+#### 2.3.3 User – Notification
+- **Relationship Type:** Composition (Owner)
+- **Cardinality:** 1..1 (User) to 0..n (Notification)
+- **Navigation:** Unidirectional (Notification → User)
+- **Implementation:** `Notification.user_id` (Foreign Key ID only)
+
+#### 2.3.4 User – FinancialGoal
+- **Relationship Type:** Composition (Owner)
+- **Cardinality:** 1..1 (User) to 0..n (FinancialGoal)
+- **Navigation:** Unidirectional (FinancialGoal → User)
+- **Implementation:** `FinancialGoal.user_id` (Foreign Key ID only)
+
+#### 2.3.5 User – Category
+- **Relationship Type:** Composition (Owner)
+- **Cardinality:** 1..1 (User) to 0..n (Category)
+- **Navigation:** Unidirectional (Category → User)
+- **Implementation:** `Category.user_id` (Foreign Key ID only); Categories are never shared across Users (BR-06)
+
+#### 2.3.6 Wallet – Transaction
+- **Relationship Type:** Composition (Owner)
+- **Cardinality:** 1..1 (Wallet) to 0..n (Transaction)
+- **Navigation:** Unidirectional (Transaction → Wallet)
+- **Implementation:** `Transaction.wallet_id` (Foreign Key ID only)
+
+#### 2.3.7 Wallet – Budget
+- **Relationship Type:** Composition (Owner)
+- **Cardinality:** 1..1 (Wallet) to 0..n (Budget)
+- **Navigation:** Unidirectional (Budget → Wallet)
+- **Implementation:** `Budget.wallet_id` (Foreign Key ID only)
+
+#### 2.3.8 InvestmentPortfolio – Holding
+- **Relationship Type:** Composition (Owner)
+- **Cardinality:** 1..1 (InvestmentPortfolio) to 0..n (Holding)
+- **Navigation:** Unidirectional (Holding → InvestmentPortfolio)
+- **Implementation:** `Holding.investment_portfolio_id` (Foreign Key ID only)
+
+#### 2.3.9 Holding – Asset
+- **Relationship Type:** Aggregation (Reference)
+- **Cardinality:** 0..n (Holding) to 1..1 (Asset)
+- **Navigation:** Unidirectional (Holding → Asset)
+- **Implementation:** `Holding.asset_id` (Foreign Key ID only); deleting a Holding never affects the referenced Asset
+
+#### 2.3.10 Transaction – Category
+- **Relationship Type:** Aggregation (Reference)
+- **Cardinality:** 0..n (Transaction) to 0..1 (Category)
+- **Navigation:** Unidirectional (Transaction → Category)
+- **Implementation:** Nullable `Transaction.category_id`; deleting a Category sets it to `null` rather than deleting the Transaction (BR-05)
+
+#### 2.3.11 Transaction – FinancialGoal
+- **Relationship Type:** Aggregation (Reference)
+- **Cardinality:** 0..n (Transaction) to 0..1 (FinancialGoal)
+- **Navigation:** Unidirectional (Transaction → FinancialGoal)
+- **Implementation:** Nullable `Transaction.financial_goal_id`; used to derive `FinancialGoal.current_progress_amount` (BR-10)
+
+#### 2.3.12 Budget – Category
+- **Relationship Type:** Aggregation (Reference)
+- **Cardinality:** 0..n (Budget) to 0..n (Category)
+- **Navigation:** Unidirectional (Budget → Category)
+- **Implementation:** `List<uuid>` of `category_id`s via the technical-only `budget_categories` join table (§2.1); deleting a Category does not delete the Budget (BR-07, BR-08)
+
+#### 2.3.13 Category – Category (parent)
+- **Relationship Type:** Aggregation (Reference)
+- **Cardinality:** 0..n (child Category) to 0..1 (parent Category)
+- **Navigation:** Bidirectional (`Category.parent_id` nullable; parent's children listed via `CategoryRepository.find_by_parent_id`)
+- **Implementation:** Nullable self-referencing `Category.parent_id`; a Category's parent MUST belong to the same User as the child (BR-06)
+
+#### 2.3.14 User – Role
+- **Relationship Type:** Aggregation (Reference), many-to-many
+- **Cardinality:** 0..n (User) to 0..n (Role)
+- **Navigation:** Unidirectional (User → Role) — authorization checks need "does this User have Role X"; no feature requires listing all Users for a given Role
+- **Implementation:** `List<uuid>` of `role_id`s via the technical-only `user_roles` join table (§2.1); a User with both the ADMIN and USER rows can create/manage other Users AND independently manage their own Wallets/Transactions/etc. (SRS §1.5)
 
 ### 2.4 Domain Object State Transition Diagram (STD)
 > Document transitions for objects with a `status` field.
+> Of the ten Domain Objects in §2.2, only `FinancialGoal` and `Notification` carry an explicit status field; the rest are stateless (create/update/delete only).
 
-#### {Object Name} State Transition Diagram
+#### FinancialGoal State Transition Diagram
 
 ```text
-{INITIAL} ──────────────────► {STATE_A} ──► {TERMINAL_1}
-                                    └──────► {TERMINAL_2}
+(created) ──────────────────► OPEN ──► CLOSED
 ```
-
 
 | State | Meaning | Transitions to |
 |-------|---------|----------------|
-| {STATE} | {System implication of this state} | {comma-separated next states} |
+| OPEN | The Goal is actively tracked; Transactions may be linked to it and `current_progress_amount` keeps accruing (FG-US-01 → FG-US-04) | CLOSED |
+| CLOSED | The User has marked the Goal as done (FG-US-05); progress is frozen and no further Transactions may be linked to it. Terminal — SRS does not define a reopen flow | — |
+
+#### Notification State Transition Diagram
+
+```text
+(created) ──────────────────► UNREAD ──► READ
+```
+
+| State | Meaning | Transitions to |
+|-------|---------|----------------|
+| UNREAD | The Notification has been generated but the User has not yet viewed it (`is_read = false`); counts toward unread badges in NH-US-01 | READ |
+| READ | The User has viewed the Notification (NH-US-03) or opened it (NH-US-02), setting `is_read = true`. Terminal — no unread transition is defined | — |
 
 ---
 
@@ -350,11 +495,60 @@ This section describes the core business concepts of the PFM domain and their re
 
 ### 3.1 UI / UX Principles
 
-*(To be defined)*
+> Operationalizes the UXR goals in SRS §5 (Clarity, Fast Onboarding, Immediate Feedback) as concrete design principles, informed by common usability heuristics (Nielsen) and the patterns already established in the wireframes (§3.2).
+
+| Principle | Applied as |
+|-----------|-----------|
+| **Clarity over density** (SRS §5.1) | Each screen focuses on one Feature; key numbers (balances, totals, budget progress) are shown as large, high-contrast figures rather than buried in dense tables |
+| **Consistency & standards** | A fixed left sidebar lists all Features in the same order/icons on every screen; primary actions always sit as an orange button in the top-right of the content area (e.g. "+ New Wallet", "+ New Transaction") |
+| **Recognition over recall** | Category/type is always shown with a matching icon + color (e.g. Expense = red/orange, Income = green), so Users scan visually instead of reading labels |
+| **Immediate feedback** (SRS §5.3) | Actions (create/update/delete) surface an inline confirmation or validation message next to the field, and updated balances/progress bars re-render without a full page reload |
+| **Fast onboarding** (SRS §5.2) | The Dashboard is the landing screen after login and surfaces the minimum a first-time User needs (balances, goals, recent activity) before they must navigate elsewhere |
+| **Error prevention over error messages** | Destructive actions (delete Wallet/Category/Budget/Transaction) require an explicit icon-triggered action, not a swipe or accidental click; forms validate required fields before submission (e.g. SS-US-01, TM-US-01 acceptance criteria) |
+| **Progressive disclosure** | List screens (Wallets, Categories, Budgets, Transactions) show summary rows with an edit/delete affordance; full detail/edit forms open in a secondary view rather than inline |
+| **Visual hierarchy via color semantics** | Green/orange/red/blue are used consistently for income, budget-warning, expense/overspend, and neutral/informational states respectively, across Dashboard, Budget Management, and Financial Reporting |
 
 ### 3.2 Wireframes — UI / UX
 
-*(Wireframe diagrams to be inserted here)*
+> Low-fidelity mockups for the 6 MVP screens, stored under [`ui/`](ui/). Each maps to one Feature from §5.
+
+#### Dashboard — Data Overview Dashboard (DOD)
+
+![Dashboard](ui/Dashboard.png)
+
+Landing page after login: Total Income / Total Expense / Total Saving cards, Goals progress bars, a 12-month Income vs. Expense activity graph, and a Recent Transactions list.
+
+#### Wallet Management (WM)
+
+![Wallet Management](ui/Wallet%20Management.png)
+
+Table of the User's Wallets (name, type, balance) with inline edit/delete actions and "+ New Wallet" / "+ New Transaction" shortcuts.
+
+#### Category Management (CM)
+
+![Category Management](ui/Category%20Management.png)
+
+Table of Categories with a type badge (Income/Expense), description, and inline edit/delete actions.
+
+#### Budget Management (BM)
+
+![Budget Management](ui/Budget%20Management.png)
+
+Table of Budgets per Category showing limit, spent-to-date, and a progress bar whose fill color signals how close the Budget is to its limit.
+
+#### Transaction Management (TM)
+
+![Transaction Management](ui/Transaction%20Management.png)
+
+Filterable (Wallet, date range) list of Transactions with date, category, signed amount (+/-), wallet, and note.
+
+#### Financial Reporting (RPT)
+
+![Financial Reporting](ui/Financia%20Reporting.png)
+
+Date-range report combining an Expense-vs-Income pie chart, a Cash Flow bar chart, and summary tiles (Total Income, Total Expenses, Net Income, Largest Expense).
+
+> **Navigation shell:** all 6 screens share the same left sidebar (Dashboard, Wallet Management, Category Management, Budget Management, Transaction Management, Financial Reporting, Log out) and top-right user identity badge, establishing the consistency principle in §3.1.
 
 ---
 
@@ -385,8 +579,8 @@ This view defines the system boundary and its interaction with external actors.
 *("4+1 Views" Model – Logical View)*
 
 At a logical level, the PFM system consists of the following major functional areas:
-1. User Management
-2. System Security
+1. System Security
+2. User Management
 3. Wallet Management
 4. Category Management
 5. Budget Management
@@ -445,14 +639,139 @@ This view supports maintainability and team collaboration.
 
 | Store | Technology | Rationale |
 |-------|-----------|-----------|
-| {Relational} | {e.g., PostgreSQL} | {ACID, complex joins, etc.} |
-| {Cache} | {e.g., Redis} | {Low-latency, TTL} |
+| Relational | SQLite (MVP) → PostgreSQL (later Releases) | ACID transactions for financial writes; relational joins across Wallet/Transaction/Category/Budget; SQLite matches the MVP stack in §4.3.2, PostgreSQL supports concurrent multi-process production use |
+| Cache | None for MVP | No NFR (§8) currently requires sub-second Report latency at MVP scale; revisit Redis for Financial Reporting (RPT) if query load becomes a bottleneck in later Releases |
 
 ##### Physical Data Schema (ERD Mapping)
 
+```mermaid
+erDiagram
+    USERS ||--o{ WALLETS : owns
+    USERS ||--|| INVESTMENT_PORTFOLIOS : owns
+    USERS ||--o{ NOTIFICATIONS : receives
+    USERS ||--o{ FINANCIAL_GOALS : sets
+    USERS ||--o{ CATEGORIES : defines
+    USERS ||--o{ USER_ROLES : "assigned via"
+    ROLES ||--o{ USER_ROLES : "granted via"
+    WALLETS ||--o{ TRANSACTIONS : records
+    WALLETS ||--o{ BUDGETS : defines
+    INVESTMENT_PORTFOLIOS ||--o{ HOLDINGS : contains
+    ASSETS ||--o{ HOLDINGS : "referenced by"
+    CATEGORIES ||--o{ TRANSACTIONS : classifies
+    FINANCIAL_GOALS ||--o{ TRANSACTIONS : "tracked by"
+    BUDGETS ||--o{ BUDGET_CATEGORIES : "scoped via"
+    CATEGORIES ||--o{ BUDGET_CATEGORIES : scopes
+    CATEGORIES ||--o{ CATEGORIES : "parent of"
+
+    USERS {
+        uuid id PK
+        string full_name
+        string email UK
+        string password_hash
+        datetime created_at
+    }
+    ROLES {
+        uuid id PK
+        string code UK
+    }
+    USER_ROLES {
+        uuid user_id PK "FK to users.id"
+        uuid role_id PK "FK to roles.id"
+    }
+    WALLETS {
+        uuid id PK
+        uuid user_id FK
+        string name
+        string type
+        string currency
+        decimal current_balance
+        bool is_default
+    }
+    CATEGORIES {
+        uuid id PK
+        uuid user_id FK
+        uuid parent_id FK
+        string name
+        string applicable_type
+    }
+    BUDGETS {
+        uuid id PK
+        uuid wallet_id FK
+        string period
+        decimal limit_amount
+    }
+    BUDGET_CATEGORIES {
+        uuid budget_id PK "FK to budgets.id"
+        uuid category_id PK "FK to categories.id"
+    }
+    TRANSACTIONS {
+        uuid id PK
+        uuid wallet_id FK
+        uuid category_id FK
+        uuid financial_goal_id FK
+        string type
+        decimal amount
+        date date
+        string note
+    }
+    FINANCIAL_GOALS {
+        uuid id PK
+        uuid user_id FK
+        string name
+        decimal target_amount
+        date target_date
+        string status
+    }
+    INVESTMENT_PORTFOLIOS {
+        uuid id PK
+        uuid user_id UK "FK to users.id"
+        string name
+    }
+    HOLDINGS {
+        uuid id PK
+        uuid investment_portfolio_id FK
+        uuid asset_id FK
+        decimal quantity
+        decimal purchase_price
+    }
+    ASSETS {
+        uuid id PK
+        string name
+        string ticker_symbol UK
+        string asset_type
+        decimal current_market_price
+    }
+    NOTIFICATIONS {
+        uuid id PK
+        uuid user_id FK
+        string message_content
+        string notification_type
+        bool is_read
+        datetime triggered_at
+    }
+```
+
 **Data Integrity Rules**
 
-This section defines business rules and constraints derived from the domain model.
+This section defines business rules and constraints derived from the domain model (SRS §2.4 Business Rules, plus two design-level rules for Role that have no SRS BR counterpart yet).
+
+| Rule | DB-level enforcement |
+|------|----------------------|
+| BR-01 | `wallets.user_id` is `NOT NULL` FK → `users.id`; a Wallet is never reassigned to a different User |
+| BR-02 | `wallets.name`, `wallets.type`, `wallets.current_balance` are `NOT NULL` |
+| BR-03 | `transactions.amount`, `.type`, `.date` are `NOT NULL`; `transactions.wallet_id` is `NOT NULL` FK ON DELETE CASCADE |
+| BR-04 | Not expressible as a plain FK constraint — enforced in `TransactionService`: a Transaction's `category_id` must belong to the same `user_id` that owns its `wallet_id` |
+| BR-05 | `transactions.category_id` FK ON DELETE **SET NULL** (not CASCADE) — deleting a Category leaves its Transactions uncategorized |
+| BR-06 | `categories.parent_id` self-referencing FK; same-User constraint enforced in `CategoryService` (same reasoning as BR-04) |
+| BR-07 | `budgets.wallet_id` is `NOT NULL` FK; at least one `budget_categories` row per Budget is enforced in `BudgetService`, not a DB constraint |
+| BR-08 | `total_spent` / `remaining_amount` (§2.2.4) are **not persisted columns** — computed at query time from `transactions` joined via `budget_categories`, avoiding staleness |
+| BR-09 | `financial_goals.target_amount`, `.target_date` are `NOT NULL`; `financial_goals.user_id` is `NOT NULL` FK ON DELETE CASCADE |
+| BR-10 | `current_progress_amount` (§2.2.6) is **not a persisted column** — computed at query time from `transactions.financial_goal_id` |
+| BR-11 | `holdings.asset_id` and `holdings.investment_portfolio_id` are `NOT NULL` FKs; the latter ON DELETE CASCADE |
+| BR-12 | Not a DB constraint — every Report query in `ReportService` filters by the authenticated User's own `wallet_id`/`category_id` set |
+| BR-13 | Not a DB constraint — every Dashboard query in `DashboardService` is scoped to the authenticated User, same as BR-12 |
+| *(no SRS BR yet)* | Partial unique index on `wallets (user_id) WHERE is_default = true` — at most one default Wallet per User; recommend adding a matching BR to SRS §2.4 if this becomes load-bearing |
+| *(no SRS BR yet)* | `user_roles` composite PK `(user_id, role_id)` prevents duplicate Role assignment; every User row MUST have at least one linked Role, enforced in `UserService` at account creation (UM-US-01) |
 
 **Database Design**
 
@@ -464,9 +783,26 @@ This section maps the Domain Model to the physical Database Structure.
 
 | Table / Collection | Domain Object (§2.1) | Key columns / fields | Notes |
 |-------------------|----------------------|---------------------|-------|
-| `{table_name}` | `{ClassName}` | `id UUID PK`, `{col} {type} {constraints}` | {FK refs, indexes, column renames vs domain object} |
+| `users` | `User` | `id UUID PK`, `full_name VARCHAR(150) NOT NULL`, `email VARCHAR(254) NOT NULL UNIQUE`, `password_hash VARCHAR(255) NOT NULL`, `created_at TIMESTAMP NOT NULL DEFAULT now()` | `password_hash` is physical-only (§7 Security Design) — no §2.2 Domain Object counterpart |
+| `roles` | `Role` | `id UUID PK`, `code VARCHAR(20) NOT NULL UNIQUE CHECK (code IN ('ADMIN','USER'))` | Seeded once via migration (see Migration Strategy) |
+| `user_roles` | — (technical-only, §2.1) | `user_id UUID FK → users.id`, `role_id UUID FK → roles.id`, `PRIMARY KEY (user_id, role_id)` | Join table for `User ↔ Role` many-to-many (§2.3.14) |
+| `wallets` | `Wallet` | `id UUID PK`, `user_id UUID FK → users.id NOT NULL`, `name VARCHAR(100) NOT NULL`, `type VARCHAR(20) NOT NULL CHECK (type IN ('CASH','BANK','E_WALLET'))`, `currency CHAR(3) NOT NULL`, `current_balance DECIMAL(14,2) NOT NULL DEFAULT 0`, `is_default BOOLEAN NOT NULL DEFAULT false` | Index on `user_id`; partial unique index on `(user_id) WHERE is_default` |
+| `categories` | `Category` | `id UUID PK`, `user_id UUID FK → users.id NOT NULL`, `parent_id UUID FK → categories.id NULL`, `name VARCHAR(100) NOT NULL`, `applicable_type VARCHAR(10) NOT NULL CHECK (applicable_type IN ('INCOME','EXPENSE','BOTH'))` | Index on `user_id`; self-referencing FK for parent (BR-06) |
+| `budgets` | `Budget` | `id UUID PK`, `wallet_id UUID FK → wallets.id NOT NULL`, `period VARCHAR(10) NOT NULL DEFAULT 'MONTHLY'`, `limit_amount DECIMAL(14,2) NOT NULL CHECK (limit_amount > 0)` | `total_spent`/`remaining_amount` (§2.2.4) are computed, not stored (BR-08) |
+| `budget_categories` | — (technical-only, §2.1) | `budget_id UUID FK → budgets.id`, `category_id UUID FK → categories.id`, `PRIMARY KEY (budget_id, category_id)` | Join table for `Budget ↔ Category` many-to-many (§2.3.12) |
+| `transactions` | `Transaction` | `id UUID PK`, `wallet_id UUID FK → wallets.id NOT NULL`, `category_id UUID FK → categories.id NULL`, `financial_goal_id UUID FK → financial_goals.id NULL`, `type VARCHAR(10) NOT NULL CHECK (type IN ('INCOME','EXPENSE'))`, `amount DECIMAL(14,2) NOT NULL CHECK (amount > 0)`, `date DATE NOT NULL`, `note VARCHAR(500) NULL` | Composite index on `(wallet_id, date)`; `category_id`/`financial_goal_id` ON DELETE SET NULL |
+| `financial_goals` | `FinancialGoal` | `id UUID PK`, `user_id UUID FK → users.id NOT NULL`, `name VARCHAR(100) NOT NULL`, `target_amount DECIMAL(14,2) NOT NULL CHECK (target_amount > 0)`, `target_date DATE NOT NULL`, `status VARCHAR(10) NOT NULL DEFAULT 'OPEN' CHECK (status IN ('OPEN','CLOSED'))` | Index on `user_id`; `current_progress_amount` (§2.2.6) computed, not stored (BR-10) |
+| `investment_portfolios` | `InvestmentPortfolio` | `id UUID PK`, `user_id UUID FK → users.id NOT NULL UNIQUE`, `name VARCHAR(100) NOT NULL` | `UNIQUE` on `user_id` enforces the 1:1 with `users` (§2.3.2); `total_current_value` (§2.2.7) computed, not stored |
+| `holdings` | `Holding` | `id UUID PK`, `investment_portfolio_id UUID FK → investment_portfolios.id NOT NULL`, `asset_id UUID FK → assets.id NOT NULL`, `quantity DECIMAL(18,6) NOT NULL CHECK (quantity > 0)`, `purchase_price DECIMAL(14,2) NOT NULL` | Index on `investment_portfolio_id`, `asset_id`; `current_value` (§2.2.9) computed, not stored |
+| `assets` | `Asset` | `id UUID PK`, `name VARCHAR(150) NOT NULL`, `ticker_symbol VARCHAR(20) NOT NULL UNIQUE`, `asset_type VARCHAR(10) NOT NULL CHECK (asset_type IN ('STOCK','FUND','CRYPTO'))`, `current_market_price DECIMAL(14,4) NOT NULL` | Shared reference table — no `user_id` (§2.1) |
+| `notifications` | `Notification` | `id UUID PK`, `user_id UUID FK → users.id NOT NULL`, `message_content VARCHAR(500) NOT NULL`, `notification_type VARCHAR(20) NOT NULL`, `is_read BOOLEAN NOT NULL DEFAULT false`, `triggered_at TIMESTAMP NOT NULL DEFAULT now()` | Composite index on `(user_id, is_read)` for unread-count queries (NH-US-01) |
 
 ##### Migration Strategy
+
+- **MVP:** Django ORM migrations (auto-generated, reviewed before merge); SQLite as the target database (§4.3.2).
+- **Seed migration:** inserts the two fixed `roles` rows (`ADMIN`, `USER`) and bootstraps the first ADMIN `user`/`user_roles` row per RUNBOOK §8, so there is always at least one account able to run UM-US-01 on a fresh deployment.
+- **Change policy:** prefer additive, backward-compatible migrations (new nullable columns/tables) over destructive ones (column drops/renames) once data exists; a rename is modeled as add-column → backfill → drop-old-column across separate migrations.
+- **Later Releases:** the same migration history replays against PostgreSQL when the store changes (§4.3.2); no hand-written SQL divergence between environments.
 
 ### 4.4 Process View
 
@@ -512,14 +848,14 @@ These scenarios represent the Scenarios (+1 View) of the "4+1 Views" Model.
 
 | Scenario ID | Feature | User Story | MVP | Notes |
 |-------------|---------|------------|-----|-------|
-| S-URM-01 | Feature-01: User Management | US-01-01 Create a User (ADMIN) | ✔ | Entry point for new family member accounts |
-| S-SEC-01 | Feature-02: System Security | US-02-01 Login | ✔ | Required before protected actions |
-| S-WAL-01 | Feature-03: Wallet Management | US-03-01 Create a Wallet | ✔ | Core financial container |
-| S-CAT-01 | Feature-04: Category Management | US-04-01 Create a Category | ✔ | Used by transactions |
-| S-BUD-01 | Feature-05: Budget Management | US-05-01 Create a Budget for a Wallet | ✔ | Spending control |
-| S-TRX-01 | Feature-06: Transaction Management | US-06-01 Create a Transaction for a Wallet | ✔ | Primary core scenario |
-| S-RPT-01 | Feature-07: Financial Reporting | US-07-01 View the Summary Report | ✔ | Insight & feedback loop |
-| S-NOT-01 | Feature-10: Notification Handling | US-10-01 View the list of Notifications | ✔ | User awareness |
+| S-SEC-01 | System Security (SS) | SS-US-01 Login | ✔ | Required before protected actions |
+| S-URM-01 | User Management (UM) | UM-US-01 Create a User (ADMIN) | ✔ | Entry point for new family member accounts |
+| S-WAL-01 | Wallet Management (WM) | WM-US-01 Create a Wallet | ✔ | Core financial container |
+| S-CAT-01 | Category Management (CM) | CM-US-01 Create a Category | ✔ | Used by transactions |
+| S-BUD-01 | Budget Management (BM) | BM-US-01 Create a Budget for a Wallet | ✔ | Spending control |
+| S-TRX-01 | Transaction Management (TM) | TM-US-01 Create a Transaction for a Wallet | ✔ | Primary core scenario |
+| S-RPT-01 | Financial Reporting (RPT) | RPT-US-01 View the Summary Report | ✔ | Insight & feedback loop |
+| S-NOT-01 | Notification Handling (NH) | NH-US-01 View the list of Notifications | ✔ | User awareness |
 
 ### 4.7 Architecture Principles
 
@@ -538,95 +874,95 @@ These scenarios represent the Scenarios (+1 View) of the "4+1 Views" Model.
 
 This chapter provides build-ready design details per Feature and User Story, aligned with the SRS.
 
-### 5.1 Feature-01: User Management
+### 5.1 System Security (SS)
 
-#### 5.1.1 US-01-01: Create a User (ADMIN)
-
-*(Details to be defined)*
-
-#### 5.1.2 US-01-02: Update a User Profile (USER)
+#### 5.1.1 SS-US-01: Login (ADMIN, USER)
 
 *(Details to be defined)*
 
-### 5.2 Feature-02: System Security
-
-#### 5.2.1 US-02-01: Login (ADMIN, USER)
+#### 5.1.2 SS-US-02: Logout (ADMIN, USER)
 
 *(Details to be defined)*
 
-#### 5.2.2 US-02-02: Logout (ADMIN, USER)
+### 5.2 User Management (UM)
+
+#### 5.2.1 UM-US-01: Create a User (ADMIN)
 
 *(Details to be defined)*
 
-### 5.3 Feature-03: Wallet Management
-
-#### 5.3.1 US-03-01: Create a Wallet (USER)
+#### 5.2.2 UM-US-02: Update a User Profile (USER)
 
 *(Details to be defined)*
 
-#### 5.3.2 US-03-02: View a list of Wallets (USER)
+### 5.3 Wallet Management (WM)
+
+#### 5.3.1 WM-US-01: Create a Wallet (USER)
 
 *(Details to be defined)*
 
-#### 5.3.3 US-03-03: View a Wallet (USER)
+#### 5.3.2 WM-US-02: View a list of Wallets (USER)
 
 *(Details to be defined)*
 
-#### 5.3.4 US-03-04: Update a Wallet (USER)
+#### 5.3.3 WM-US-03: View a Wallet (USER)
 
 *(Details to be defined)*
 
-#### 5.3.5 US-03-05: Set a Wallet as default (USER)
+#### 5.3.4 WM-US-04: Update a Wallet (USER)
 
 *(Details to be defined)*
 
-### 5.4 Feature-04: Category Management
-
-#### 5.4.1 US-04-01: Create a Category (USER)
+#### 5.3.5 WM-US-05: Set a Wallet as default (USER)
 
 *(Details to be defined)*
 
-#### 5.4.2 US-04-02: View a list of Categories (USER)
+### 5.4 Category Management (CM)
+
+#### 5.4.1 CM-US-01: Create a Category (USER)
 
 *(Details to be defined)*
 
-#### 5.4.3 US-04-03: View a Category (USER)
+#### 5.4.2 CM-US-02: View a list of Categories (USER)
 
 *(Details to be defined)*
 
-#### 5.4.4 US-04-04: Update a Category (USER)
+#### 5.4.3 CM-US-03: View a Category (USER)
 
 *(Details to be defined)*
 
-#### 5.4.5 US-04-05: Delete a Category (USER)
+#### 5.4.4 CM-US-04: Update a Category (USER)
 
 *(Details to be defined)*
 
-### 5.5 Feature-05: Budget Management
-
-#### 5.5.1 US-05-01: Create a Budget for a Wallet (USER)
+#### 5.4.5 CM-US-05: Delete a Category (USER)
 
 *(Details to be defined)*
 
-#### 5.5.2 US-05-02: View a list of Budgets (USER)
+### 5.5 Budget Management (BM)
+
+#### 5.5.1 BM-US-01: Create a Budget for a Wallet (USER)
 
 *(Details to be defined)*
 
-#### 5.5.3 US-05-03: View a Budget (USER)
+#### 5.5.2 BM-US-02: View a list of Budgets (USER)
 
 *(Details to be defined)*
 
-#### 5.5.4 US-05-04: Update a Budget (USER)
+#### 5.5.3 BM-US-03: View a Budget (USER)
 
 *(Details to be defined)*
 
-#### 5.5.5 US-05-05: Delete a Budget (USER)
+#### 5.5.4 BM-US-04: Update a Budget (USER)
 
 *(Details to be defined)*
 
-### 5.6 Feature-06: Transaction Management
+#### 5.5.5 BM-US-05: Delete a Budget (USER)
 
-#### 5.6.1 US-06-01: Create a Transaction for a Wallet (USER)
+*(Details to be defined)*
+
+### 5.6 Transaction Management (TM)
+
+#### 5.6.1 TM-US-01: Create a Transaction for a Wallet (USER)
 
 **Goal:** Allow an authenticated User to create an income or expense Transaction for a Wallet they own.
 
@@ -663,103 +999,103 @@ This chapter provides build-ready design details per Feature and User Story, ali
 5. Optional: budget update and notification trigger.
 6. Controller returns a response.
 
-#### 5.6.2 US-06-02: View a list of Transactions (USER)
+#### 5.6.2 TM-US-02: View a list of Transactions (USER)
 
 *(Details to be defined)*
 
-#### 5.6.3 US-06-03: View a Transaction (USER)
+#### 5.6.3 TM-US-03: View a Transaction (USER)
 
 *(Details to be defined)*
 
-#### 5.6.4 US-06-04: Update a Transaction (USER)
+#### 5.6.4 TM-US-04: Update a Transaction (USER)
 
 *(Details to be defined)*
 
-#### 5.6.5 US-06-05: Delete a Transaction (USER)
+#### 5.6.5 TM-US-05: Delete a Transaction (USER)
 
 *(Details to be defined)*
 
-### 5.7 Feature-07: Financial Reporting
+### 5.7 Financial Reporting (RPT)
 
-#### 5.7.1 US-07-01: View the Summary Report (USER)
-
-*(Details to be defined)*
-
-#### 5.7.2 US-07-02: View Income Report (USER)
+#### 5.7.1 RPT-US-01: View the Summary Report (USER)
 
 *(Details to be defined)*
 
-#### 5.7.3 US-07-03: View Expense Report (USER)
+#### 5.7.2 RPT-US-02: View Income Report (USER)
 
 *(Details to be defined)*
 
-#### 5.7.4 US-07-04: Filter Reports by Date (USER)
+#### 5.7.3 RPT-US-03: View Expense Report (USER)
 
 *(Details to be defined)*
 
-#### 5.7.5 US-07-05: Filter Reports by Wallet or Category (USER)
+#### 5.7.4 RPT-US-04: Filter Reports by Date (USER)
 
 *(Details to be defined)*
 
-### 5.8 Feature-08: Financial Goal
-
-#### 5.8.1 US-08-01: Create a Financial Goal (USER)
+#### 5.7.5 RPT-US-05: Filter Reports by Wallet or Category (USER)
 
 *(Details to be defined)*
 
-#### 5.8.2 US-08-02: View a list of Financial Goals (USER)
+### 5.8 Financial Goal (FG)
+
+#### 5.8.1 FG-US-01: Create a Financial Goal (USER)
 
 *(Details to be defined)*
 
-#### 5.8.3 US-08-03: View a Financial Goal (USER)
+#### 5.8.2 FG-US-02: View a list of Financial Goals (USER)
 
 *(Details to be defined)*
 
-#### 5.8.4 US-08-04: Update a Financial Goal (USER)
+#### 5.8.3 FG-US-03: View a Financial Goal (USER)
 
 *(Details to be defined)*
 
-#### 5.8.5 US-08-05: Close a Financial Goal (USER)
+#### 5.8.4 FG-US-04: Update a Financial Goal (USER)
 
 *(Details to be defined)*
 
-### 5.9 Feature-09: Investment Portfolio
-
-#### 5.9.1 US-09-01: View the Investment Portfolio (USER)
+#### 5.8.5 FG-US-05: Close a Financial Goal (USER)
 
 *(Details to be defined)*
 
-#### 5.9.2 US-09-02: Update the Investment Portfolio Settings (USER)
+### 5.9 Investment Portfolio (IP)
+
+#### 5.9.1 IP-US-01: View the Investment Portfolio (USER)
 
 *(Details to be defined)*
 
-#### 5.9.3 US-09-03: Add a Holding to the Investment Portfolio (USER)
+#### 5.9.2 IP-US-02: Update the Investment Portfolio Settings (USER)
 
 *(Details to be defined)*
 
-#### 5.9.4 US-09-04: Update a Holding (USER)
+#### 5.9.3 IP-US-03: Add a Holding to the Investment Portfolio (USER)
 
 *(Details to be defined)*
 
-#### 5.9.5 US-09-05: Remove a Holding (USER)
+#### 5.9.4 IP-US-04: Update a Holding (USER)
 
 *(Details to be defined)*
 
-### 5.10 Feature-10: Notification Handling
-
-#### 5.10.1 US-10-01: View the list of Notifications (USER)
+#### 5.9.5 IP-US-05: Remove a Holding (USER)
 
 *(Details to be defined)*
 
-#### 5.10.2 US-10-02: View a Notification (USER)
+### 5.10 Notification Handling (NH)
+
+#### 5.10.1 NH-US-01: View the list of Notifications (USER)
 
 *(Details to be defined)*
 
-#### 5.10.3 US-10-03: Mark a Notification as Read (USER)
+#### 5.10.2 NH-US-02: View a Notification (USER)
 
 *(Details to be defined)*
 
-### 5.11 Feature-11: Data Overview Dashboard
+#### 5.10.3 NH-US-03: Mark a Notification as Read (USER)
+
+*(Details to be defined)*
+
+### 5.11 Data Overview Dashboard (DOD)
 
 *(Details to be defined)*
 
@@ -770,10 +1106,10 @@ This chapter provides build-ready design details per Feature and User Story, ali
 ### 6.1 API Design Standards
 
 - **Protocol:** REST-style APIs
-- **Naming convention:** {To be defined}
-- **Authentication style:** {To be defined}
+- **Naming convention:** plural lowercase resource nouns, kebab-case for multi-word resources (e.g. `/wallets`, `/financial-goals`)
+- **Authentication style:** JWT Bearer (`djangorestframework-simplejwt`) — obtain via `POST /auth/login/`, refresh via `POST /auth/refresh/`, send `Authorization: Bearer <access_token>`
 - **Versioning:** URL-based (`/api/v1`)
-- **Pagination:** {To be defined}
+- **Pagination:** DRF `PageNumberPagination`, default page size 20, on all list endpoints
 - **Payload Format:** JSON request/response
 
 **Standard error structure:**
@@ -864,8 +1200,8 @@ This chapter provides build-ready design details per Feature and User Story, ali
 
 | API | Endpoint | Feature | User Story |
 |-----|----------|---------|------------|
-| API-WAL-01 | `POST /wallets` | Wallet Management | US-03-01 |
-| API-TRX-01 | `POST /transactions` | Transaction Management | US-06-01 |
+| API-WAL-01 | `POST /wallets` | Wallet Management | WM-US-01 |
+| API-TRX-01 | `POST /transactions` | Transaction Management | TM-US-01 |
 
 ### 6.6 Error Response Catalog
 
