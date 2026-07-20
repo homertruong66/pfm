@@ -5,6 +5,7 @@
 |---------|------|--------|--------|
 | 1.0 | 15-Jul-2026 | Homer Truong | Initial draft |
 | 1.1 | 19-Jul-2026 | Homer Truong | Reordered System Security/User Management, renamed Features/User Stories to abbreviation IDs (e.g. `SS-US-01`), and filled in §2 Domain Model (attributes, relationships, STDs, `Role` entity), §3 UI Design, and §4.3.3 Database Design |
+| 1.2 | 20-Jul-2026 | Homer Truong | Synced with SRS 1.2: added design entries for new/renamed User Stories across UM, WM, TM, FG, IP, NH, DOD; extracted Asset design entries into a new §5.9 Asset Management (AM), actor USER→ADMIN, renumbering IP→§5.10, NH→§5.11, DOD→§5.12; added `User.is_active`, BR-14..18 Data Integrity Rules, and bidirectional Notification STD; expanded §4.2 Logical View to all 12 Features; standardized on `FinancialGoal` (one word) |
 
 ---
 
@@ -56,53 +57,71 @@
   - [5.2 User Management (UM)](#52-user-management-um)
     - [5.2.1 UM-US-01: Create a User (ADMIN)](#521-um-us-01-create-a-user-admin)
     - [5.2.2 UM-US-02: Update a User Profile (USER)](#522-um-us-02-update-a-user-profile-user)
+    - [5.2.3 UM-US-03: View My Profile (USER)](#523-um-us-03-view-my-profile-user)
+    - [5.2.4 UM-US-04: List Users (ADMIN)](#524-um-us-04-list-users-admin)
+    - [5.2.5 UM-US-05: Deactivate a User (ADMIN)](#525-um-us-05-deactivate-a-user-admin)
+    - [5.2.6 UM-US-06: Delete a User (ADMIN)](#526-um-us-06-delete-a-user-admin)
   - [5.3 Wallet Management (WM)](#53-wallet-management-wm)
     - [5.3.1 WM-US-01: Create a Wallet (USER)](#531-wm-us-01-create-a-wallet-user)
-    - [5.3.2 WM-US-02: View a list of Wallets (USER)](#532-wm-us-02-view-a-list-of-wallets-user)
+    - [5.3.2 WM-US-02: List Wallets (USER)](#532-wm-us-02-list-wallets-user)
     - [5.3.3 WM-US-03: View a Wallet (USER)](#533-wm-us-03-view-a-wallet-user)
     - [5.3.4 WM-US-04: Update a Wallet (USER)](#534-wm-us-04-update-a-wallet-user)
     - [5.3.5 WM-US-05: Set a Wallet as default (USER)](#535-wm-us-05-set-a-wallet-as-default-user)
+    - [5.3.6 WM-US-06: Delete a Wallet (USER)](#536-wm-us-06-delete-a-wallet-user)
   - [5.4 Category Management (CM)](#54-category-management-cm)
     - [5.4.1 CM-US-01: Create a Category (USER)](#541-cm-us-01-create-a-category-user)
-    - [5.4.2 CM-US-02: View a list of Categories (USER)](#542-cm-us-02-view-a-list-of-categories-user)
+    - [5.4.2 CM-US-02: List Categories (USER)](#542-cm-us-02-list-categories-user)
     - [5.4.3 CM-US-03: View a Category (USER)](#543-cm-us-03-view-a-category-user)
     - [5.4.4 CM-US-04: Update a Category (USER)](#544-cm-us-04-update-a-category-user)
     - [5.4.5 CM-US-05: Delete a Category (USER)](#545-cm-us-05-delete-a-category-user)
   - [5.5 Budget Management (BM)](#55-budget-management-bm)
     - [5.5.1 BM-US-01: Create a Budget for a Wallet (USER)](#551-bm-us-01-create-a-budget-for-a-wallet-user)
-    - [5.5.2 BM-US-02: View a list of Budgets (USER)](#552-bm-us-02-view-a-list-of-budgets-user)
+    - [5.5.2 BM-US-02: List Budgets (USER)](#552-bm-us-02-list-budgets-user)
     - [5.5.3 BM-US-03: View a Budget (USER)](#553-bm-us-03-view-a-budget-user)
     - [5.5.4 BM-US-04: Update a Budget (USER)](#554-bm-us-04-update-a-budget-user)
     - [5.5.5 BM-US-05: Delete a Budget (USER)](#555-bm-us-05-delete-a-budget-user)
   - [5.6 Transaction Management (TM)](#56-transaction-management-tm)
     - [5.6.1 TM-US-01: Create a Transaction for a Wallet (USER)](#561-tm-us-01-create-a-transaction-for-a-wallet-user)
-    - [5.6.2 TM-US-02: View a list of Transactions (USER)](#562-tm-us-02-view-a-list-of-transactions-user)
+    - [5.6.2 TM-US-02: List Transactions (USER)](#562-tm-us-02-list-transactions-user)
     - [5.6.3 TM-US-03: View a Transaction (USER)](#563-tm-us-03-view-a-transaction-user)
     - [5.6.4 TM-US-04: Update a Transaction (USER)](#564-tm-us-04-update-a-transaction-user)
     - [5.6.5 TM-US-05: Delete a Transaction (USER)](#565-tm-us-05-delete-a-transaction-user)
+    - [5.6.6 TM-US-06: Filter Transactions by Wallet, Category, Type, or Date Range (USER)](#566-tm-us-06-filter-transactions-by-wallet-category-type-or-date-range-user)
   - [5.7 Financial Reporting (RPT)](#57-financial-reporting-rpt)
     - [5.7.1 RPT-US-01: View the Summary Report (USER)](#571-rpt-us-01-view-the-summary-report-user)
     - [5.7.2 RPT-US-02: View Income Report (USER)](#572-rpt-us-02-view-income-report-user)
     - [5.7.3 RPT-US-03: View Expense Report (USER)](#573-rpt-us-03-view-expense-report-user)
     - [5.7.4 RPT-US-04: Filter Reports by Date (USER)](#574-rpt-us-04-filter-reports-by-date-user)
     - [5.7.5 RPT-US-05: Filter Reports by Wallet or Category (USER)](#575-rpt-us-05-filter-reports-by-wallet-or-category-user)
-  - [5.8 Financial Goal (FG)](#58-financial-goal-fg)
-    - [5.8.1 FG-US-01: Create a Financial Goal (USER)](#581-fg-us-01-create-a-financial-goal-user)
-    - [5.8.2 FG-US-02: View a list of Financial Goals (USER)](#582-fg-us-02-view-a-list-of-financial-goals-user)
-    - [5.8.3 FG-US-03: View a Financial Goal (USER)](#583-fg-us-03-view-a-financial-goal-user)
-    - [5.8.4 FG-US-04: Update a Financial Goal (USER)](#584-fg-us-04-update-a-financial-goal-user)
-    - [5.8.5 FG-US-05: Close a Financial Goal (USER)](#585-fg-us-05-close-a-financial-goal-user)
-  - [5.9 Investment Portfolio (IP)](#59-investment-portfolio-ip)
-    - [5.9.1 IP-US-01: View the Investment Portfolio (USER)](#591-ip-us-01-view-the-investment-portfolio-user)
-    - [5.9.2 IP-US-02: Update the Investment Portfolio Settings (USER)](#592-ip-us-02-update-the-investment-portfolio-settings-user)
-    - [5.9.3 IP-US-03: Add a Holding to the Investment Portfolio (USER)](#593-ip-us-03-add-a-holding-to-the-investment-portfolio-user)
-    - [5.9.4 IP-US-04: Update a Holding (USER)](#594-ip-us-04-update-a-holding-user)
-    - [5.9.5 IP-US-05: Remove a Holding (USER)](#595-ip-us-05-remove-a-holding-user)
-  - [5.10 Notification Handling (NH)](#510-notification-handling-nh)
-    - [5.10.1 NH-US-01: View the list of Notifications (USER)](#5101-nh-us-01-view-the-list-of-notifications-user)
-    - [5.10.2 NH-US-02: View a Notification (USER)](#5102-nh-us-02-view-a-notification-user)
-    - [5.10.3 NH-US-03: Mark a Notification as Read (USER)](#5103-nh-us-03-mark-a-notification-as-read-user)
-  - [5.11 Data Overview Dashboard (DOD)](#511-data-overview-dashboard-dod)
+  - [5.8 FinancialGoal (FG)](#58-financialgoal-fg)
+    - [5.8.1 FG-US-01: Create a FinancialGoal (USER)](#581-fg-us-01-create-a-financialgoal-user)
+    - [5.8.2 FG-US-02: List FinancialGoals (USER)](#582-fg-us-02-list-financialgoals-user)
+    - [5.8.3 FG-US-03: View a FinancialGoal (USER)](#583-fg-us-03-view-a-financialgoal-user)
+    - [5.8.4 FG-US-04: Update a FinancialGoal (USER)](#584-fg-us-04-update-a-financialgoal-user)
+    - [5.8.5 FG-US-05: Close a FinancialGoal (USER)](#585-fg-us-05-close-a-financialgoal-user)
+    - [5.8.6 FG-US-06: Delete a FinancialGoal (USER)](#586-fg-us-06-delete-a-financialgoal-user)
+  - [5.9 Asset Management (AM)](#59-asset-management-am)
+    - [5.9.1 AM-US-01: Create an Asset (ADMIN)](#591-am-us-01-create-an-asset-admin)
+    - [5.9.2 AM-US-02: List Assets (ADMIN)](#592-am-us-02-list-assets-admin)
+    - [5.9.3 AM-US-03: View an Asset (ADMIN)](#593-am-us-03-view-an-asset-admin)
+    - [5.9.4 AM-US-04: Update an Asset's Current Market Price (ADMIN)](#594-am-us-04-update-an-assets-current-market-price-admin)
+    - [5.9.5 AM-US-05: Delete an Asset (ADMIN)](#595-am-us-05-delete-an-asset-admin)
+  - [5.10 Investment Portfolio (IP)](#510-investment-portfolio-ip)
+    - [5.10.1 IP-US-01: View the Investment Portfolio (USER)](#5101-ip-us-01-view-the-investment-portfolio-user)
+    - [5.10.2 IP-US-02: Update the Investment Portfolio Settings (USER)](#5102-ip-us-02-update-the-investment-portfolio-settings-user)
+    - [5.10.3 IP-US-03: Add a Holding to the Investment Portfolio (USER)](#5103-ip-us-03-add-a-holding-to-the-investment-portfolio-user)
+    - [5.10.4 IP-US-04: Update a Holding (USER)](#5104-ip-us-04-update-a-holding-user)
+    - [5.10.5 IP-US-05: Delete a Holding (USER)](#5105-ip-us-05-delete-a-holding-user)
+  - [5.11 Notification Handling (NH)](#511-notification-handling-nh)
+    - [5.11.1 NH-US-01: View the list of Notifications (USER)](#5111-nh-us-01-view-the-list-of-notifications-user)
+    - [5.11.2 NH-US-02: View a Notification (USER)](#5112-nh-us-02-view-a-notification-user)
+    - [5.11.3 NH-US-03: Mark a Notification as Read (USER)](#5113-nh-us-03-mark-a-notification-as-read-user)
+    - [5.11.4 NH-US-04: Mark a Notification as Unread (USER)](#5114-nh-us-04-mark-a-notification-as-unread-user)
+    - [5.11.5 NH-US-05: Dismiss a Notification (USER)](#5115-nh-us-05-dismiss-a-notification-user)
+  - [5.12 Data Overview Dashboard (DOD)](#512-data-overview-dashboard-dod)
+    - [5.12.1 DOD-US-01: View the Dashboard (USER)](#5121-dod-us-01-view-the-dashboard-user)
+    - [5.12.2 DOD-US-02: Filter the Dashboard by Date Range (USER)](#5122-dod-us-02-filter-the-dashboard-by-date-range-user)
+    - [5.12.3 DOD-US-03: Navigate from a Dashboard Summary to its Detail Screen (USER)](#5123-dod-us-03-navigate-from-a-dashboard-summary-to-its-detail-screen-user)
 - [6. API Design](#6-api-design)
   - [6.1 API Design Standards](#61-api-design-standards)
   - [6.2 Data Transfer Objects (DTOs) & Domain Mapping](#62-data-transfer-objects-dtos--domain-mapping)
@@ -202,7 +221,7 @@ Within this course, learners will implement an MVP subset of this design for lea
 > Domain Object describe the in-memory shape; the Physical Schema describes storage.
 >
 > **Sync obligation:** when SRS §2 is amended, this section MUST be updated in the same PR.
-> **Last synced with SRS §2:** {19-Jul-26}
+> **Last synced with SRS §2:** 20-Jul-2026
 
 This section describes the core business concepts of the PFM domain and their relationships, independent of technical implementation.
 
@@ -245,6 +264,7 @@ This section describes the core business concepts of the PFM domain and their re
 | `full_name` | `string` | No | Family member's display name |
 | `email` | `string` | No | Login identifier; unique across the system |
 | `created_at` | `datetime` | No | When the ADMIN created the account |
+| `is_active` | `bool` | No | Whether the User may authenticate (UM-US-05); `true` at creation — see §2.4 |
 
 > A User's permissions come from its `Role`s (§2.2.11), not a single field here — SRS §1.5 explicitly allows one person to hold both ADMIN and USER simultaneously (e.g. the family member who administers the app also uses it as a USER), so `User ↔ Role` is modeled as many-to-many (§2.3.14).
 
@@ -329,7 +349,7 @@ This section describes the core business concepts of the PFM domain and their re
 #### 2.2.8 Asset
 
 > **SRS Entity:** Asset
-> **Type:** Entity
+> **Type:** Entity (shared reference — system-level, ADMIN-managed; see §5.9 Asset Management. Not owned by any `user_id`, unlike every other non-lookup Domain Object in this section)
 
 | Attribute | Type | Nullable | Description |
 |-----------|------|----------|-------------|
@@ -431,7 +451,7 @@ This section describes the core business concepts of the PFM domain and their re
 - **Relationship Type:** Aggregation (Reference)
 - **Cardinality:** 0..n (Holding) to 1..1 (Asset)
 - **Navigation:** Unidirectional (Holding → Asset)
-- **Implementation:** `Holding.asset_id` (Foreign Key ID only); deleting a Holding never affects the referenced Asset
+- **Implementation:** `Holding.asset_id` (Foreign Key ID only); deleting a Holding never affects the referenced Asset. Conversely, `assets` cannot be deleted while referenced by any `holdings` row (no `ON DELETE` clause on `holdings.asset_id` — defaults to `RESTRICT`; BR-18, AM-US-05)
 
 #### 2.3.10 Transaction – Category
 - **Relationship Type:** Aggregation (Reference)
@@ -465,7 +485,20 @@ This section describes the core business concepts of the PFM domain and their re
 
 ### 2.4 Domain Object State Transition Diagram (STD)
 > Document transitions for objects with a `status` field.
-> Of the ten Domain Objects in §2.2, only `FinancialGoal` and `Notification` carry an explicit status field; the rest are stateless (create/update/delete only).
+> Of the ten Domain Objects in §2.2, `User`, `FinancialGoal`, and `Notification` carry an explicit status field; the rest are stateless (create/update/delete only).
+
+#### User State Transition Diagram
+
+```text
+(created) ──────────────────► ACTIVE ──► INACTIVE
+```
+
+| State | Meaning | Transitions to |
+|-------|---------|----------------|
+| ACTIVE | The User can authenticate and use the System normally (`is_active = true`) | INACTIVE |
+| INACTIVE | The ADMIN has deactivated the User (UM-US-05; BR-16); login is rejected, but all of the User's Wallets, Transactions, Budgets, Goals, Investment Portfolio, and Notifications remain intact. Terminal for now — SRS does not yet define a reactivation flow (same terminal-state convention as `FinancialGoal.CLOSED` below) | — |
+
+> Permanent deletion (UM-US-06; BR-17) is a separate, non-reversible operation gated on `INACTIVE` — it removes the row entirely rather than transitioning to a further state, so it is not shown as a node on this diagram.
 
 #### FinancialGoal State Transition Diagram
 
@@ -481,13 +514,15 @@ This section describes the core business concepts of the PFM domain and their re
 #### Notification State Transition Diagram
 
 ```text
-(created) ──────────────────► UNREAD ──► READ
+(created) ──────────────────► UNREAD ⇄ READ
 ```
 
 | State | Meaning | Transitions to |
 |-------|---------|----------------|
-| UNREAD | The Notification has been generated but the User has not yet viewed it (`is_read = false`); counts toward unread badges in NH-US-01 | READ |
-| READ | The User has viewed the Notification (NH-US-03) or opened it (NH-US-02), setting `is_read = true`. Terminal — no unread transition is defined | — |
+| UNREAD | The Notification has been generated, or the User has explicitly flagged it for follow-up again (NH-US-04), with `is_read = false`; counts toward unread badges in NH-US-01 | READ |
+| READ | The User has viewed the Notification (NH-US-03/NH-US-02) or opened it, setting `is_read = true` | UNREAD (NH-US-04) |
+
+> Dismissing a Notification (NH-US-05) is a separate, non-reversible delete operation — it removes the row entirely rather than transitioning to a further state, so it is not shown as a node on this diagram (same convention as User deletion, §2.4 above).
 
 ---
 
@@ -578,7 +613,7 @@ This view defines the system boundary and its interaction with external actors.
 
 *("4+1 Views" Model – Logical View)*
 
-At a logical level, the PFM system consists of the following major functional areas:
+At a logical level, the PFM system consists of the following major functional areas (SRS §7 Feature-level Release table):
 1. System Security
 2. User Management
 3. Wallet Management
@@ -586,7 +621,11 @@ At a logical level, the PFM system consists of the following major functional ar
 5. Budget Management
 6. Transaction Management
 7. Financial Reporting
-8. Notification Handling
+8. FinancialGoal
+9. Asset Management (system-level, ADMIN-managed shared reference data — §7.9)
+10. Investment Portfolio
+11. Notification Handling
+12. Data Overview Dashboard
 
 This view focuses on responsibilities and separation of concerns, not implementation details.
 
@@ -669,6 +708,7 @@ erDiagram
         string email UK
         string password_hash
         datetime created_at
+        bool is_active
     }
     ROLES {
         uuid id PK
@@ -757,7 +797,7 @@ This section defines business rules and constraints derived from the domain mode
 
 | Rule | DB-level enforcement |
 |------|----------------------|
-| BR-01 | `wallets.user_id` is `NOT NULL` FK → `users.id`; a Wallet is never reassigned to a different User |
+| BR-01 | `wallets.user_id` is `NOT NULL` FK → `users.id` ON DELETE CASCADE; a Wallet is never reassigned to a different User |
 | BR-02 | `wallets.name`, `wallets.type`, `wallets.current_balance` are `NOT NULL` |
 | BR-03 | `transactions.amount`, `.type`, `.date` are `NOT NULL`; `transactions.wallet_id` is `NOT NULL` FK ON DELETE CASCADE |
 | BR-04 | Not expressible as a plain FK constraint — enforced in `TransactionService`: a Transaction's `category_id` must belong to the same `user_id` that owns its `wallet_id` |
@@ -770,6 +810,12 @@ This section defines business rules and constraints derived from the domain mode
 | BR-11 | `holdings.asset_id` and `holdings.investment_portfolio_id` are `NOT NULL` FKs; the latter ON DELETE CASCADE |
 | BR-12 | Not a DB constraint — every Report query in `ReportService` filters by the authenticated User's own `wallet_id`/`category_id` set |
 | BR-13 | Not a DB constraint — every Dashboard query in `DashboardService` is scoped to the authenticated User, same as BR-12 |
+| BR-14 | `transactions.financial_goal_id` FK ON DELETE **SET NULL** (already listed below) — deleting a FinancialGoal leaves its previously-linked Transactions unlinked, mirroring BR-05's treatment of Category |
+| BR-15 | `assets.current_market_price` is a plain updatable column (no external write path); `holdings.current_value` (§2.2.9) is **not a persisted column** — always computed at query time from `quantity × assets.current_market_price` |
+| BR-16 | `users.is_active` `NOT NULL DEFAULT true`; `AuthenticationService` rejects login (SS-US-01) when `is_active = false`, regardless of valid credentials |
+| BR-17 | Not a DB constraint — `UserService.delete_user` (UM-US-06) checks `is_active = false` before issuing the delete; deletion then relies on `ON DELETE CASCADE` FKs (`wallets.user_id`, `categories.user_id`, `financial_goals.user_id`, `investment_portfolios.user_id`, `notifications.user_id`) to remove all owned rows in one transaction (AR-05) |
+| *(no SRS BR yet)* | `categories.user_id`, `investment_portfolios.user_id`, and `notifications.user_id` are all `NOT NULL` FK → `users.id` ON DELETE CASCADE (mirrors BR-01/BR-09's treatment of `wallets`/`financial_goals`) — recommend adding a matching BR to SRS §2.4 if this becomes load-bearing beyond BR-17 |
+| BR-18 | `holdings.asset_id` is `NOT NULL` FK → `assets.id` with no `ON DELETE` clause (defaults to `RESTRICT`/`NO ACTION`) — the DB rejects deleting a referenced Asset; `AssetService.delete_asset` (AM-US-05) checks for referencing Holdings first and raises a clear business error rather than surfacing the raw FK violation |
 | *(no SRS BR yet)* | Partial unique index on `wallets (user_id) WHERE is_default = true` — at most one default Wallet per User; recommend adding a matching BR to SRS §2.4 if this becomes load-bearing |
 | *(no SRS BR yet)* | `user_roles` composite PK `(user_id, role_id)` prevents duplicate Role assignment; every User row MUST have at least one linked Role, enforced in `UserService` at account creation (UM-US-01) |
 
@@ -783,7 +829,7 @@ This section maps the Domain Model to the physical Database Structure.
 
 | Table / Collection | Domain Object (§2.1) | Key columns / fields | Notes |
 |-------------------|----------------------|---------------------|-------|
-| `users` | `User` | `id UUID PK`, `full_name VARCHAR(150) NOT NULL`, `email VARCHAR(254) NOT NULL UNIQUE`, `password_hash VARCHAR(255) NOT NULL`, `created_at TIMESTAMP NOT NULL DEFAULT now()` | `password_hash` is physical-only (§7 Security Design) — no §2.2 Domain Object counterpart |
+| `users` | `User` | `id UUID PK`, `full_name VARCHAR(150) NOT NULL`, `email VARCHAR(254) NOT NULL UNIQUE`, `password_hash VARCHAR(255) NOT NULL`, `created_at TIMESTAMP NOT NULL DEFAULT now()`, `is_active BOOLEAN NOT NULL DEFAULT true` | `password_hash` is physical-only (§7 Security Design) — no §2.2 Domain Object counterpart; `is_active` backs UM-US-05/BR-16 |
 | `roles` | `Role` | `id UUID PK`, `code VARCHAR(20) NOT NULL UNIQUE CHECK (code IN ('ADMIN','USER'))` | Seeded once via migration (see Migration Strategy) |
 | `user_roles` | — (technical-only, §2.1) | `user_id UUID FK → users.id`, `role_id UUID FK → roles.id`, `PRIMARY KEY (user_id, role_id)` | Join table for `User ↔ Role` many-to-many (§2.3.14) |
 | `wallets` | `Wallet` | `id UUID PK`, `user_id UUID FK → users.id NOT NULL`, `name VARCHAR(100) NOT NULL`, `type VARCHAR(20) NOT NULL CHECK (type IN ('CASH','BANK','E_WALLET'))`, `currency CHAR(3) NOT NULL`, `current_balance DECIMAL(14,2) NOT NULL DEFAULT 0`, `is_default BOOLEAN NOT NULL DEFAULT false` | Index on `user_id`; partial unique index on `(user_id) WHERE is_default` |
@@ -894,13 +940,45 @@ This chapter provides build-ready design details per Feature and User Story, ali
 
 *(Details to be defined)*
 
+#### 5.2.3 UM-US-03: View My Profile (USER)
+
+*(Details to be defined)*
+
+#### 5.2.4 UM-US-04: List Users (ADMIN)
+
+*(Details to be defined)*
+
+#### 5.2.5 UM-US-05: Deactivate a User (ADMIN)
+
+**Goal:** Allow an ADMIN to set `User.is_active = false` so the User can no longer authenticate, without touching any of their financial data.
+
+**APIs Involved:**
+- Endpoint: `POST /users/{id}/deactivate/` (state-transition action endpoint per API-05)
+
+**Error Responses**
+- `403` (caller lacks ADMIN role)
+- `404 USER_NOT_FOUND`
+
+*(Remaining details to be defined)*
+
+#### 5.2.6 UM-US-06: Delete a User (ADMIN)
+
+**Goal:** Allow an ADMIN to permanently delete a User that is already `is_active = false` (BR-17); cascades via `ON DELETE CASCADE` FKs to remove all of that User's owned Wallets/Transactions/Budgets/Categories/FinancialGoals/InvestmentPortfolio/Holdings/Notifications in one transaction (AR-05).
+
+**Error Responses**
+- `403` (caller lacks ADMIN role)
+- `404 USER_NOT_FOUND`
+- `409` — User is still active (must be deactivated first, BR-17)
+
+*(Remaining details to be defined)*
+
 ### 5.3 Wallet Management (WM)
 
 #### 5.3.1 WM-US-01: Create a Wallet (USER)
 
 *(Details to be defined)*
 
-#### 5.3.2 WM-US-02: View a list of Wallets (USER)
+#### 5.3.2 WM-US-02: List Wallets (USER)
 
 *(Details to be defined)*
 
@@ -916,13 +994,23 @@ This chapter provides build-ready design details per Feature and User Story, ali
 
 *(Details to be defined)*
 
+#### 5.3.6 WM-US-06: Delete a Wallet (USER)
+
+**Goal:** Allow a User to delete a Wallet they own, cascading to its Transactions and Budgets (§2.3.6, §2.3.7 Composition).
+
+**Error Responses**
+- `403 WALLET_ACCESS_DENIED`
+- `404 WALLET_NOT_FOUND`
+
+*(Remaining details to be defined)*
+
 ### 5.4 Category Management (CM)
 
 #### 5.4.1 CM-US-01: Create a Category (USER)
 
 *(Details to be defined)*
 
-#### 5.4.2 CM-US-02: View a list of Categories (USER)
+#### 5.4.2 CM-US-02: List Categories (USER)
 
 *(Details to be defined)*
 
@@ -944,7 +1032,7 @@ This chapter provides build-ready design details per Feature and User Story, ali
 
 *(Details to be defined)*
 
-#### 5.5.2 BM-US-02: View a list of Budgets (USER)
+#### 5.5.2 BM-US-02: List Budgets (USER)
 
 *(Details to be defined)*
 
@@ -999,7 +1087,7 @@ This chapter provides build-ready design details per Feature and User Story, ali
 5. Optional: budget update and notification trigger.
 6. Controller returns a response.
 
-#### 5.6.2 TM-US-02: View a list of Transactions (USER)
+#### 5.6.2 TM-US-02: List Transactions (USER)
 
 *(Details to be defined)*
 
@@ -1014,6 +1102,15 @@ This chapter provides build-ready design details per Feature and User Story, ali
 #### 5.6.5 TM-US-05: Delete a Transaction (USER)
 
 *(Details to be defined)*
+
+#### 5.6.6 TM-US-06: Filter Transactions by Wallet, Category, Type, or Date Range (USER)
+
+**Goal:** Allow a User to narrow the Transaction list (GET /transactions) via query parameters, scoped to Wallets/Categories they own.
+
+**APIs Involved:**
+- Endpoint: `GET /transactions?wallet_id=&category_id=&type=&date_from=&date_to=`
+
+*(Remaining details to be defined)*
 
 ### 5.7 Financial Reporting (RPT)
 
@@ -1037,67 +1134,153 @@ This chapter provides build-ready design details per Feature and User Story, ali
 
 *(Details to be defined)*
 
-### 5.8 Financial Goal (FG)
+### 5.8 FinancialGoal (FG)
 
-#### 5.8.1 FG-US-01: Create a Financial Goal (USER)
-
-*(Details to be defined)*
-
-#### 5.8.2 FG-US-02: View a list of Financial Goals (USER)
+#### 5.8.1 FG-US-01: Create a FinancialGoal (USER)
 
 *(Details to be defined)*
 
-#### 5.8.3 FG-US-03: View a Financial Goal (USER)
+#### 5.8.2 FG-US-02: List FinancialGoals (USER)
 
 *(Details to be defined)*
 
-#### 5.8.4 FG-US-04: Update a Financial Goal (USER)
+#### 5.8.3 FG-US-03: View a FinancialGoal (USER)
 
 *(Details to be defined)*
 
-#### 5.8.5 FG-US-05: Close a Financial Goal (USER)
+#### 5.8.4 FG-US-04: Update a FinancialGoal (USER)
 
 *(Details to be defined)*
 
-### 5.9 Investment Portfolio (IP)
-
-#### 5.9.1 IP-US-01: View the Investment Portfolio (USER)
+#### 5.8.5 FG-US-05: Close a FinancialGoal (USER)
 
 *(Details to be defined)*
 
-#### 5.9.2 IP-US-02: Update the Investment Portfolio Settings (USER)
+#### 5.8.6 FG-US-06: Delete a FinancialGoal (USER)
+
+**Goal:** Allow a User to delete a FinancialGoal they own; linked Transactions are unlinked, not deleted (`transactions.financial_goal_id` ON DELETE SET NULL, BR-14).
+
+*(Remaining details to be defined)*
+
+### 5.9 Asset Management (AM)
+
+> Actor is ADMIN throughout this Feature — Asset is system-level shared reference data (§2.2.8), not owned by any `user_id`, unlike every other Feature in this chapter.
+
+#### 5.9.1 AM-US-01: Create an Asset (ADMIN)
+
+**Goal:** Allow an ADMIN to register a new Asset in the shared catalog (`assets` table, §2.1 — no `user_id`) so any User can select it when adding a Holding (IP-US-03).
+
+**Error Responses**
+- `403` (caller lacks ADMIN role)
+- `400 INVALID_INPUT`
+- `409` duplicate `ticker_symbol` (VL-02)
+
+*(Remaining details to be defined)*
+
+#### 5.9.2 AM-US-02: List Assets (ADMIN)
 
 *(Details to be defined)*
 
-#### 5.9.3 IP-US-03: Add a Holding to the Investment Portfolio (USER)
+#### 5.9.3 AM-US-03: View an Asset (ADMIN)
 
 *(Details to be defined)*
 
-#### 5.9.4 IP-US-04: Update a Holding (USER)
+#### 5.9.4 AM-US-04: Update an Asset's Current Market Price (ADMIN)
+
+**Goal:** Allow an ADMIN to manually update `assets.current_market_price` (BR-15); no live feed exists (SRS §1.6). `holdings.current_value` is recomputed at read time from the new price for every Holding — across all Users — referencing this Asset; no other write occurs.
+
+**Error Responses**
+- `403` (caller lacks ADMIN role)
+- `400 INVALID_INPUT`
+- `404` Asset not found
+
+*(Remaining details to be defined)*
+
+#### 5.9.5 AM-US-05: Delete an Asset (ADMIN)
+
+**Goal:** Allow an ADMIN to permanently delete an Asset row, provided no `holdings.asset_id` references it (BR-18).
+
+**Error Responses**
+- `403` (caller lacks ADMIN role)
+- `404` Asset not found
+- `409` — Asset is referenced by one or more Holdings (BR-18)
+
+*(Remaining details to be defined)*
+
+### 5.10 Investment Portfolio (IP)
+
+#### 5.10.1 IP-US-01: View the Investment Portfolio (USER)
 
 *(Details to be defined)*
 
-#### 5.9.5 IP-US-05: Remove a Holding (USER)
+#### 5.10.2 IP-US-02: Update the Investment Portfolio Settings (USER)
 
 *(Details to be defined)*
 
-### 5.10 Notification Handling (NH)
-
-#### 5.10.1 NH-US-01: View the list of Notifications (USER)
+#### 5.10.3 IP-US-03: Add a Holding to the Investment Portfolio (USER)
 
 *(Details to be defined)*
 
-#### 5.10.2 NH-US-02: View a Notification (USER)
+#### 5.10.4 IP-US-04: Update a Holding (USER)
 
 *(Details to be defined)*
 
-#### 5.10.3 NH-US-03: Mark a Notification as Read (USER)
+#### 5.10.5 IP-US-05: Delete a Holding (USER)
 
 *(Details to be defined)*
 
-### 5.11 Data Overview Dashboard (DOD)
+### 5.11 Notification Handling (NH)
+
+#### 5.11.1 NH-US-01: View the list of Notifications (USER)
 
 *(Details to be defined)*
+
+#### 5.11.2 NH-US-02: View a Notification (USER)
+
+*(Details to be defined)*
+
+#### 5.11.3 NH-US-03: Mark a Notification as Read (USER)
+
+*(Details to be defined)*
+
+#### 5.11.4 NH-US-04: Mark a Notification as Unread (USER)
+
+**Goal:** Allow a User to set `notifications.is_read = false` on a previously-read Notification (reverse of NH-US-03); see the now-bidirectional Notification STD (§2.4).
+
+*(Remaining details to be defined)*
+
+#### 5.11.5 NH-US-05: Dismiss a Notification (USER)
+
+**Goal:** Allow a User to permanently delete a Notification row they no longer want to see. Not a state transition — see §2.4 note under the Notification STD.
+
+*(Remaining details to be defined)*
+
+### 5.12 Data Overview Dashboard (DOD)
+
+#### 5.12.1 DOD-US-01: View the Dashboard (USER)
+
+**Goal:** Aggregate the authenticated User's own Wallet balances, recent Transactions, Budget status, and FinancialGoal progress into a single read (BR-13).
+
+**Layers Involved:**
+- DashboardController
+- DashboardService (composes WalletRepository, TransactionRepository, BudgetRepository, FinancialGoalRepository — read-only, no new persisted model)
+
+*(Remaining details to be defined)*
+
+#### 5.12.2 DOD-US-02: Filter the Dashboard by Date Range (USER)
+
+**Goal:** Allow a User to scope the Dashboard's balances/recent-Transactions/Budget-status/Goal-progress read (DOD-US-01) to a specific date range, mirroring RPT-US-04's filter pattern.
+
+**APIs Involved:**
+- Endpoint: `GET /dashboard?date_from=&date_to=`
+
+*(Remaining details to be defined)*
+
+#### 5.12.3 DOD-US-03: Navigate from a Dashboard Summary to its Detail Screen (USER)
+
+**Goal:** Pure client-side navigation from a Dashboard summary card to the corresponding Wallet (WM-US-03) or Budget (BM-US-03) detail screen — no new API, reuses existing detail endpoints.
+
+*(Remaining details to be defined)*
 
 ---
 
@@ -1306,7 +1489,7 @@ Each metric includes a definition and a measurement scope.
 | Metric | Description |
 |--------|-------------|
 | Budget Compliance Rate | % of months where spending stays within configured budgets. |
-| Savings Goal Success Rate | % of users achieving at least one Financial Goal. |
+| Savings Goal Success Rate | % of users achieving at least one FinancialGoal. |
 | Recurring Expense Capture Rate | % of recurring expenses logged in the system. |
 | Expense Categorization Coverage | % of transactions categorized. |
 | Net Savings Change Trend | Average increase/decrease in net savings over time (self-reported). |

@@ -187,7 +187,7 @@ Use these terms consistently across code, API contracts, database, and UI — th
 | Category | Tag, Label |
 | Budget | Limit, Cap |
 | Transaction | Entry, Record |
-| FinancialGoal | Goal alone — always qualify as "Financial Goal" in user-facing text |
+| FinancialGoal | Goal alone, or "Financial Goal" (two words) — the entity name is written as one PascalCase word, `FinancialGoal`, everywhere it appears (headings, story titles, prose, code, API URLs excepted per NC-02 kebab-case) |
 | InvestmentPortfolio | Portfolio alone — always qualify as "Investment Portfolio" |
 | Holding | Position, Investment alone |
 | Asset | Instrument, Security |
@@ -209,7 +209,7 @@ Business Rules (BR-01 through BR-13) are owned by **SRS §2.4** — this constit
 Backend and frontend are separate top-level folders in a single repository. Backend code must not be placed in `frontend/` and vice versa. Each module owns its own dependencies (`requirements.txt` / `package.json`) and build tooling.
 
 **II. Backend Package-by-Feature Structure**
-Backend code is organized package-by-feature (one Django app per Aggregate Root / major entity), not package-by-layer — this mirrors the SDS §2.1 Domain Layer Traceability table 1:1. Current apps: `users`, `wallets`, `categories`, `budgets`, `transactions`, `notifications`. `financial_goals`, `investment_portfolios` (with `holdings`/`assets`), and `roles` are designed in SDS §2.2 but not yet scaffolded — when added, follow the same one-app-per-entity pattern with `models.py` / `serializers.py` / `views.py` / `urls.py` / `tests.py`. Shared/cross-cutting code (e.g. custom permissions, base serializers) lives in `config/` or a new `common/` app — do not duplicate it per-app.
+Backend code is organized package-by-feature (one Django app per Aggregate Root / major entity), not package-by-layer — this mirrors the SDS §2.1 Domain Layer Traceability table 1:1. Current apps: `users`, `wallets`, `categories`, `budgets`, `transactions`, `notifications`. `financial_goals`, `investment_portfolios` (with `holdings`), `assets`, and `roles` are designed in SDS §2.2 but not yet scaffolded — when added, follow the same one-app-per-entity pattern with `models.py` / `serializers.py` / `views.py` / `urls.py` / `tests.py`. `assets` is its own app, separate from `investment_portfolios` — Asset is system-level shared reference data with no `user_id` (SRS §7.9 Asset Management, ADMIN-only), unlike the User-owned `investment_portfolios`/`holdings`. Shared/cross-cutting code (e.g. custom permissions, base serializers) lives in `config/` or a new `common/` app — do not duplicate it per-app.
 
 **III. Django Migrations Are the Schema Source of Truth**
 All schema changes go through `python manage.py makemigrations` + `migrate`; never hand-edit `db.sqlite3` or bypass migrations with raw DDL. Migration files under `<app>/migrations/` are immutable once merged — create a new migration to amend a previous one, never edit a merged one in place. SQLite has limited `ALTER TABLE` support; prefer additive changes (new nullable columns/tables) and be aware some changes require Django's migration to rebuild the table under the hood.
@@ -232,8 +232,8 @@ PFM has exactly two roles (SRS §1.5), and — unlike a typical fixed-role syste
 
 | Role | Scope |
 |---|---|
-| `ADMIN` | Create new User accounts (UM-US-01) only. No visibility into any User's Wallets, Transactions, Budgets, Goals, Portfolio, or Notifications — including their own, unless they also hold `USER` |
-| `USER` | Full access to their own Wallets, Categories, Budgets, Transactions, Financial Goals, Investment Portfolio, and Notifications only |
+| `ADMIN` | User account lifecycle management (create/list/deactivate/delete — UM-US-01/04/05/06) and maintenance of the shared, system-level Asset catalog (create/list/view/update-price — AM-US-01..04, SRS §7.9) only. No visibility into any User's Wallets, Transactions, Budgets, Goals, Investment Portfolio, or Notifications — including their own, unless they also hold `USER` |
+| `USER` | Full access to their own Wallets, Categories, Budgets, Transactions, FinancialGoals, Investment Portfolio, and Notifications only. References (read-only) the ADMIN-maintained Asset catalog when adding a Holding (IP-US-03) — Asset itself is never USER-writable |
 
 **AC-02: Backend Enforces All Authorization**
 Authorization decisions must be enforced in the backend (DRF permission classes + `get_queryset()` ownership filtering), never only in the frontend. Frontend controls are for UX only. The backend must return `401` for unauthenticated requests and `403` for authenticated-but-disallowed actions (e.g. a `USER`-only account calling an `ADMIN`-only endpoint).
