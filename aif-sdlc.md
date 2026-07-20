@@ -2,6 +2,9 @@
 
 > Structured prompts for each role at each stage of the development cycle.
 > Claude performs the task automatically — **you only review the artifact produced.**
+> This is a solo/personal project — one person plays BA, SE, and QC. No ticket
+> tracker (Jira or otherwise) is used; git branches and the SRS/SDS documents
+> are the only source of truth for what's in progress.
 >
 > Role colours:
 > <span style="color:#3b82f6;font-weight:700">■ BA</span> &nbsp;
@@ -36,7 +39,7 @@
 | **2** | <span style="color:#0d9488;font-weight:700">SE</span> | Design Prompt | `plan.md` + SDS feature-header link |
 | **3** | <span style="color:#d97706;font-weight:700">QC</span> | Quality Prompt | `test_cases.md` + Playwright automation code |
 | **4** | <span style="color:#0d9488;font-weight:700">SE</span> | Implementation Prompt | `tasks.md` + implemented code (analyze → implement → analyze) |
-| **5** | <span style="color:#0d9488;font-weight:700">SE</span> | Deployment Prompt | US deployed to Test Environment |
+| **5** | <span style="color:#0d9488;font-weight:700">SE</span> | Deployment Prompt | US deployed to the home-LAN host (RUNBOOK.md) |
 | **6** | <span style="color:#d97706;font-weight:700">QC</span> | Verification Prompt | Verification report (automated + manual) |
 
 > **Sequence rule:** Each step starts only after the previous artifact is produced and reviewed.
@@ -55,14 +58,12 @@
 ```
 Spec Prompt
 
-Feature group:  [e.g. 7.2 Business Unit]
-Feature code:   [e.g. BU]
-Feature folder: [e.g. specs/002-business-unit — leave blank if new feature, Claude will create it]
-Story number:   [e.g. BU-US-01 — leave blank to auto-assign next number from SRS]
-Jira Epic:      [BEE-EEE — the Epic ticket for this Feature]
-Jira Story:     [BEE-NNN — the Story ticket for this US]
-Story title:    [e.g. Create a Business Unit]
-Actor(s):       [ADMIN | RETAILER | CUSTOMER | SYSTEM | HUMAN REVIEWER]
+Feature group:  [e.g. 7.2 Wallet Management]
+Feature code:   [e.g. WM]
+Feature folder: [e.g. specs/002-wallet-management — leave blank if new feature, Claude will create it]
+Story number:   [e.g. WM-US-01 — leave blank to auto-assign next number from SRS]
+Story title:    [e.g. Create a Wallet]
+Actor(s):       [ADMIN | USER]
 Goal:           [one sentence — what the actor wants to do]
 Reason:         [one sentence — business value]
 Acceptance criteria (for spec only — NOT written into SRS):
@@ -70,63 +71,38 @@ Acceptance criteria (for spec only — NOT written into SRS):
 - [AC 2]
 - [AC 3]
 
---- Jira & Git ---
+--- Git ---
 
-1. Using the Atlassian MCP, look up an existing Spec Step ticket to avoid duplicates:
-   searchJiraIssuesUsingJql: summary ~ "[Story number]: Spec Step" AND parent = [Jira Epic] AND issuetype = Task
-   - If found: set TASK_ID = that ticket's key. Skip steps 2–3.
-   - If not found:
-       a. Get the current user's account ID:
-            atlassianUserInfo() → extract accountId as CURRENT_USER_ACCOUNT_ID
-       b. Create a Jira Task ticket:
-            summary:  [Story number]: Spec Step
-            type:     Task
-            parent:   [Jira Epic]
-            assignee: CURRENT_USER_ACCOUNT_ID
-          Save the new ticket ID as TASK_ID.
-       c. Add TASK_ID to the active sprint:
-            searchJiraIssuesUsingJql: project = BEE AND sprint in openSprints() (fields: ["customfield_10020"])
-            Extract sprint ID from the first result's customfield_10020.
-            editJiraIssue(TASK_ID, customfield_10020: sprint_id)
-
-2. Transition TASK_ID to In Progress:
-   - getTransitionsForJiraIssue(TASK_ID) → find "In Progress" transition ID
-   - transitionJiraIssue(TASK_ID, transition_id)
-
-3. Link TASK_ID to block the US Story [Jira Story]:
-   - getIssueLinkTypes() → find the "Blocks" link type ID
-   - createIssueLink(inwardIssue: [Jira Story], outwardIssue: TASK_ID, linkType: "Blocks")
-
-4. Create and switch to a git feature branch:
-   git checkout -b feature/[task-id-lowercase]-[story-number-lowercase]-spec-step
-   (e.g. feature/bee-234-pp-us-01-spec-step)
+1. Create and switch to a git feature branch:
+   git checkout -b feature/[story-number-lowercase]-spec-step
+   (e.g. feature/wm-us-01-spec-step)
 
 --- Spec Step ---
 
-=== IF Feature folder does NOT exist yet (new Epic / first US) ===
+=== IF Feature folder does NOT exist yet (new Feature / first US) ===
 
-5. In SRS.md, add a spec link immediately under the feature section header (§7.x),
+2. In SRS.md, add a spec link immediately under the feature section header (§7.x),
    before any US entries. Format:
    > Spec: [[Feature folder]/spec.md]([Feature folder]/spec.md)
 
    The spec link appears ONCE at the feature (§7.x) level — never under individual US entries.
 
-6. Add the US entry to SRS.md under the feature section. Format:
-   #### [§7.x.N] [Jira Story]: [Story Title] ([ACTOR])
+3. Add the US entry to SRS.md under the feature section. Format:
+   #### [§7.x.N] [Story number]: [Story Title] ([ACTOR])
    **As a/an** [actor], **I want to** [goal] **so that** [reason].
 
-7. Run /speckit.specify with the story statement and ACs above.
+4. Run /speckit-specify with the story statement and ACs above.
    This creates [Feature folder] and generates spec.md.
 
-=== IF Feature folder already exists (adding a new US to an existing Epic) ===
+=== IF Feature folder already exists (adding a new US to an existing Feature) ===
 
-5. The spec link already exists on the feature section header — do NOT add it again.
+2. The spec link already exists on the feature section header — do NOT add it again.
 
-6. Add the new US entry to SRS.md under the existing feature section. Format:
-   #### [§7.x.N] [Jira Story]: [Story Title] ([ACTOR])
+3. Add the new US entry to SRS.md under the existing feature section. Format:
+   #### [§7.x.N] [Story number]: [Story Title] ([ACTOR])
    **As a/an** [actor], **I want to** [goal] **so that** [reason].
 
-7. Run /speckit.specify with the story statement and ACs above.
+4. Run /speckit-specify with the story statement and ACs above.
    This appends the new US to the existing spec.md.
 
 === Always — regardless of which case applies ===
@@ -134,7 +110,7 @@ Acceptance criteria (for spec only — NOT written into SRS):
 • Remove any existing AC block from the SRS entry for this US. Only the story
   statement belongs in SRS.md. ACs live in spec.md only.
 • Never add a spec link under a US entry (§7.x.N level) — the link belongs on
-  the feature header (§7.x level) only, added once for the whole Epic.
+  the feature header (§7.x level) only, added once for the whole Feature.
 ```
 
 ---
@@ -152,8 +128,6 @@ Design Prompt
 
 Feature folder:    specs/[feature-id]-[slug]/
 US being designed: [XX-US-NN]
-Jira Epic:         [BEE-EEE]
-Jira Story:        [BEE-NNN]
 Story title:       [Story title confirmed in Step 1]
 
 --- Pre-flight ---
@@ -161,53 +135,28 @@ Story title:       [Story title confirmed in Step 1]
 1. Verify [Feature folder]/spec.md exists and contains [US being designed].
    If not found: STOP — run the Spec Prompt for this US first.
 
---- Jira & Git ---
+--- Git ---
 
-2. Using the Atlassian MCP, look up an existing Design Step ticket to avoid duplicates:
-   searchJiraIssuesUsingJql: summary ~ "[US being designed]: Design Step" AND parent = [Jira Epic] AND issuetype = Task
-   - If found: set TASK_ID = that ticket's key. Skip steps 3–4.
-   - If not found:
-       a. Get the current user's account ID:
-            atlassianUserInfo() → extract accountId as CURRENT_USER_ACCOUNT_ID
-       b. Create a Jira Task ticket:
-            summary:  [US being designed]: Design Step
-            type:     Task
-            parent:   [Jira Epic]
-            assignee: CURRENT_USER_ACCOUNT_ID
-          Save the new ticket ID as TASK_ID.
-       c. Add TASK_ID to the active sprint:
-            searchJiraIssuesUsingJql: project = BEE AND sprint in openSprints() (fields: ["customfield_10020"])
-            Extract sprint ID from the first result's customfield_10020.
-            editJiraIssue(TASK_ID, customfield_10020: sprint_id)
-
-3. Transition TASK_ID to In Progress:
-   - getTransitionsForJiraIssue(TASK_ID) → find "In Progress" transition ID
-   - transitionJiraIssue(TASK_ID, transition_id)
-
-4. Link TASK_ID to block the US Story [Jira Story]:
-   - getIssueLinkTypes() → find the "Blocks" link type ID
-   - createIssueLink(inwardIssue: [Jira Story], outwardIssue: TASK_ID, linkType: "Blocks")
-
-5. Create and switch to a git feature branch:
-   git checkout -b feature/[task-id-lowercase]-[us-id-lowercase]-design-step
-   (e.g. feature/bee-235-pp-us-01-design-step)
+2. Create and switch to a git feature branch:
+   git checkout -b feature/[us-id-lowercase]-design-step
+   (e.g. feature/wm-us-01-design-step)
 
 --- Design Step ---
 
-6. Read [Feature folder]/spec.md and flag any ambiguities, missing
+3. Read [Feature folder]/spec.md and flag any ambiguities, missing
    domain objects, or API gaps before proceeding.
 
 === IF plan.md does NOT exist yet (first US of this Feature) ===
 
-7. Run /speckit.plan for this spec. This creates plan.md.
-8. In SDS.md, add a plan link immediately under the feature section header,
+4. Run /speckit-plan for this spec. This creates plan.md.
+5. In SDS.md, add a plan link immediately under the feature section header,
    before any sub-section entries. Format:
    > Plan: [[Feature folder]/plan.md]([Feature folder]/plan.md)
 
    The plan link appears ONCE at the feature (§5.x) level — never under individual
    US sub-sections.
 
-9. In SDS.md, create the US sub-section (§5.x.N) with ONLY the Purpose field.
+6. In SDS.md, create the US sub-section (§5.x.N) with ONLY the Purpose field.
    Format:
    #### [§5.x.N] [US being designed]: [Story Title]
    **Purpose**
@@ -215,10 +164,10 @@ Story title:       [Story title confirmed in Step 1]
 
 === IF plan.md already exists (2nd+ US of this Feature) ===
 
-7. Run /speckit.plan for this spec. This updates the existing plan.md to cover
+4. Run /speckit-plan for this spec. This updates the existing plan.md to cover
    the new US — existing sections are preserved and extended as needed.
-8. The plan link already exists in SDS.md — do NOT add it again.
-9. In SDS.md, for the US sub-section (§5.x.N):
+5. The plan link already exists in SDS.md — do NOT add it again.
+6. In SDS.md, for the US sub-section (§5.x.N):
    - If §5.x.N does NOT exist yet: create it with ONLY the Purpose field.
    - If §5.x.N already exists with extra content (Scope, Preconditions, Functional Design,
      Main Flow, Alternative/Error Flows): trim it down to ONLY the Purpose field.
@@ -240,8 +189,6 @@ Quality Prompt
 
 Feature folder:  specs/[feature-id]-[slug]/
 US being tested: [XX-US-NN]
-Jira Epic:       [BEE-EEE]
-Jira Story:      [BEE-NNN]
 
 --- Pre-flight ---
 
@@ -250,36 +197,11 @@ Jira Story:      [BEE-NNN]
    - [Feature folder]/plan.md
    If either is missing: STOP — complete the Spec and Design steps first.
 
---- Jira & Git ---
+--- Git ---
 
-2. Using the Atlassian MCP, look up an existing Quality Step ticket to avoid duplicates:
-   searchJiraIssuesUsingJql: summary ~ "[US being tested]: Quality Step" AND parent = [Jira Epic] AND issuetype = Task
-   - If found: set TASK_ID = that ticket's key. Skip steps 3–4.
-   - If not found:
-       a. Get the current user's account ID:
-            atlassianUserInfo() → extract accountId as CURRENT_USER_ACCOUNT_ID
-       b. Create a Jira Task ticket:
-            summary:  [US being tested]: Quality Step
-            type:     Task
-            parent:   [Jira Epic]
-            assignee: CURRENT_USER_ACCOUNT_ID
-          Save the new ticket ID as TASK_ID.
-       c. Add TASK_ID to the active sprint:
-            searchJiraIssuesUsingJql: project = BEE AND sprint in openSprints() (fields: ["customfield_10020"])
-            Extract sprint ID from the first result's customfield_10020.
-            editJiraIssue(TASK_ID, customfield_10020: sprint_id)
-
-3. Transition TASK_ID to In Progress:
-   - getTransitionsForJiraIssue(TASK_ID) → find "In Progress" transition ID
-   - transitionJiraIssue(TASK_ID, transition_id)
-
-4. Link TASK_ID to block the US Story:
-   - getIssueLinkTypes() → find the "Blocks" link type ID
-   - createIssueLink(inwardIssue: [Jira Story], outwardIssue: TASK_ID, linkType: "Blocks")
-
-5. Create and switch to a git feature branch:
-   git checkout -b feature/[task-id-lowercase]-[us-id-lowercase]-quality-step
-   (e.g. feature/bee-236-pp-us-01-quality-step)
+2. Create and switch to a git feature branch:
+   git checkout -b feature/[us-id-lowercase]-quality-step
+   (e.g. feature/wm-us-01-quality-step)
 
 --- Quality Step ---
 
@@ -314,14 +236,14 @@ Write test cases
 
 === IF test_cases.md does NOT exist yet (first US of this Feature) ===
 
-6. Create test_cases.md in [Feature folder] with test cases for [US being tested].
-7. Create test_[feature-id].spec.ts with Playwright automation for all e2e test cases. Following Testing-Code-Rule
+3. Create test_cases.md in [Feature folder] with test cases for [US being tested].
+4. Create test_[feature-id].spec.ts with Playwright automation for all e2e test cases. Following Testing-Code-Rule
 
 === IF test_cases.md already exists (2nd+ US of this Feature) ===
 
-6. Append new test cases for [US being tested] to the existing test_cases.md.
+3. Append new test cases for [US being tested] to the existing test_cases.md.
    Number new cases continuing from the last TC-NN in the file.
-7. Append new Playwright tests for [US being tested] e2e cases to the existing
+4. Append new Playwright tests for [US being tested] e2e cases to the existing
    test_[feature-id].spec.ts. Do not modify or remove existing test cases.
 
 === Always — Testing-Code-Rule ===
@@ -354,15 +276,13 @@ E2E:
 
 > **When to use:** After Step 3 is complete (test cases exist).
 > **You provide:** The feature folder path and the US ID being implemented.
-> **You review:** The pre-implementation `/speckit.analyze` report, the implementation diff, and the post-implementation `/speckit.analyze` report.
+> **You review:** The pre-implementation `/speckit-analyze` report, the implementation diff, and the post-implementation `/speckit-analyze` report.
 
 ```
 Implementation Prompt
 
 Feature folder:        specs/[feature-id]-[slug]/
 US being implemented:  [XX-US-NN]
-Jira Epic:             [BEE-EEE]
-Jira Story:            [BEE-NNN]
 
 --- Pre-flight ---
 
@@ -371,60 +291,36 @@ Jira Story:            [BEE-NNN]
    - [Feature folder]/plan.md
    If either is missing: STOP — complete the Spec and Design steps first.
 
---- Jira & Git ---
+--- Git ---
 
-2. Using the Atlassian MCP, look up an existing Implementation Step ticket to avoid duplicates:
-   searchJiraIssuesUsingJql: summary ~ "[US being implemented]: Implementation Step" AND parent = [Jira Epic] AND issuetype = Task
-   - If found: set TASK_ID = that ticket's key. Skip steps 3–4.
-   - If not found:
-       a. Get the current user's account ID:
-            atlassianUserInfo() → extract accountId as CURRENT_USER_ACCOUNT_ID
-       b. Create a Jira Task ticket:
-            summary:  [US being implemented]: Implementation Step
-            type:     Task
-            parent:   [Jira Epic]
-            assignee: CURRENT_USER_ACCOUNT_ID
-          Save the new ticket ID as TASK_ID.
-       c. Add TASK_ID to the active sprint:
-            searchJiraIssuesUsingJql: project = BEE AND sprint in openSprints() (fields: ["customfield_10020"])
-            Extract sprint ID from the first result's customfield_10020.
-            editJiraIssue(TASK_ID, customfield_10020: sprint_id)
-
-3. Transition TASK_ID to In Progress:
-   - getTransitionsForJiraIssue(TASK_ID) → find "In Progress" transition ID
-   - transitionJiraIssue(TASK_ID, transition_id)
-
-4. Link TASK_ID to block the [Jira Story]:
-   - getIssueLinkTypes() → find the "Blocks" link type ID
-   - createIssueLink(inwardIssue: [Jira Story], outwardIssue: TASK_ID, linkType: "Blocks")
-
-5. Create and switch to a git feature branch:
-   git checkout -b feature/[task-id-lowercase]-[us-id-lowercase]-implementation-step
-   (e.g. feature/bee-237-pp-us-01-implementation-step)
+2. Create and switch to a git feature branch:
+   git checkout -b feature/[us-id-lowercase]-implementation-step
+   (e.g. feature/wm-us-01-implementation-step)
 
 --- Implementation Step ---
 
-6. Generate the task list for this US:
-   Run /speckit.tasks
+3. Generate the task list for this US:
+   Run /speckit-tasks
    This produces tasks.md — the ordered, dependency-aware work breakdown for [US being implemented].
 
-7. Pre-implementation alignment check:
-   Run /speckit.analyze
+4. Pre-implementation alignment check:
+   Run /speckit-analyze
    Review any consistency gaps flagged between spec.md, plan.md, and tasks.md.
    Resolve all Critical and High findings before proceeding.
 
-8. Implement:
+5. Implement:
    Artifacts at:
      [Feature folder]/spec.md
      [Feature folder]/plan.md
      [Feature folder]/tasks.md
      [Feature folder]/test_cases.md
 
-   Run /speckit.implement for this feature.
+   Run /speckit-implement for this feature.
 
-8.1. UI Element ID Contract
+5.1. UI Element ID Contract
 
-Every newly introduced interactive frontend element MUST have a stable `id` attribute.
+Every newly introduced interactive frontend element MUST have a stable `id` attribute,
+per constitution.md NC-04 / FE-01.
 
 Since Steps 3 (Quality) and 4 (Implementation) run in parallel, IDs must be assigned proactively from `plan.md`, not added reactively from `test_cases.md`.
 
@@ -436,18 +332,16 @@ Base pattern:
 
 | Element              | Pattern                 | Example                         |
 | -------------------- | ----------------------- | ------------------------------- |
-| Form field           | `[entity]-[field-name]` | `cost-name`, `cost-start-month` |
-| Submit button        | `btn-submit-[entity]`   | `btn-submit-cost`               |
-| Open create form btn | `btn-add-[entity]`      | `btn-add-cost`                  |
-| Edit row button      | `btn-edit-[entity]`     | `btn-edit-cost`                 |
-| Delete row button    | `btn-delete-[entity]`   | `btn-delete-cost`               |
-| Save inline button   | `btn-save-[entity]`     | `btn-save-cost`                 |
-| Table container      | `table-[entity]`        | `table-costs`                   |
+| Form field           | `[entity]-[field-name]` | `wallet-name`, `transaction-amount` |
+| Submit button        | `btn-submit-[entity]`   | `btn-submit-wallet`             |
+| Open create form btn | `btn-add-[entity]`      | `btn-add-wallet`                |
+| Edit row button      | `btn-edit-[entity]-{id}`| `btn-edit-wallet-3`             |
+| Delete row button    | `btn-delete-[entity]-{id}`| `btn-delete-wallet-3`         |
+| Table container      | `table-[entity]`        | `table-wallets`                 |
 | Search input         | `search-[field-name]`   | `search-name`, `search-status`  |
 | Search button        | `btn-search`            | `btn-search`                    |
 | Reset filter button  | `btn-reset-filter`      | `btn-reset-filter`              |
-| Modal wrapper        | `modal-[entity]`        | `modal-cost`                    |
-| Drawer wrapper       | `drawer-[entity]`       | `drawer-employee`               |
+| Modal wrapper        | `modal-[entity]`        | `modal-wallet`                  |
 | Success message      | `message-success`       | `message-success`               |
 | Error message        | `message-error`         | `message-error`                 |
 
@@ -459,8 +353,8 @@ Base pattern:
 * If multiple elements of the same type exist within a list/table row, append a stable identifier where necessary
 * If `test_cases.md` already exists during implementation, cross-check all IDs against the test cases before closing the task
 
-9. Post-implementation alignment check:
-   Run /speckit.analyze again.
+6. Post-implementation alignment check:
+   Run /speckit-analyze again.
    Confirm the final codebase state still aligns with spec.md and plan.md.
    If new gaps are flagged, resolve them before handing off to the Deployment Step.
 ```
@@ -472,18 +366,19 @@ Base pattern:
 ### <span style="color:#0d9488">SE</span> Deployment Prompt
 
 > **When to use:** After Step 4 implementation is complete and reviewed.
-> **You provide:** The US ID and the Test Environment URL.
-> **You review:** Deployment confirmation and Test Environment URL before handing off to QC.
+> **You provide:** The US ID.
+> **You review:** Deployment confirmation and the LAN URLs before handing off to QC.
+> **Context:** PFM is a single-machine home-LAN deployment (see RUNBOOK.md) — there is no
+> separate remote Test Environment, no Docker, and no SSH. "Deploying" means running the
+> app's own tests, then (re)starting the two long-running dev servers on the host machine,
+> bound to the LAN per RUNBOOK.md §6.
 
 ```
 Deployment Prompt
 
 Feature folder:    specs/[feature-id]-[slug]/
 US being deployed: [XX-US-NN]
-Jira Epic:         [BEE-EEE]
-Jira Story:        [BEE-NNN]
-Test Env URL:      [e.g. https://test.obms.internal or http://10.0.0.x]
-user:              [user]
+Host LAN IP:        [<HOST_IP> — from RUNBOOK.md §2]
 
 --- Pre-flight ---
 
@@ -492,66 +387,33 @@ user:              [user]
    - [Feature folder]/plan.md
    If missing: STOP — complete earlier steps first.
 
-2. Using the Atlassian MCP, verify the Implementation Step ticket is Done:
-   JQL: summary ~ "[US being deployed]: Implementation Step" AND parent = [Jira Epic]
-   If ticket is not Done: STOP — implementation must be completed and merged first.
-
---- Jira & Git ---
-
-3. Using the Atlassian MCP, look up an existing Deployment Step ticket to avoid duplicates:
-   searchJiraIssuesUsingJql: summary ~ "[US being deployed]: Deployment Step" AND parent = [Jira Epic] AND issuetype = Task
-   - If found: set TASK_ID = that ticket's key. Skip steps 4–5.
-   - If not found:
-       a. Get the current user's account ID:
-            atlassianUserInfo() → extract accountId as CURRENT_USER_ACCOUNT_ID
-       b. Create a Jira Task ticket:
-            summary:  [US being deployed]: Deployment Step
-            type:     Task
-            parent:   [Jira Epic]
-            assignee: CURRENT_USER_ACCOUNT_ID
-          Save the new ticket ID as TASK_ID.
-       c. Add TASK_ID to the active sprint:
-            searchJiraIssuesUsingJql: project = BEE AND sprint in openSprints() (fields: ["customfield_10020"])
-            Extract sprint ID from the first result's customfield_10020.
-            editJiraIssue(TASK_ID, customfield_10020: sprint_id)
-
-4. Transition TASK_ID to In Progress:
-   - getTransitionsForJiraIssue(TASK_ID) → find "In Progress" transition ID
-   - transitionJiraIssue(TASK_ID, transition_id)
-
-5. Link TASK_ID to block the US Story:
-   - getIssueLinkTypes() → find the "Blocks" link type ID
-   - createIssueLink(inwardIssue: [Jira Story], outwardIssue: TASK_ID, linkType: "Blocks")
+2. Confirm the Implementation Step branch for [US being deployed] is merged into
+   develop (or the branch you deploy from). If not merged: STOP — merge first.
 
 --- Deployment Step ---
 
-6. Run the tests related to the [US being deployed] functionality before deployment to confirm there are no regressions:
-   cd backend && ./mvnw test
+3. Run the full test suite to confirm there are no regressions:
+   cd backend && python manage.py test
+   cd frontend && npm run lint && npm run build
 
-7. Access remote host and deploy to Test Environment:
-   ssh -p 2222 -i ~/.ssh/id_ed25519 [user]@[Test Env URL without http://]
-   cd ../../app/grm
+4. Pull/merge the latest code on the host machine (skip if already the same checkout):
    git pull origin develop
 
-8. Build and deploy app to the Test environment:
-   docker compose -f docker-compose-dev.yml up -d --build
+5. (Re)start both servers bound to the LAN, per RUNBOOK.md §6:
+   cd backend && .venv\Scripts\activate && python manage.py runserver 0.0.0.0:8000
+   cd frontend && npm run dev -- -H 0.0.0.0
 
-9. Verify the service is healthy:
-   curl -s [Test Env URL]:9090/health
-   curl -s [Test Env URL]:9090/actuator/health
+6. Verify the service is healthy:
+   curl -s http://<HOST_IP>:8000/health/
 
-10. Confirm the following are reachable in the Test Environment:
-    - Frontend:   [Test Env URL]:3001
-    - Health:     [Test Env URL]:9090/health
+7. Confirm the following are reachable on the LAN:
+   - Frontend: http://<HOST_IP>:3000
+   - Backend:  http://<HOST_IP>:8000/api/v1/
 
 --- Done ---
 
-11. Transition TASK_ID to Done:
-    - getTransitionsForJiraIssue(TASK_ID) → find "Done" transition ID
-    - transitionJiraIssue(TASK_ID, transition_id)
-
-12. Report: deployment status, any failed tests, and confirm [Test Env URL] is
-    ready for QC to run the Verification Prompt against.
+8. Report: deployment status, any failed tests, and confirm the app is
+   ready for QC to run the Verification Prompt against.
 ```
 
 ---
@@ -560,7 +422,7 @@ user:              [user]
 
 ### <span style="color:#d97706">QC</span> Verification Prompt
 
-> **When to use:** After SE confirms deployment to Test Environment (Step 5).
+> **When to use:** After SE confirms deployment (Step 5).
 > **You provide:** The US ID and feature folder path.
 > **You review:** The verification report — Playwright results and manual test outcomes.
 
@@ -569,67 +431,50 @@ Verification Prompt
 
 Feature folder:   specs/[feature-id]-[slug]/
 US to verify:     [XX-US-NN]
-Jira Epic:        [BEE-EEE]
-Jira Story:       [BEE-NNN]
-Test Env URL:     [URL confirmed by SE in Step 5]
+App URL:          [http://<HOST_IP>:3000 — confirmed by SE in Step 5]
 
 --- Pre-flight ---
 
-1. Using the Atlassian MCP, verify the Deployment Step ticket is Done:
-   JQL: summary ~ "[US to verify]: Deployment Step" AND parent = [Jira Epic]
-   If ticket is not Done: STOP — deployment must be completed first.
+1. Confirm SE's Step 5 report shows the deployment succeeded with no failing tests.
+   If not: STOP — deployment must be completed first.
 
---- Jira ---
+--- Git ---
 
-2. Transition the US Story [Jira Story] to In Review:
-   - getTransitionsForJiraIssue([Jira Story]) → find "In Review" transition ID
-   - transitionJiraIssue([Jira Story], transition_id)
-   QC uses [Jira Story] directly to track verification progress — no separate Task ticket is created.
-
-3. Create and switch to a git feature branch:
-   git checkout -b feature/[task-id-lowercase]-[us-id-lowercase]-verification-step
-   (e.g. feature/bee-236-pp-us-01-verification-step)
+2. Create and switch to a git feature branch:
+   git checkout -b feature/[us-id-lowercase]-verification-step
 
 --- Verification Step ---
 
-4. Run the Playwright automation tests for this US against the Test Environment:
-   BASE_URL=[Test Env URL] npx playwright test \
+3. Run the Playwright automation tests for this US against the app:
+   BASE_URL=[App URL] npx playwright test \
      [Feature folder]/test_[feature-id].spec.ts --project=chromium
    Filter to test cases tagged US: [US to verify].
 
-5. For any test cases marked Type: integration or e2e that are NOT covered by
-   Playwright automation, perform manual verification against the Test Environment.
+4. For any test cases marked Type: integration or e2e that are NOT covered by
+   Playwright automation, perform manual verification against the app.
    Document results inline.
 
-6. Create Playwright report after finished testing as testing/[Feature folder]/[xx-us-nn-keyword] with result screenshot for e2e cases
+5. Create a Playwright report after finishing testing as testing/[Feature folder]/[xx-us-nn-keyword]
+   with result screenshots for e2e cases.
 
-7. Produce a verification report:
+6. Produce a verification report:
 
    | TC-NN | Test Name | AC | Type | Result | Notes |
    |-------|-----------|----|------|--------|-------|
    | TC-01 | ...       | AC1 | e2e  | PASS / FAIL / BLOCKED | ... |
 
-8. If ALL automated ACs pass:
+7. If ALL automated ACs pass:
    - Report verification results.
-   - Leave [Jira Story] In Review — QC transitions it to Done once all manual / e2e checks are complete.
+   - This US is Done per constitution.md's Definition of Done (DOD-01..05) — no
+     further ticket transition needed.
 
-9. If any AC fails or is blocked:
-   - List each failure: test case ID, AC reference, observed vs expected behaviour.
-   - Raise a new Bug ticket via Atlassian MCP:
-       a. createJiraIssue:
-            summary: [BUG-DEV][US to verify]: [short description of failure]
-            type:    Bug
-            parent:  [Jira Epic]
-            description: Pre-condition, Test data, Steps, Expected Result, Actual Result
-          Save the new ticket ID as BUG_ID.
-       b. Add BUG_ID to the active sprint:
-            searchJiraIssuesUsingJql: project = BEE AND sprint in openSprints() (fields: ["customfield_10020"])
-            Extract sprint ID from the first result's customfield_10020.
-            editJiraIssue(BUG_ID, customfield_10020: sprint_id)
-   - Add a comment to [Jira Story] linking to the new Bug ticket.
-
+8. If any AC fails or is blocked:
+   - List each failure in the verification report: test case ID, AC reference,
+     observed vs expected behaviour.
+   - Do NOT mark the US Done. Hand the failing report back to the Implementation
+     Step (Step 4) to fix, then re-run this Verification Step.
 ```
 
 ---
 
-*Reference: [Development Workflow](constitution.md#development-workflow) · [GRM Constitution](constitution.md)*
+*Reference: [Development Workflow](constitution.md#development-workflow) · [PFM Constitution](constitution.md)*
