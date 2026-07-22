@@ -21,6 +21,11 @@
   - Tested independently
   - Deployed independently
   - Demonstrated to users independently
+
+  Every Acceptance Criterion and Edge Case gets a unique ID (AC-NN / EC-NN) plus a short
+  name, numbered sequentially ACROSS THE WHOLE SPEC (not reset per story) so test_cases.md
+  can reference a single unambiguous ID (e.g. "AC-03: Reject deactivated account login")
+  no matter which user story it belongs to.
 -->
 
 ### User Story 1 - [Brief Title] (Priority: P1)
@@ -31,10 +36,10 @@
 
 **Independent Test**: [Describe how this can be tested independently - e.g., "Can be fully tested by [specific action] and delivers [specific value]"]
 
-**Acceptance Scenarios**:
+**Acceptance Criteria**:
 
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
-2. **Given** [initial state], **When** [action], **Then** [expected outcome]
+1. **AC-01: [Short name]** — **Given** [initial state], **When** [action], **Then** [expected outcome]
+2. **AC-02: [Short name]** — **Given** [initial state], **When** [action], **Then** [expected outcome]
 
 ---
 
@@ -46,9 +51,9 @@
 
 **Independent Test**: [Describe how this can be tested independently]
 
-**Acceptance Scenarios**:
+**Acceptance Criteria**:
 
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
+1. **AC-03: [Short name]** — **Given** [initial state], **When** [action], **Then** [expected outcome]
 
 ---
 
@@ -60,23 +65,25 @@
 
 **Independent Test**: [Describe how this can be tested independently]
 
-**Acceptance Scenarios**:
+**Acceptance Criteria**:
 
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
+1. **AC-04: [Short name]** — **Given** [initial state], **When** [action], **Then** [expected outcome]
 
 ---
 
-[Add more user stories as needed, each with an assigned priority]
+[Add more user stories as needed, each with an assigned priority. Continue AC-NN numbering
+sequentially from the last one used above.]
 
 ### Edge Cases
 
 <!--
   ACTION REQUIRED: The content in this section represents placeholders.
-  Fill them out with the right edge cases.
+  Fill them out with the right edge cases. Continue EC-NN numbering sequentially;
+  it does not need to align with the AC-NN sequence.
 -->
 
-- What happens when [boundary condition]?
-- How does system handle [error scenario]?
+- **EC-01: [Short name]** — What happens when [boundary condition]?
+- **EC-02: [Short name]** — How does system handle [error scenario]?
 
 ## Requirements *(mandatory)*
 

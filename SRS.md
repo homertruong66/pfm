@@ -620,9 +620,13 @@ This flow describes how the System communicates important events.
 
 ### 7.1 System Security (SS)
 
+> Spec: [specs/001-system-security/spec.md](specs/001-system-security/spec.md)
+
 Ensures secure access to the System by allowing Users to log in and log out safely, protecting personal financial data. Moreover, each User is authorized to see only his/her financial data.
 
 #### 7.1.1 SS-US-01: Login (ADMIN, USER) [MVP]
+
+**As a/an** ADMIN or USER, **I want to** log in to the System with my email and password **so that** I can securely access my own account and the data/actions permitted to my role(s).
 
 #### 7.1.2 SS-US-02: Logout (ADMIN, USER) [MVP]
 
