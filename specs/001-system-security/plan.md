@@ -1,12 +1,60 @@
-# Implementation Plan: System Security — SS-US-01 Login
+# Implementation Plan: System Security
 
-**Branch**: `001-system-security` | **Date**: 2026-07-21 | **Spec**: [spec.md](spec.md)
+**Branch**: `001-system-security` | **Spec**: [spec.md](spec.md)
 
 **Input**: Feature specification from `specs/001-system-security/spec.md`
 
-## Summary
+**User Stories covered by this plan**:
 
-Authenticate an ADMIN or USER by email + password and issue a JWT access/refresh credential pair, so the caller can reach the account and the actions permitted to their role(s) (AC-01). The backend side of this already exists as-is: `djangorestframework-simplejwt`'s stock `TokenObtainPairView` is wired at `POST /api/v1/auth/login/` (`backend/config/api_router.py`), and Django's default `ModelBackend` already refuses to authenticate a deactivated account (`is_active=False`), which is exactly BR-16/AC-03. No new backend service module is introduced — this is a case of AR-01's "straightforward CRUD/auth" threshold, not a multi-model side-effecting operation. What's actually missing is (1) a frontend login page — none exists yet under `frontend/src/app/` — and (2) test coverage + SDS documentation for the already-working endpoint.
+| Story | Status | Last updated |
+|---|---|---|
+| SS-US-01: Login | ✅ Designed & implemented | 2026-07-21 |
+| SS-US-02: Logout | Not yet designed | — |
+
+> This plan covers the whole **System Security** feature, not a single User Story — per aif-sdlc.md's Design Step, `plan.md` is created once per feature folder and *extended* (not replaced) each time a new US in this feature goes through `/speckit-plan`. `## Technical Context`, `## Constitution Check`, `## Project Structure`, and `## Complexity Tracking` below are feature-wide and will grow rows/entries as SS-US-02 (and beyond) are designed. Each User Story's own narrative (Summary + Sequence Diagram) gets its own `### SS-US-NN` subsection under **User Story Plans** so they don't blend together.
+
+## User Story Plans
+
+### SS-US-01: Login
+
+**Summary**: Authenticate an ADMIN or USER by email + password and issue a JWT access/refresh credential pair, so the caller can reach the account and the actions permitted to their role(s) (AC-01). The backend side of this already exists as-is: `djangorestframework-simplejwt`'s stock `TokenObtainPairView` is wired at `POST /api/v1/auth/login/` (`backend/config/api_router.py`), and Django's default `ModelBackend` already refuses to authenticate a deactivated account (`is_active=False`), which is exactly BR-16/AC-03. No new backend service module is introduced — this is a case of AR-01's "straightforward CRUD/auth" threshold, not a multi-model side-effecting operation. What's actually missing is (1) a frontend login page — none exists yet under `frontend/src/app/` — and (2) test coverage + SDS documentation for the already-working endpoint.
+
+**Sequence Diagram**: covers AC-01 (success), AC-02/AC-03 (generic rejection — wrong credentials and deactivated account both take the same path), and EC-01 (missing field, rejected before any network call).
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant FE as page.tsx (frontend/src/app/login)
+    participant View as TokenObtainPairView
+    participant Ser as TokenObtainPairSerializer
+    participant Auth as Django authenticate() / ModelBackend
+
+    User->>FE: fill email + password, click Log in
+
+    alt Happy Case — AC-01: active user, correct credentials
+        FE->>View: POST /api/v1/auth/login/
+        View->>Ser: validate(attrs)
+        Ser->>Auth: authenticate(email, password)
+        Auth-->>Ser: active User
+        Ser-->>View: token pair
+        View-->>FE: 200
+        FE-->>User: store tokens, redirect off /login
+    else Alternative Case — EC-01: either field empty
+        FE-->>User: inline validation error (no network call)
+    else Negative Case — AC-02/AC-03: wrong password, OR correct password but is_active=False (BR-16)
+        FE->>View: POST /api/v1/auth/login/
+        View->>Ser: validate(attrs)
+        Ser->>Auth: authenticate(email, password)
+        Auth-->>Ser: none
+        Ser-->>View: AuthenticationFailed
+        View-->>FE: 401
+        FE-->>User: inline generic error
+    end
+```
+
+### SS-US-02: Logout
+
+*(Not yet designed — add a `### SS-US-02: Logout` Summary + Sequence Diagram here when this US goes through the Design Step.)*
 
 ## Technical Context
 
@@ -75,16 +123,18 @@ backend/
 │   └── settings.py       # existing: SIMPLE_JWT lifetimes, AUTH_USER_MODEL
 ├── users/
 │   ├── models.py         # existing: User(AbstractUser), USERNAME_FIELD='email', is_active
-│   └── tests.py          # TO ADD: APITestCase covering AC-01..AC-04, EC-01..EC-03
+│   └── tests.py          # DONE (SS-US-01): APITestCase covering AC-01..AC-04, EC-01, EC-02
 
 frontend/
 └── src/app/
     └── login/
-        └── page.tsx      # TO ADD: login form (email, password), calls POST /api/v1/auth/login/,
-                           #         stores access/refresh tokens, redirects to Dashboard on success
+        └── page.tsx      # DONE (SS-US-01): login form (email, password), calls POST /api/v1/auth/login/,
+                           #                  stores access/refresh tokens, redirects off /login on success
+    └── logout/           # SS-US-02, not yet designed
+        └── ...
 ```
 
-**Structure Decision**: Web application layout (Option 2) — no new backend module; the only new source is the frontend login page plus backend test coverage for the endpoint that already exists.
+**Structure Decision**: Web application layout (Option 2). SS-US-01 needed no new backend module — only the frontend login page plus backend test coverage for the endpoint that already exists. SS-US-02 (Logout) will add its own entry here once designed.
 
 ## Complexity Tracking
 

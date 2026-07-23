@@ -45,59 +45,76 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex w-full max-w-sm flex-col gap-6 rounded-lg border border-black/[.08] px-8 py-10 dark:border-white/[.145]">
-        <h1 className="text-2xl font-semibold tracking-tight text-black dark:text-zinc-50">
-          Log in
+    <div className="flex flex-1 flex-col md:flex-row">
+      {/* Brand panel — mirrors the Dashboard's blue sidebar theme (ui/Dashboard.png) */}
+      <div className="flex flex-col items-center justify-center gap-4 bg-blue-600 px-8 py-16 text-white md:w-1/2">
+        <span className="text-4xl font-extrabold tracking-tight">PFM</span>
+        <h1 className="max-w-xs text-center text-xl font-semibold text-white">
+          Personal Finance Management
         </h1>
+        <p className="max-w-xs text-center text-sm text-blue-100">
+          Track income, expenses, budgets, and goals — all your family&apos;s finances, in one place.
+        </p>
+      </div>
 
-        <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="login-email" className="text-sm font-medium text-black dark:text-zinc-50">
-              Email
-            </label>
-            <input
-              id="login-email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="rounded-md border border-black/[.08] bg-white px-3 py-2 text-black dark:border-white/[.145] dark:bg-black dark:text-zinc-50"
-            />
-          </div>
+      {/* Form panel */}
+      <div className="flex flex-1 items-center justify-center bg-zinc-50 px-6 py-16 dark:bg-black">
+        <main className="w-full max-w-sm">
+          <h2 className="mb-1 text-2xl font-semibold tracking-tight text-black dark:text-zinc-50">
+            Welcome back
+          </h2>
+          <p className="mb-8 text-sm text-zinc-500 dark:text-zinc-400">
+            Log in to your PFM account
+          </p>
 
-          <div className="flex flex-col gap-1">
-            <label htmlFor="login-password" className="text-sm font-medium text-black dark:text-zinc-50">
-              Password
-            </label>
-            <input
-              id="login-password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="rounded-md border border-black/[.08] bg-white px-3 py-2 text-black dark:border-white/[.145] dark:bg-black dark:text-zinc-50"
-            />
-          </div>
+          <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="login-email" className="text-sm font-medium text-black dark:text-zinc-50">
+                Email
+              </label>
+              <input
+                id="login-email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="rounded-xl border border-black/[.08] bg-white px-4 py-2.5 text-black outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-white/[.145] dark:bg-white/5 dark:text-zinc-50"
+              />
+            </div>
 
-          {error && (
-            <p id="message-error" className="text-sm text-red-600 dark:text-red-400">
-              {error}
-            </p>
-          )}
+            <div className="flex flex-col gap-1">
+              <label htmlFor="login-password" className="text-sm font-medium text-black dark:text-zinc-50">
+                Password
+              </label>
+              <input
+                id="login-password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="rounded-xl border border-black/[.08] bg-white px-4 py-2.5 text-black outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-white/[.145] dark:bg-white/5 dark:text-zinc-50"
+              />
+            </div>
 
-          <button
-            id="btn-submit-login"
-            type="submit"
-            disabled={loading}
-            className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-zinc-50 dark:text-black"
-          >
-            {loading ? "Logging in..." : "Log in"}
-          </button>
-        </form>
-      </main>
+            {error && (
+              <p id="message-error" className="text-sm font-medium text-red-600 dark:text-red-400">
+                {error}
+              </p>
+            )}
+
+            <button
+              id="btn-submit-login"
+              type="submit"
+              disabled={loading}
+              className="mt-2 rounded-xl bg-orange-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-600 disabled:opacity-50"
+            >
+              {loading ? "Logging in..." : "Log in"}
+            </button>
+          </form>
+        </main>
+      </div>
     </div>
   );
 }

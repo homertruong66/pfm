@@ -182,6 +182,23 @@ Story title:       [Story title confirmed in Step 1]
    These sections are covered by spec.md (ACs) and plan.md (sequence diagrams, architecture).
 ```
 
+#### Sequence Diagram Conventions
+
+Sequence diagrams in `plan.md` are architecture-level, not implementation traces. Keep them at the
+level of participants a reader of the design (not the code) needs — Frontend/View/Serializer/Auth
+layer, not SQL statements or exact response payloads. Follow these rules:
+
+- **Order branches Happy Case → Alternative Case → Negative Case.** The primary success path is
+  drawn first, then non-network-call alternatives (e.g. client-side validation short-circuits),
+  then rejection/error paths — not chronological-only ordering, which tends to bury the happy path
+  under edge cases.
+- **No database queries.** Don't show a DB participant or SQL (`SELECT ...`, `INSERT ...`, etc.) —
+  that's implementation detail for `data-model.md`, not the sequence diagram. If a step needs a
+  data lookup, name it as a plain message (e.g. `Auth-->>Ser: active User`), not a query.
+- **No response bodies or UI copy.** Show the HTTP status code only (`200`, `401`, `400`) — never
+  the JSON payload, error `detail` string, or the exact inline message text a User sees. Message
+  wording belongs in `spec.md`'s Acceptance Criteria or `test_cases.md`, not the diagram.
+
 ---
 
 ## Step 3 — Quality Step
