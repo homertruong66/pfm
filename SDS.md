@@ -922,9 +922,12 @@ This chapter provides build-ready design details per Feature and User Story, ali
 
 ### 5.1 System Security (SS)
 
+> Plan: [specs/001-system-security/plan.md](specs/001-system-security/plan.md)
+
 #### 5.1.1 SS-US-01: Login (ADMIN, USER)
 
-*(Details to be defined)*
+**Purpose**
+Authenticates an ADMIN or USER by email and password and issues a JWT access/refresh credential pair, giving the caller entry to their own account and the data/actions their role(s) permit — the prerequisite for every other protected action in the System. Reuses `djangorestframework-simplejwt`'s stock `TokenObtainPairView` as-is (already wired at `POST /api/v1/auth/login/`); Django's default authentication backend already rejects deactivated accounts (BR-16), so no custom service module is introduced.
 
 #### 5.1.2 SS-US-02: Logout (ADMIN, USER)
 

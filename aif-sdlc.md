@@ -44,6 +44,10 @@
 
 > **Sequence rule:** Each step starts only after the previous artifact is produced and reviewed.
 > **Token Saving Tool (ex: rtk):** Do not use such tool for step 4 which can create non-quality code.
+> **Branching rule:** `develop` is the parent branch for every step branch below. Each `--- Git ---`
+> section checks out `develop` (pulling latest first) before creating its `feature/...` branch —
+> never branch off another step's branch (e.g. Design Step must not branch off the Spec Step branch).
+> Each step branch is merged back into `develop` before the next step's branch is created.
 
 ---
 
@@ -73,7 +77,9 @@ Acceptance criteria (for spec only — NOT written into SRS):
 
 --- Git ---
 
-1. Create and switch to a git feature branch:
+1. Check out and update the parent branch, then branch from it:
+   git checkout develop
+   git pull origin develop
    git checkout -b feature/[story-number-lowercase]-spec-step
    (e.g. feature/wm-us-01-spec-step)
 
@@ -137,7 +143,9 @@ Story title:       [Story title confirmed in Step 1]
 
 --- Git ---
 
-2. Create and switch to a git feature branch:
+2. Check out and update the parent branch, then branch from it:
+   git checkout develop
+   git pull origin develop
    git checkout -b feature/[us-id-lowercase]-design-step
    (e.g. feature/wm-us-01-design-step)
 
@@ -199,7 +207,9 @@ US being tested: [XX-US-NN]
 
 --- Git ---
 
-2. Create and switch to a git feature branch:
+2. Check out and update the parent branch, then branch from it:
+   git checkout develop
+   git pull origin develop
    git checkout -b feature/[us-id-lowercase]-quality-step
    (e.g. feature/wm-us-01-quality-step)
 
@@ -293,7 +303,9 @@ US being implemented:  [XX-US-NN]
 
 --- Git ---
 
-2. Create and switch to a git feature branch:
+2. Check out and update the parent branch, then branch from it:
+   git checkout develop
+   git pull origin develop
    git checkout -b feature/[us-id-lowercase]-implementation-step
    (e.g. feature/wm-us-01-implementation-step)
 
@@ -388,7 +400,7 @@ Host LAN IP:        [<HOST_IP> — from RUNBOOK.md §2]
    If missing: STOP — complete earlier steps first.
 
 2. Confirm the Implementation Step branch for [US being deployed] is merged into
-   develop (or the branch you deploy from). If not merged: STOP — merge first.
+   develop. If not merged: STOP — merge first.
 
 --- Deployment Step ---
 
@@ -440,7 +452,9 @@ App URL:          [http://<HOST_IP>:3000 — confirmed by SE in Step 5]
 
 --- Git ---
 
-2. Create and switch to a git feature branch:
+2. Check out and update the parent branch, then branch from it:
+   git checkout develop
+   git pull origin develop
    git checkout -b feature/[us-id-lowercase]-verification-step
 
 --- Verification Step ---
