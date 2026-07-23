@@ -135,6 +135,8 @@
     - [6.4.4 POST /categories](#644-post-categories)
     - [6.4.5 POST /budgets](#645-post-budgets)
     - [6.4.6 POST /transactions](#646-post-transactions)
+    - [6.4.7 POST /auth/login/](#647-post-authlogin)
+    - [6.4.8 POST /auth/refresh/](#648-post-authrefresh)
   - [6.5 API → User Story Traceability](#65-api--user-story-traceability)
   - [6.6 Error Response Catalog](#66-error-response-catalog)
 - [7. Security Design](#7-security-design)
@@ -812,7 +814,7 @@ This section defines business rules and constraints derived from the domain mode
 | BR-13 | Not a DB constraint — every Dashboard query in `DashboardService` is scoped to the authenticated User, same as BR-12 |
 | BR-14 | `transactions.financial_goal_id` FK ON DELETE **SET NULL** (already listed below) — deleting a FinancialGoal leaves its previously-linked Transactions unlinked, mirroring BR-05's treatment of Category |
 | BR-15 | `assets.current_market_price` is a plain updatable column (no external write path); `holdings.current_value` (§2.2.9) is **not a persisted column** — always computed at query time from `quantity × assets.current_market_price` |
-| BR-16 | `users.is_active` `NOT NULL DEFAULT true`; `AuthenticationService` rejects login (SS-US-01) when `is_active = false`, regardless of valid credentials |
+| BR-16 | `users.is_active` `NOT NULL DEFAULT true`; login (SS-US-01, API-SS-01) rejects a User when `is_active = false` via Django's built-in `ModelBackend.user_can_authenticate()`, invoked transparently by `TokenObtainPairSerializer.validate()` — no custom service class, per AR-01/Simplicity Over Premature Scale |
 | BR-17 | Not a DB constraint — `UserService.delete_user` (UM-US-06) checks `is_active = false` before issuing the delete; deletion then relies on `ON DELETE CASCADE` FKs (`wallets.user_id`, `categories.user_id`, `financial_goals.user_id`, `investment_portfolios.user_id`, `notifications.user_id`) to remove all owned rows in one transaction (AR-05) |
 | *(no SRS BR yet)* | `categories.user_id`, `investment_portfolios.user_id`, and `notifications.user_id` are all `NOT NULL` FK → `users.id` ON DELETE CASCADE (mirrors BR-01/BR-09's treatment of `wallets`/`financial_goals`) — recommend adding a matching BR to SRS §2.4 if this becomes load-bearing beyond BR-17 |
 | BR-18 | `holdings.asset_id` is `NOT NULL` FK → `assets.id` with no `ON DELETE` clause (defaults to `RESTRICT`/`NO ACTION`) — the DB rejects deleting a referenced Asset; `AssetService.delete_asset` (AM-US-05) checks for referencing Holdings first and raises a clear business error rather than surfacing the raw FK violation |
@@ -1329,6 +1331,8 @@ Authenticates an ADMIN or USER by email and password and issues a JWT access/ref
 
 | API ID | Method | Path | Feature | Idempotency |
 |--------|--------|------|---------|-------------|
+| API-SS-01 | `POST` | `/auth/login/` | System Security | ✗ |
+| API-SS-02 | `POST` | `/auth/refresh/` | System Security | ✗ |
 | API-WAL-01 | `POST` | `/wallets` | Wallet Management | ✗ |
 | API-WAL-02 | `GET` | `/wallets` | Wallet Management | ✓ |
 | API-WAL-03 | `GET` | `/wallets/{id}` | Wallet Management | ✓ |
@@ -1380,12 +1384,40 @@ Authenticates an ADMIN or USER by email and password and issues a JWT access/ref
 - `403 WALLET_ACCESS_DENIED`
 - `404 WALLET_NOT_FOUND`
 
+#### 6.4.7 POST /auth/login/
+
+Stock `djangorestframework-simplejwt` `TokenObtainPairView` — no custom view/serializer (constitution AR-01, Simplicity Over Premature Scale).
+
+**Main Flow**
+1. Client submits `email` + `password`.
+2. `TokenObtainPairSerializer` calls Django's `authenticate()`, which delegates to `ModelBackend`.
+3. `ModelBackend` verifies the password hash and calls `user_can_authenticate()`, which rejects `is_active=False` accounts (BR-16).
+4. On success, the serializer issues a JWT access/refresh pair.
+
+**Success Response** — `200`
+- `access` (JWT, 1 hour lifetime)
+- `refresh` (JWT, 7 day lifetime)
+
+**Error Responses**
+- `400` — `email` or `password` missing (DRF default `{field: [messages]}`)
+- `401` — credentials do not match an active account, **or** the account is deactivated — one generic body, `{"detail": "No active account found with the given credentials"}`, does not distinguish the two cases or which field was wrong
+
+#### 6.4.8 POST /auth/refresh/
+
+Stock `TokenObtainPairView`'s companion `TokenRefreshView` — exchanges a valid `refresh` token for a new `access` token. No AC in SS-US-01 references this endpoint directly; documented here as the paired endpoint login's response is used against.
+
+**Success Response** — `200`: `access` (new JWT)
+
+**Error Responses**
+- `401` — `refresh` token missing, invalid, or expired
+
 ### 6.5 API → User Story Traceability
 
 > Ensures every endpoint exists to fulfill a specific requirement from the SRS.
 
 | API | Endpoint | Feature | User Story |
 |-----|----------|---------|------------|
+| API-SS-01 | `POST /auth/login/` | System Security | SS-US-01 |
 | API-WAL-01 | `POST /wallets` | Wallet Management | WM-US-01 |
 | API-TRX-01 | `POST /transactions` | Transaction Management | TM-US-01 |
 

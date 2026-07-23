@@ -44,8 +44,8 @@ Authenticate an ADMIN or USER by email + password and issue a JWT access/refresh
 | API-07 Authentication | ✅ PASS | Already the fixed mechanism this US formalizes |
 | Simplicity Over Premature Scale | ✅ PASS | Explicitly rejects adding an `AuthenticationService` module (see Summary) |
 | VL-01 Backend Is Source of Truth | ✅ PASS | Frontend HTML5 required-field checks are UX-only; DRF/SimpleJWT validation is authoritative |
-| DOD-02 API Contract Documented | ⚠️ OPEN | `POST /auth/login/` is not yet listed in SDS §6.3 API Index / §6.4 API Specification — flagged for the implementation/document-sync step, not resolved in this plan |
-| Cross-Document Consistency (BR-16 mapping) | ⚠️ OPEN | SDS §4.3.3's BR-16 row names a nonexistent `AuthenticationService`; actual mechanism is Django's `ModelBackend.user_can_authenticate()` invoked transparently by `TokenObtainPairSerializer.validate()`. Flagged for correction in the same PR that implements/documents this US, not resolved here |
+| DOD-02 API Contract Documented | ✅ RESOLVED | `POST /auth/login/` (API-SS-01) and `POST /auth/refresh/` (API-SS-02) added to SDS §6.3 API Index and §6.4.7/§6.4.8 API Specification during the Implementation Step (tasks.md T014) |
+| Cross-Document Consistency (BR-16 mapping) | ✅ RESOLVED | SDS §4.3.3's BR-16 row corrected during the Implementation Step (tasks.md T015) to name Django's `ModelBackend.user_can_authenticate()`, invoked transparently by `TokenObtainPairSerializer.validate()`, instead of the nonexistent `AuthenticationService` |
 
 No unjustified violations — Complexity Tracking table is empty.
 

@@ -1,0 +1,27 @@
+{
+  "name": "pfm",
+  "version": "1.0.0",
+  "description": "A full-stack personal finance management app built with **Next.js** (frontend) and **Django REST Framework** (backend).",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/homertruong66/pfm.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/homertruong66/pfm/issues"
+  },
+  "homepage": "https://github.com/homertruong66/pfm#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.61.1"
+  }
+}

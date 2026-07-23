@@ -10,7 +10,7 @@ No schema change is required for this US — it reads the existing `User` entity
 | `password` | hashed `CharField` (from `AbstractUser`) | Verified against the submitted password by Django's `authenticate()` |
 | `is_active` | `BooleanField`, default `True` (from `AbstractUser`) | When `False`, `ModelBackend.user_can_authenticate()` refuses authentication regardless of correct credentials (AC-03, BR-16) |
 
-No `Role` entity exists yet (constitution's documented open drift) — login does not read or branch on Role; AC-04 (dual-role single login) holds by the absence of any role-gated check at login time, not by explicit design in this US.
+No `Role` entity exists yet (constitution's documented open drift) — login does not read or branch on Role; AC-04 (dual-role single login) holds by the absence of any role-gated check at login time, not by explicit design in this US. Where a test needs to stand in for "an account holding both roles" (TC-06), `is_staff`/`is_superuser` (already present on `AbstractUser`) are used as the closest existing analog to an elevated/dual-capability account until `Role` is scaffolded — these are test-only proxies, not a modeled part of this US.
 
 ## State Transitions
 

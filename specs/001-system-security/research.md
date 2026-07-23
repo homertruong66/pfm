@@ -23,7 +23,7 @@ No `[NEEDS CLARIFICATION]` markers remained in plan.md's Technical Context, so t
 
 **Alternatives considered**: None evaluated at this phase — deferred to implementation, since no AC in spec.md constrains storage mechanism.
 
-## Open items carried to implementation / document-sync (not resolved by this plan)
+## Open items carried to implementation / document-sync — resolved
 
-- SDS §6.3 API Index / §6.4 API Specification do not yet list `POST /auth/login/` — add an `API-SS-01`-style entry when this US is implemented.
-- SDS §4.3.3's BR-16 row names a nonexistent `AuthenticationService` — correct to reference the actual Django `ModelBackend` mechanism in the same PR.
+- SDS §6.3 API Index / §6.4 API Specification now list `POST /auth/login/` (API-SS-01) and `POST /auth/refresh/` (API-SS-02) — added in the Implementation Step (tasks.md T014).
+- SDS §4.3.3's BR-16 row now references the actual Django `ModelBackend` mechanism instead of the nonexistent `AuthenticationService` — corrected in the Implementation Step (tasks.md T015).
