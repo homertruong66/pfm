@@ -196,6 +196,7 @@ Story title:       [Story title confirmed in Step 1]
 Quality Prompt
 
 Feature folder:  specs/[feature-id]-[slug]/
+Test folder:     tests/[feature-id]-[slug]/   (mirrors Feature folder's [feature-id]-[slug]; created if missing)
 US being tested: [XX-US-NN]
 
 --- Pre-flight ---
@@ -232,7 +233,7 @@ Write test cases
    - **Given:** [precondition]
    - **When:** [action]
    - **Then:** [expected result]
-   - **AC:** [links to AC in spec.md]
+   - **AC:** [links to AC in [Feature folder]/spec.md]
    - **Type:** [unit | integration | e2e]
 
    Coverage required per US:
@@ -244,17 +245,23 @@ Write test cases
    Produce coverage matrix before finalising test_cases.md:
       | AC | Label | Integration TC(s) | E2E TC(s) | [BOTH] or [UI] AC with empty E2E column = defect, resolve before proceeding.
 
-=== IF test_cases.md does NOT exist yet (first US of this Feature) ===
+Test artifacts (test_cases.md and test_[feature-id].spec.ts) live under [Test folder],
+NOT under [Feature folder] — [Feature folder] (specs/...) holds spec/plan/design artifacts only.
 
-3. Create test_cases.md in [Feature folder] with test cases for [US being tested].
-4. Create test_[feature-id].spec.ts with Playwright automation for all e2e test cases. Following Testing-Code-Rule
+=== IF [Test folder] does NOT exist yet (first US of this Feature) ===
 
-=== IF test_cases.md already exists (2nd+ US of this Feature) ===
+3. Create [Test folder] (mkdir tests/[feature-id]-[slug]/) and, inside it, test_cases.md
+   with test cases for [US being tested]. Link back to [Feature folder]/spec.md with a
+   relative path (e.g. ../../specs/[feature-id]-[slug]/spec.md).
+4. Create [Test folder]/test_[feature-id].spec.ts with Playwright automation for all
+   e2e test cases. Following Testing-Code-Rule
 
-3. Append new test cases for [US being tested] to the existing test_cases.md.
+=== IF [Test folder] already exists (2nd+ US of this Feature) ===
+
+3. Append new test cases for [US being tested] to the existing [Test folder]/test_cases.md.
    Number new cases continuing from the last TC-NN in the file.
 4. Append new Playwright tests for [US being tested] e2e cases to the existing
-   test_[feature-id].spec.ts. Do not modify or remove existing test cases.
+   [Test folder]/test_[feature-id].spec.ts. Do not modify or remove existing test cases.
 
 === Always — Testing-Code-Rule ===
 
@@ -292,6 +299,7 @@ E2E:
 Implementation Prompt
 
 Feature folder:        specs/[feature-id]-[slug]/
+Test folder:           tests/[feature-id]-[slug]/
 US being implemented:  [XX-US-NN]
 
 --- Pre-flight ---
@@ -325,7 +333,7 @@ US being implemented:  [XX-US-NN]
      [Feature folder]/spec.md
      [Feature folder]/plan.md
      [Feature folder]/tasks.md
-     [Feature folder]/test_cases.md
+     [Test folder]/test_cases.md
 
    Run /speckit-implement for this feature.
 
@@ -442,6 +450,7 @@ Host LAN IP:        [<HOST_IP> — from RUNBOOK.md §2]
 Verification Prompt
 
 Feature folder:   specs/[feature-id]-[slug]/
+Test folder:      tests/[feature-id]-[slug]/
 US to verify:     [XX-US-NN]
 App URL:          [http://<HOST_IP>:3000 — confirmed by SE in Step 5]
 
@@ -461,14 +470,14 @@ App URL:          [http://<HOST_IP>:3000 — confirmed by SE in Step 5]
 
 3. Run the Playwright automation tests for this US against the app:
    BASE_URL=[App URL] npx playwright test \
-     [Feature folder]/test_[feature-id].spec.ts --project=chromium
+     [Test folder]/test_[feature-id].spec.ts --project=chromium
    Filter to test cases tagged US: [US to verify].
 
 4. For any test cases marked Type: integration or e2e that are NOT covered by
    Playwright automation, perform manual verification against the app.
    Document results inline.
 
-5. Create a Playwright report after finishing testing as testing/[Feature folder]/[xx-us-nn-keyword]
+5. Create a Playwright report after finishing testing as [Test folder]/reports/[xx-us-nn-keyword]
    with result screenshots for e2e cases.
 
 6. Produce a verification report:

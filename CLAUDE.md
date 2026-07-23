@@ -61,6 +61,8 @@ pfm/
 │                              #   are designed in SDS §2.2 but not yet scaffolded as apps —
 │                              #   assets is its own app (system-level, ADMIN-only, SRS §7.9), not nested under investment_portfolios
 ├── ui/                   # Wireframe screenshots referenced from SDS §3.2
+├── specs/                # spec-kit feature folders: specs/[feature-id]-[slug]/spec.md, plan.md, ...
+├── tests/                # Quality Step artifacts, mirrors specs/: tests/[feature-id]-[slug]/test_cases.md, test_[feature-id].spec.ts
 ├── aif-sdlc.md           # AI-First SDLC
 ├── SRS.md                # Software Requirements Specification
 ├── SDS.md                # Software Design Specification
@@ -68,7 +70,7 @@ pfm/
 ├── RUNBOOK.md            # Operational reference (home-LAN setup/deploy/troubleshoot)
 └── README.md
 ```
-No `specs/` (spec-kit) or dedicated E2E test folder exists yet — created when the first spec-kit feature / test suite is added.
+`specs/` holds spec/plan/design artifacts (spec-kit); `tests/` holds the parallel Quality Step artifacts (`test_cases.md`, Playwright `.spec.ts`) for the same `[feature-id]-[slug]` — kept separate so design docs and generated test code don't mix in the same folder.
 
 ### Dev Commands
 
@@ -97,4 +99,4 @@ cd frontend && npm run lint                                            # fronten
 <!-- High-frequency rules that affect almost every task but aren't prominent enough in the constitution -->
 - One Django app per domain entity under `backend/` (SDS §2.1) — a new entity gets a new app, not a new module inside an existing one
 - Feature/User Story IDs use the `{ABBR}-US-{NN}` convention (e.g. `WM-US-01`) — see constitution.md § User Story Conventions
-- No E2E test suite exists yet — each app's `tests.py` is the only automated coverage today
+- Backend integration tests live in each app's `tests.py`; e2e coverage lives under `tests/[feature-id]-[slug]/test_[feature-id].spec.ts` (Quality Step) — no Playwright runner (`playwright.config.ts`, `@playwright/test` dependency) is installed yet, needed before those `.spec.ts` files can run
