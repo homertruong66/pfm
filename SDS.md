@@ -6,6 +6,7 @@
 | 1.0 | 15-Jul-2026 | Homer Truong | Initial draft |
 | 1.1 | 19-Jul-2026 | Homer Truong | Reordered System Security/User Management, renamed Features/User Stories to abbreviation IDs (e.g. `SS-US-01`), and filled in §2 Domain Model (attributes, relationships, STDs, `Role` entity), §3 UI Design, and §4.3.3 Database Design |
 | 1.2 | 20-Jul-2026 | Homer Truong | Synced with SRS 1.2: added design entries for new/renamed User Stories across UM, WM, TM, FG, IP, NH, DOD; extracted Asset design entries into a new §5.9 Asset Management (AM), actor USER→ADMIN, renumbering IP→§5.10, NH→§5.11, DOD→§5.12; added `User.is_active`, BR-14..18 Data Integrity Rules, and bidirectional Notification STD; expanded §4.2 Logical View to all 12 Features; standardized on `FinancialGoal` (one word) |
+| 1.2.1 | 25-Jul-2026 | Homer Truong | §4.3.3 ERD Mapping: removed quoted attribute comments and the `CATEGORIES` self-referencing relationship line from the mermaid `erDiagram` (no content loss — same FK/self-reference facts remain documented in the Data Integrity Rules and Database Design tables immediately below) for compatibility with older bundled Mermaid renderers in Markdown preview tooling |
 
 ---
 
@@ -702,7 +703,6 @@ erDiagram
     FINANCIAL_GOALS ||--o{ TRANSACTIONS : "tracked by"
     BUDGETS ||--o{ BUDGET_CATEGORIES : "scoped via"
     CATEGORIES ||--o{ BUDGET_CATEGORIES : scopes
-    CATEGORIES ||--o{ CATEGORIES : "parent of"
 
     USERS {
         uuid id PK
@@ -717,8 +717,8 @@ erDiagram
         string code UK
     }
     USER_ROLES {
-        uuid user_id PK "FK to users.id"
-        uuid role_id PK "FK to roles.id"
+        uuid user_id PK
+        uuid role_id PK
     }
     WALLETS {
         uuid id PK
@@ -743,8 +743,8 @@ erDiagram
         decimal limit_amount
     }
     BUDGET_CATEGORIES {
-        uuid budget_id PK "FK to budgets.id"
-        uuid category_id PK "FK to categories.id"
+        uuid budget_id PK
+        uuid category_id PK
     }
     TRANSACTIONS {
         uuid id PK
@@ -766,7 +766,7 @@ erDiagram
     }
     INVESTMENT_PORTFOLIOS {
         uuid id PK
-        uuid user_id UK "FK to users.id"
+        uuid user_id UK
         string name
     }
     HOLDINGS {
@@ -1352,7 +1352,7 @@ Authenticates an ADMIN or USER by email and password and issues a JWT access/ref
 
 *(To be defined)*
 
-#### 6.4.3 GET /wallets/{id}
+#### 6.4.3 GET `/wallets/{id}`
 
 *(To be defined)*
 
