@@ -92,7 +92,7 @@ cd frontend && npm run lint                                            # fronten
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8000/api/v1/ · Health: http://localhost:8000/health/ · Admin: http://localhost:8000/admin/
 - Auth: JWT Bearer — `POST /api/v1/auth/login/` to obtain a token pair, `POST /api/v1/auth/refresh/` to refresh; send `Authorization: Bearer <access_token>`
-- No seeded default credentials — create the first ADMIN via `python manage.py createsuperuser` (RUNBOOK §8), or register a USER via `POST /api/v1/users/`
+- No seeded default credentials — create the first ADMIN via `python manage.py createsuperuser` (RUNBOOK §9), or register a USER via `POST /api/v1/users/`
 
 ### Key Conventions
 

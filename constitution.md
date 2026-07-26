@@ -347,7 +347,7 @@ Every form should provide (per SDS §3.1 UI/UX Principles): inline field-level v
 Data tables with growing datasets (Transactions, Notifications) should support pagination, matching the backend's `PageNumberPagination`; add sorting/filtering per-screen as the SDS §3.2 wireframes require (e.g. Transaction Management's Wallet/date filters).
 
 **FE-08: Direct API Calls**
-The frontend currently calls the backend directly at `NEXT_PUBLIC_API_URL` (`frontend/.env.local`, see RUNBOOK §4) using `fetch`, attaching the JWT bearer token. There is no Next.js API-proxy route today — introduce one only if there's a concrete reason to hide the backend origin from the browser.
+The frontend currently calls the backend directly at `NEXT_PUBLIC_API_URL` (`frontend/.env.local`, see RUNBOOK §5) using `fetch`, attaching the JWT bearer token. There is no Next.js API-proxy route today — introduce one only if there's a concrete reason to hide the backend origin from the browser.
 
 ---
 
@@ -461,6 +461,6 @@ No state management, form/validation, HTTP client, icon, or UI component library
 
 - No secrets, credentials, or tokens in source files or committed `.env`/`.env.local` files.
 - `config/settings.py` currently hard-codes `SECRET_KEY` and defaults `DEBUG = True` — both must move to environment variables (and `DEBUG = False`) before any deployment beyond a trusted home LAN.
-- `ALLOWED_HOSTS` and `CORS_ALLOWED_ORIGINS` must be reviewed whenever the deployment target changes (see RUNBOOK §3–4 for the home-LAN case).
+- `ALLOWED_HOSTS` and `CORS_ALLOWED_ORIGINS` must be reviewed whenever the deployment target changes (see RUNBOOK §4–5 for the home-LAN case).
 - JWT access/refresh token lifetimes are configured via `SIMPLE_JWT` in `config/settings.py` (currently 1 hour / 7 days) — don't lengthen without a documented reason.
-- The Django admin panel (`/admin/`) must remain restricted to superuser accounts created via `python manage.py createsuperuser` (RUNBOOK §8), not exposed as a general User-facing feature.
+- The Django admin panel (`/admin/`) must remain restricted to superuser accounts created via `python manage.py createsuperuser` (RUNBOOK §9), not exposed as a general User-facing feature.

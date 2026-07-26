@@ -219,7 +219,7 @@ The following are explicitly excluded from this specification:
 - **Bank and institution integrations.** Automatic transaction import (open banking, bank feeds, card sync) is not supported; all Transactions are entered manually by the User (§1.3.1).
 - **Live market data feeds.** Asset current market price (§2.2) is a stored, manually-maintained attribute — automated/real-time price fetching from external market data providers is out of scope.
 - **External notification channels.** Notification (§2.2) is in-app only; email, SMS, and push notifications are not covered.
-- **Self-service account recovery.** Password reset / account recovery flows (e.g. via email or SMS) are not addressed; account issues are handled manually by the ADMIN (RUNBOOK §8).
+- **Self-service account recovery.** Password reset / account recovery flows (e.g. via email or SMS) are not addressed; account issues are handled manually by the ADMIN (RUNBOOK §9).
 - **Tax and regulatory features.** Tax filing support and multi-currency conversion using live FX rates are not covered.
 
 ### 1.7 Related Documents
@@ -508,7 +508,7 @@ After adding or editing data, Users should instantly see updated balances, budge
 
 This flow describes the typical end-to-end interaction of a User with the PFM system during daily financial management.
 
-1. A predefined ADMIN (seeded via a migration/setup script — see RUNBOOK §8) creates a new User account for a family member. There is no self-service registration; a User cannot create their own account.
+1. A predefined ADMIN (seeded via a migration/setup script — see RUNBOOK §9) creates a new User account for a family member. There is no self-service registration; a User cannot create their own account.
 2. The User logs into the System.
 3. The User creates a Wallet W1 (e.g. Cash Wallet).
 4. The User creates a Category C1 (e.g. Salary), C2 (e.g. Food).

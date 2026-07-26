@@ -848,7 +848,7 @@ This section maps the Domain Model to the physical Database Structure.
 ##### Migration Strategy
 
 - **MVP:** Django ORM migrations (auto-generated, reviewed before merge); SQLite as the target database (§4.3.2).
-- **Seed migration:** inserts the two fixed `roles` rows (`ADMIN`, `USER`) and bootstraps the first ADMIN `user`/`user_roles` row per RUNBOOK §8, so there is always at least one account able to run UM-US-01 on a fresh deployment.
+- **Seed migration:** inserts the two fixed `roles` rows (`ADMIN`, `USER`) and bootstraps the first ADMIN `user`/`user_roles` row per RUNBOOK §9, so there is always at least one account able to run UM-US-01 on a fresh deployment.
 - **Change policy:** prefer additive, backward-compatible migrations (new nullable columns/tables) over destructive ones (column drops/renames) once data exists; a rename is modeled as add-column → backfill → drop-old-column across separate migrations.
 - **Later Releases:** the same migration history replays against PostgreSQL when the store changes (§4.3.2); no hand-written SQL divergence between environments.
 

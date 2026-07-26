@@ -16,7 +16,63 @@ The host machine and every family member's device must be on the **same Wi-Fi/LA
 
 ---
 
-## 2. Find the host machine's LAN IP
+## 2. Deployment Model (LAN Overview)
+
+PFM is deployed as a single-machine, home-LAN system — there is no internet-facing server, no domain name, and no cloud account. One machine on the local network hosts both the frontend and backend processes; every other device reaches it purely over the LAN using its private IP address.
+
+```
+                     ┌─────────────────────────────────────────┐
+                     │         Home Wi-Fi Router / Switch        │
+                     │  (Local Area Network, e.g. 192.168.1.0/24)│
+                     └───────────────────┬─────────────────────┘
+                                         │  Wi-Fi / Ethernet — LAN only,
+                                         │  no internet connection required
+        ┌────────────────────────────────┼────────────────────────────────┐
+        │                                │                                │
+┌───────▼────────┐              ┌────────▼────────┐              ┌────────▼────────┐
+│  Dad's Phone   │              │  Mom's Laptop   │              │  Sister's PC    │
+│  (role: USER)  │              │  (role: USER)   │              │  (role: USER)   │
+│  Web Browser   │              │  Web Browser    │              │  Web Browser    │
+└───────┬────────┘              └────────┬────────┘              └────────┬────────┘
+        │                                │                                │
+        │      HTTP  http://<HOST_IP>:3000/         (Next.js UI)          │
+        │      HTTP  http://<HOST_IP>:8000/api/v1/  (Django REST API)     │
+        └────────────────────────────────┼────────────────────────────────┘
+                                         │
+                                         ▼
+                        ┌───────────────────────────────────┐
+                        │   Host Machine — LAN IP: <HOST_IP>  │
+                        │   (run and maintained by ADMIN)      │
+                        │                                       │
+                        │   ┌───────────────────────────────┐  │
+                        │   │ Frontend — Next.js              │  │
+                        │   │ listens on 0.0.0.0:3000          │  │
+                        │   └───────────────┬───────────────┘  │
+                        │                   │ fetch() with        │
+                        │                   │ JWT Bearer token     │
+                        │   ┌───────────────▼───────────────┐  │
+                        │   │ Backend — Django + DRF           │  │
+                        │   │ listens on 0.0.0.0:8000           │  │
+                        │   └───────────────┬───────────────┘  │
+                        │                   │                      │
+                        │   ┌───────────────▼───────────────┐  │
+                        │   │ db.sqlite3 (single local file)    │  │
+                        │   └───────────────────────────────┘  │
+                        └───────────────────────────────────┘
+```
+
+Key teaching points this diagram illustrates:
+
+- **LAN, not internet** — every arrow above stays inside the router/switch; no packet ever needs to leave the home network, so there's no domain name, no public IP, and no internet dependency.
+- **Private IP addressing** — `<HOST_IP>` is the host machine's address on the LAN's private range (e.g. `192.168.1.50`); each client device also has its own LAN IP assigned by the router (DHCP).
+- **Client–server over HTTP** — every device's browser is a client; the host machine runs both server processes (frontend + backend) that clients talk to via plain HTTP on ports `3000` and `8000`.
+- **Ports identify the service, not the machine** — one host, one IP, but two distinct listening ports route traffic to two different processes.
+- **Binding to `0.0.0.0`** — the servers must bind to all network interfaces (`0.0.0.0`), not just `localhost` (`127.0.0.1`), or other LAN devices cannot reach them at all (see step 7).
+- **Single point of failure** — because everything lives on one host machine, that machine sleeping, losing power, or closing its terminals takes the app down for every family member simultaneously (see step 7's note and the Troubleshooting table).
+
+---
+
+## 3. Find the host machine's LAN IP
 
 On the machine that will run PFM (Windows):
 
@@ -30,7 +86,7 @@ Note the **IPv4 Address** under your active adapter (e.g. `192.168.1.50`). This 
 
 ---
 
-## 3. Configure the backend for LAN access
+## 4. Configure the backend for LAN access
 
 By default the backend only trusts `localhost`. Edit `backend/config/settings.py`:
 
@@ -49,7 +105,7 @@ CORS_ALLOWED_ORIGINS = [
 
 ---
 
-## 4. Configure the frontend to call the LAN backend
+## 5. Configure the frontend to call the LAN backend
 
 Edit `frontend/.env.local`:
 
@@ -61,7 +117,7 @@ This is what makes family members' browsers (on their own devices) call the back
 
 ---
 
-## 5. First-time setup
+## 6. First-time setup
 
 ```bash
 # Backend
@@ -80,7 +136,7 @@ npm install
 
 ---
 
-## 6. Run the app, bound to the LAN
+## 7. Run the app, bound to the LAN
 
 Open two terminals on the host machine.
 
@@ -105,13 +161,13 @@ Family members can now open `http://<HOST_IP>:3000` from any device on the LAN.
 
 ---
 
-## 7. Windows Firewall
+## 8. Windows Firewall
 
 The first time each server starts, Windows may prompt to allow the connection — choose **Allow** for **Private networks**. If devices still can't connect, confirm inbound rules exist for ports `3000` and `8000` (Windows Defender Firewall → Advanced Settings → Inbound Rules).
 
 ---
 
-## 8. Creating family member accounts (ADMIN task)
+## 9. Creating family member accounts (ADMIN task)
 
 Each USER needs their own account so their Wallets, Transactions, Budgets, and Goals stay private (SRS §4.4.2). Options:
 
@@ -129,7 +185,7 @@ The ADMIN role is for app/account setup only — it does not grant visibility in
 
 ---
 
-## 9. Backup and restore
+## 10. Backup and restore
 
 All data lives in a single SQLite file: `backend/db.sqlite3`.
 
@@ -138,18 +194,18 @@ All data lives in a single SQLite file: `backend/db.sqlite3`.
 
 ---
 
-## 10. Troubleshooting
+## 11. Troubleshooting
 
 | Symptom | Likely cause | Fix |
 |---------|-------------|-----|
 | A family member's browser can't reach the app at all | Not on the same LAN, or `<HOST_IP>` changed | Confirm same Wi-Fi network; re-check `ipconfig` on the host |
-| App loads but login/data requests fail | `ALLOWED_HOSTS` / `CORS_ALLOWED_ORIGINS` not updated, or frontend still points at `localhost` | Re-check steps 3 and 4 |
-| "Port already in use" on `manage.py runserver` or `npm run dev` | A previous server instance is still running | Stop the earlier process, or use a different port consistently across steps 3–6 |
-| Everyone loses access at the same time | Host machine went to sleep, or one of the two terminals was closed | Restart both servers (step 6); consider disabling sleep on the host machine |
-| Family member sees another member's data | Accounts not set up per-person (shared login) | Ensure each USER has their own account (step 8) — do not share logins |
+| App loads but login/data requests fail | `ALLOWED_HOSTS` / `CORS_ALLOWED_ORIGINS` not updated, or frontend still points at `localhost` | Re-check steps 4 and 5 |
+| "Port already in use" on `manage.py runserver` or `npm run dev` | A previous server instance is still running | Stop the earlier process, or use a different port consistently across steps 4–7 |
+| Everyone loses access at the same time | Host machine went to sleep, or one of the two terminals was closed | Restart both servers (step 7); consider disabling sleep on the host machine |
+| Family member sees another member's data | Accounts not set up per-person (shared login) | Ensure each USER has their own account (step 9) — do not share logins |
 
 ---
 
-## 11. Stopping the app
+## 12. Stopping the app
 
 In each terminal, press `Ctrl+C` to stop the backend and frontend servers.
