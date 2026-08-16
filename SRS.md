@@ -6,6 +6,7 @@
 | 1.0 | 15-Jul-2026 | Homer Truong | Initial draft |
 | 1.1 | 19-Jul-2026 | Homer Truong | Reordered System Security/User Management and renamed Features/User Stories to abbreviation IDs (e.g. `SS-US-01`) across §7 |
 | 1.2 | 20-Jul-2026 | Homer Truong | CRUD/Business-Flow completeness pass: added/renamed User Stories across UM, WM, TM, FG, IP, NH, DOD; extracted Asset into its own ADMIN-owned Asset Management (AM) Feature (renumbering IP→§7.10, NH→§7.11, DOD→§7.12); added `User.is_active` and BR-14..18; standardized on `FinancialGoal` (one word) throughout |
+| 1.3 | 16-Aug-2026 | Homer Truong | Standardized `InvestmentPortfolio` (one word, matching the `FinancialGoal` convention) in the §7.10 Feature name, story titles, and prose (was "Investment Portfolio"); renamed §7.12 Feature "Data Overview Dashboard (DOD)" to "Dashboard (DB)" — prefix DOD collided with constitution.md's Definition of Done (DOD-01..05) — renumbering story IDs DOD-US-01..03 → DB-US-01..03 |
 
 ---
 
@@ -34,7 +35,7 @@
   - [3.5 FinancialGoal Tracking](#35-financialgoal-tracking)
   - [3.6 Investment Management](#36-investment-management)
   - [3.7 Financial Reporting](#37-financial-reporting)
-  - [3.8 Data Overview Dashboard](#38-data-overview-dashboard)
+  - [3.8 Dashboard](#38-dashboard)
 - [4. Non-Functional Requirements (NFR)](#4-non-functional-requirements-nfr)
   - [4.1 Performance](#41-performance)
   - [4.2 Availability](#42-availability)
@@ -114,10 +115,10 @@
     - [7.9.3 AM-US-03: View an Asset (ADMIN)](#793-am-us-03-view-an-asset-admin)
     - [7.9.4 AM-US-04: Update an Asset's Current Market Price (ADMIN)](#794-am-us-04-update-an-assets-current-market-price-admin)
     - [7.9.5 AM-US-05: Delete an Asset (ADMIN)](#795-am-us-05-delete-an-asset-admin)
-  - [7.10 Investment Portfolio (IP)](#710-investment-portfolio-ip)
-    - [7.10.1 IP-US-01: View the Investment Portfolio (USER)](#7101-ip-us-01-view-the-investment-portfolio-user)
-    - [7.10.2 IP-US-02: Update the Investment Portfolio Settings (USER)](#7102-ip-us-02-update-the-investment-portfolio-settings-user)
-    - [7.10.3 IP-US-03: Add a Holding to the Investment Portfolio (USER)](#7103-ip-us-03-add-a-holding-to-the-investment-portfolio-user)
+  - [7.10 InvestmentPortfolio (IP)](#710-investmentportfolio-ip)
+    - [7.10.1 IP-US-01: View the InvestmentPortfolio (USER)](#7101-ip-us-01-view-the-investmentportfolio-user)
+    - [7.10.2 IP-US-02: Update the InvestmentPortfolio Settings (USER)](#7102-ip-us-02-update-the-investmentportfolio-settings-user)
+    - [7.10.3 IP-US-03: Add a Holding to the InvestmentPortfolio (USER)](#7103-ip-us-03-add-a-holding-to-the-investmentportfolio-user)
     - [7.10.4 IP-US-04: Update a Holding (USER)](#7104-ip-us-04-update-a-holding-user)
     - [7.10.5 IP-US-05: Delete a Holding (USER)](#7105-ip-us-05-delete-a-holding-user)
   - [7.11 Notification Handling (NH)](#711-notification-handling-nh)
@@ -126,10 +127,10 @@
     - [7.11.3 NH-US-03: Mark a Notification as Read (USER)](#7113-nh-us-03-mark-a-notification-as-read-user)
     - [7.11.4 NH-US-04: Mark a Notification as Unread (USER)](#7114-nh-us-04-mark-a-notification-as-unread-user)
     - [7.11.5 NH-US-05: Dismiss a Notification (USER)](#7115-nh-us-05-dismiss-a-notification-user)
-  - [7.12 Data Overview Dashboard (DOD)](#712-data-overview-dashboard-dod)
-    - [7.12.1 DOD-US-01: View the Dashboard (USER)](#7121-dod-us-01-view-the-dashboard-user)
-    - [7.12.2 DOD-US-02: Filter the Dashboard by Date Range (USER)](#7122-dod-us-02-filter-the-dashboard-by-date-range-user)
-    - [7.12.3 DOD-US-03: Navigate from a Dashboard Summary to its Detail Screen (USER)](#7123-dod-us-03-navigate-from-a-dashboard-summary-to-its-detail-screen-user)
+  - [7.12 Dashboard (DB)](#712-dashboard-db)
+    - [7.12.1 DB-US-01: View the Dashboard (USER)](#7121-db-us-01-view-the-dashboard-user)
+    - [7.12.2 DB-US-02: Filter the Dashboard by Date Range (USER)](#7122-db-us-02-filter-the-dashboard-by-date-range-user)
+    - [7.12.3 DB-US-03: Navigate from a Dashboard Summary to its Detail Screen (USER)](#7123-db-us-03-navigate-from-a-dashboard-summary-to-its-detail-screen-user)
   - [Feature-level Release (Overview)](#feature-level-release-overview)
 - [8. External Dependencies](#8-external-dependencies)
   - [8.1 Third-Party APIs](#81-third-party-apis)
@@ -418,7 +419,7 @@ The purpose is to provide a high-level view of Investment performance, not detai
 The System shall provide basic Financial Reports to help Users understand their financial situation.
 Reports may include summaries of income and expenses, spending by Category, Wallet balances, and overall financial trends over time.
 
-### 3.8 Data Overview Dashboard
+### 3.8 Dashboard
 
 **Rationale:** A dashboard gives Users an at-a-glance view of their financial health, reducing the need to navigate through multiple sections for essential information.
 
@@ -574,7 +575,7 @@ This flow describes how Users track Investments. Note: a Holding is a position i
 1. The ADMIN registers an Asset in the shared catalog if not already available (AM-US-01).
 2. The User adds a Holding referencing that Asset, recording the initial quantity and purchase price (IP-US-03).
 3. The ADMIN updates an Asset's current market price as market conditions change (AM-US-04; BR-15).
-4. The User views a summary of Investment Portfolio performance, reflecting the ADMIN-maintained price.
+4. The User views a summary of InvestmentPortfolio performance, reflecting the ADMIN-maintained price.
 
 ### 6.8 Supporting BF — Reporting and Dashboard
 
@@ -701,7 +702,7 @@ Background:
 Scenario: List Users successfully
   When the ADMIN opens the "Manage Users" screen
   Then the System shows every User's full name, email, and account status (active/inactive)
-    And the System does not show any User's Wallets, Transactions, Budgets, Goals, Investment Portfolio, or Notifications (§4.4.2, AC-01)
+    And the System does not show any User's Wallets, Transactions, Budgets, Goals, InvestmentPortfolio, or Notifications (§4.4.2, AC-01)
 ```
 
 #### 7.2.5 UM-US-05: Deactivate a User (ADMIN)
@@ -720,7 +721,7 @@ Scenario: Deactivate a User successfully
   Then the System marks the User account as inactive
     And the System shows message "User account deactivated"
     And the deactivated User can no longer log in (BR-16)
-    And the deactivated User's Wallets, Transactions, Budgets, Goals, Investment Portfolio, and Notifications remain unchanged (BR-16)
+    And the deactivated User's Wallets, Transactions, Budgets, Goals, InvestmentPortfolio, and Notifications remain unchanged (BR-16)
 
 Scenario: Reject login for a deactivated User
   Given the User account "homer@example.com" is inactive
@@ -750,7 +751,7 @@ Scenario: Delete a deactivated User successfully
   When the ADMIN selects the User and taps "Delete"
     And the ADMIN confirms the deletion
   Then the System permanently deletes the User account
-    And the System also permanently deletes all of that User's Wallets, Transactions, Budgets, Categories, FinancialGoals, Investment Portfolio, and Notifications (BR-17, §2.3 Composition)
+    And the System also permanently deletes all of that User's Wallets, Transactions, Budgets, Categories, FinancialGoals, InvestmentPortfolio, and Notifications (BR-17, §2.3 Composition)
     And the System shows message "User account deleted"
 ```
 
@@ -1005,11 +1006,11 @@ Scenario: Delete a FinancialGoal successfully
 
 ### 7.9 Asset Management (AM)
 
-Provides ADMIN-managed maintenance of the shared Asset catalog (e.g. stocks, funds, cryptocurrencies) that any User references when adding a Holding to their Investment Portfolio (§7.10). Asset is system-level shared reference data (§2.2) — it is not owned by any individual User, so every story in this Feature is performed by the ADMIN, not the USER (contrast with Investment Portfolio/Holding, which remain USER-owned).
+Provides ADMIN-managed maintenance of the shared Asset catalog (e.g. stocks, funds, cryptocurrencies) that any User references when adding a Holding to their InvestmentPortfolio (§7.10). Asset is system-level shared reference data (§2.2) — it is not owned by any individual User, so every story in this Feature is performed by the ADMIN, not the USER (contrast with InvestmentPortfolio/Holding, which remain USER-owned).
 
 #### 7.9.1 AM-US-01: Create an Asset (ADMIN)
 
-**As an** ADMIN, **I want to** register a new Asset (e.g. a stock, fund, or crypto) in the shared catalog **so that** any User can reference it when adding a Holding to their Investment Portfolio.
+**As an** ADMIN, **I want to** register a new Asset (e.g. a stock, fund, or crypto) in the shared catalog **so that** any User can reference it when adding a Holding to their InvestmentPortfolio.
 
 **Acceptance Criteria:**
 
@@ -1118,15 +1119,15 @@ Scenario: Delete an unreferenced Asset successfully
 
 ---
 
-### 7.10 Investment Portfolio (IP)
+### 7.10 InvestmentPortfolio (IP)
 
-Enables Users to record and monitor investment information inside their single Investment Portfolio (Investment Index) to get a basic performance overview.
+Enables Users to record and monitor investment information inside their single InvestmentPortfolio (Investment Index) to get a basic performance overview.
 
-#### 7.10.1 IP-US-01: View the Investment Portfolio (USER)
+#### 7.10.1 IP-US-01: View the InvestmentPortfolio (USER)
 
-#### 7.10.2 IP-US-02: Update the Investment Portfolio Settings (USER)
+#### 7.10.2 IP-US-02: Update the InvestmentPortfolio Settings (USER)
 
-#### 7.10.3 IP-US-03: Add a Holding to the Investment Portfolio (USER)
+#### 7.10.3 IP-US-03: Add a Holding to the InvestmentPortfolio (USER)
 
 #### 7.10.4 IP-US-04: Update a Holding (USER)
 
@@ -1181,11 +1182,11 @@ Scenario: Dismiss a Notification successfully
 
 ---
 
-### 7.12 Data Overview Dashboard (DOD)
+### 7.12 Dashboard (DB)
 
 Gives Users an at-a-glance view of their financial health without navigating through multiple Features (§3.8, §6.8).
 
-#### 7.12.1 DOD-US-01: View the Dashboard (USER)
+#### 7.12.1 DB-US-01: View the Dashboard (USER)
 
 **As a** USER, **I want to** view a dashboard summarizing my financial status **so that** I can understand my financial health at a glance without opening every Feature individually.
 
@@ -1205,7 +1206,7 @@ Scenario: View the Dashboard successfully
     And the System shows only the current User's own data (BR-13)
 ```
 
-#### 7.12.2 DOD-US-02: Filter the Dashboard by Date Range (USER)
+#### 7.12.2 DB-US-02: Filter the Dashboard by Date Range (USER)
 
 **As a** USER, **I want to** filter the Dashboard's summary and trend information by date range **so that** I can review my financial health for a specific period instead of only the default view.
 
@@ -1223,7 +1224,7 @@ Scenario: Filter the Dashboard by date range successfully
     And the System shows only the current User's own data (BR-13)
 ```
 
-#### 7.12.3 DOD-US-03: Navigate from a Dashboard Summary to its Detail Screen (USER)
+#### 7.12.3 DB-US-03: Navigate from a Dashboard Summary to its Detail Screen (USER)
 
 **As a** USER, **I want to** tap a summary card on the Dashboard (e.g. a Wallet balance, a Budget's progress bar, a Goal) **so that** I can jump straight to that item's full detail screen without searching for it manually.
 
@@ -1263,7 +1264,7 @@ The MVP includes eight core features to ensure a usable and valuable first relea
 | 9 | Asset Management | | | ✔ | System-level shared reference data (ADMIN-managed, §7.9); ships alongside Investment Management, which Holdings depend on |
 | 10 | Investment Management | | | ✔ | Advanced feature for mature users |
 | 11 | Notification Handling | ✔ | ✔ | ✔ | User feedback and engagement |
-| 12 | Data Overview Dashboard | | ✔ | ✔ | High-level financial insights |
+| 12 | Dashboard | | ✔ | ✔ | High-level financial insights |
 
 ---
 

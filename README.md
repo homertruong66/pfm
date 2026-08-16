@@ -9,8 +9,14 @@ A full-stack personal finance management app built with **Next.js** (frontend) a
 | Tool | Version | Install |
 |------|---------|---------|
 | Node.js | 18+ | [nodejs.org](https://nodejs.org) |
-| Python | 3.12+ | [python.org](https://python.org) |
+| Python | **3.12+** | [python.org](https://python.org) |
 | npm | 9+ | Bundled with Node.js |
+
+> **Check your Python version before continuing:** run `python --version`. If it's below 3.12, install 3.12+ from [python.org](https://python.org) (or `winget install Python.Python.3.12` on Windows) — `pip install -r requirements.txt` will fail with a confusing "no version satisfies Django==..." error otherwise, since Django requires 3.12+.
+>
+> **If you have more than one Python version installed**, `python`/`python3` may not point at 3.12. Use the version-specific command when creating the virtual environment below:
+> - Windows: `py -3.12 -m venv .venv` (check available versions with `py -0`)
+> - macOS/Linux: `python3.12 -m venv .venv`
 
 ---
 
@@ -65,6 +71,19 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+> **No default login exists.** Either register a new account through the app's sign-up flow (`POST /api/v1/users/`), or create the first ADMIN account yourself with `python manage.py createsuperuser` (see [Useful Commands](#useful-commands)).
+
+---
+
+## Troubleshooting First-Time Setup
+
+| Symptom | Likely cause | Fix |
+|---------|-------------|-----|
+| `pip install -r requirements.txt` fails with `Could not find a version that satisfies the requirement Django==...` | Your `.venv` was created with Python < 3.12 | Delete `.venv`, re-check `python --version`, then recreate it with 3.12+ (see the Prerequisites note above) |
+| `pip install` fails with `CERTIFICATE_VERIFY_FAILED` / SSL errors | A broken or incomplete Python install (missing CA bundle) | Reinstall Python from the official [python.org](https://python.org) installer (or `winget install Python.Python.3.12`) rather than a minimal/embedded distribution |
+| `python`/`pip` not recognized | Python not added to PATH during install | Re-run the Python installer and check "Add python.exe to PATH", or use the `py` launcher on Windows instead |
+| Frontend loads but API calls fail | Backend server isn't running, or is running on a different port | Confirm `python manage.py runserver` is running in its own terminal on port 8000 |
 
 ---
 

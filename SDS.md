@@ -7,6 +7,7 @@
 | 1.1 | 19-Jul-2026 | Homer Truong | Reordered System Security/User Management, renamed Features/User Stories to abbreviation IDs (e.g. `SS-US-01`), and filled in §2 Domain Model (attributes, relationships, STDs, `Role` entity), §3 UI Design, and §4.3.3 Database Design |
 | 1.2 | 20-Jul-2026 | Homer Truong | Synced with SRS 1.2: added design entries for new/renamed User Stories across UM, WM, TM, FG, IP, NH, DOD; extracted Asset design entries into a new §5.9 Asset Management (AM), actor USER→ADMIN, renumbering IP→§5.10, NH→§5.11, DOD→§5.12; added `User.is_active`, BR-14..18 Data Integrity Rules, and bidirectional Notification STD; expanded §4.2 Logical View to all 12 Features; standardized on `FinancialGoal` (one word) |
 | 1.2.1 | 25-Jul-2026 | Homer Truong | §4.3.3 ERD Mapping: removed quoted attribute comments and the `CATEGORIES` self-referencing relationship line from the mermaid `erDiagram` (no content loss — same FK/self-reference facts remain documented in the Data Integrity Rules and Database Design tables immediately below) for compatibility with older bundled Mermaid renderers in Markdown preview tooling |
+| 1.3 | 16-Aug-2026 | Homer Truong | Standardized `InvestmentPortfolio` (one word, matching the `FinancialGoal` convention) in the §5.10 Feature name, story titles, and prose (was "Investment Portfolio"); renamed §5.12 Feature "Data Overview Dashboard (DOD)" to "Dashboard (DB)" — prefix DOD collided with constitution.md's Definition of Done (DOD-01..05) — renumbering story IDs DOD-US-01..03 → DB-US-01..03 |
 
 ---
 
@@ -107,10 +108,10 @@
     - [5.9.3 AM-US-03: View an Asset (ADMIN)](#593-am-us-03-view-an-asset-admin)
     - [5.9.4 AM-US-04: Update an Asset's Current Market Price (ADMIN)](#594-am-us-04-update-an-assets-current-market-price-admin)
     - [5.9.5 AM-US-05: Delete an Asset (ADMIN)](#595-am-us-05-delete-an-asset-admin)
-  - [5.10 Investment Portfolio (IP)](#510-investment-portfolio-ip)
-    - [5.10.1 IP-US-01: View the Investment Portfolio (USER)](#5101-ip-us-01-view-the-investment-portfolio-user)
-    - [5.10.2 IP-US-02: Update the Investment Portfolio Settings (USER)](#5102-ip-us-02-update-the-investment-portfolio-settings-user)
-    - [5.10.3 IP-US-03: Add a Holding to the Investment Portfolio (USER)](#5103-ip-us-03-add-a-holding-to-the-investment-portfolio-user)
+  - [5.10 InvestmentPortfolio (IP)](#510-investmentportfolio-ip)
+    - [5.10.1 IP-US-01: View the InvestmentPortfolio (USER)](#5101-ip-us-01-view-the-investmentportfolio-user)
+    - [5.10.2 IP-US-02: Update the InvestmentPortfolio Settings (USER)](#5102-ip-us-02-update-the-investmentportfolio-settings-user)
+    - [5.10.3 IP-US-03: Add a Holding to the InvestmentPortfolio (USER)](#5103-ip-us-03-add-a-holding-to-the-investmentportfolio-user)
     - [5.10.4 IP-US-04: Update a Holding (USER)](#5104-ip-us-04-update-a-holding-user)
     - [5.10.5 IP-US-05: Delete a Holding (USER)](#5105-ip-us-05-delete-a-holding-user)
   - [5.11 Notification Handling (NH)](#511-notification-handling-nh)
@@ -119,10 +120,10 @@
     - [5.11.3 NH-US-03: Mark a Notification as Read (USER)](#5113-nh-us-03-mark-a-notification-as-read-user)
     - [5.11.4 NH-US-04: Mark a Notification as Unread (USER)](#5114-nh-us-04-mark-a-notification-as-unread-user)
     - [5.11.5 NH-US-05: Dismiss a Notification (USER)](#5115-nh-us-05-dismiss-a-notification-user)
-  - [5.12 Data Overview Dashboard (DOD)](#512-data-overview-dashboard-dod)
-    - [5.12.1 DOD-US-01: View the Dashboard (USER)](#5121-dod-us-01-view-the-dashboard-user)
-    - [5.12.2 DOD-US-02: Filter the Dashboard by Date Range (USER)](#5122-dod-us-02-filter-the-dashboard-by-date-range-user)
-    - [5.12.3 DOD-US-03: Navigate from a Dashboard Summary to its Detail Screen (USER)](#5123-dod-us-03-navigate-from-a-dashboard-summary-to-its-detail-screen-user)
+  - [5.12 Dashboard (DB)](#512-dashboard-db)
+    - [5.12.1 DB-US-01: View the Dashboard (USER)](#5121-db-us-01-view-the-dashboard-user)
+    - [5.12.2 DB-US-02: Filter the Dashboard by Date Range (USER)](#5122-db-us-02-filter-the-dashboard-by-date-range-user)
+    - [5.12.3 DB-US-03: Navigate from a Dashboard Summary to its Detail Screen (USER)](#5123-db-us-03-navigate-from-a-dashboard-summary-to-its-detail-screen-user)
 - [6. API Design](#6-api-design)
   - [6.1 API Design Standards](#61-api-design-standards)
   - [6.2 Data Transfer Objects (DTOs) & Domain Mapping](#62-data-transfer-objects-dtos--domain-mapping)
@@ -347,7 +348,7 @@ This section describes the core business concepts of the PFM domain and their re
 | `name` | `string` | No | User-facing portfolio name (e.g. "My Portfolio") |
 | `total_current_value` | `decimal` | No | Sum of `current_value` across all Holdings (derived) |
 
-> **Note:** SRS US-09-02 ("Update the Investment Portfolio Settings") does not itemize which settings are configurable; concrete settings fields are TBD in a future release once that scope is defined.
+> **Note:** SRS US-09-02 ("Update the InvestmentPortfolio Settings") does not itemize which settings are configurable; concrete settings fields are TBD in a future release once that scope is defined.
 
 #### 2.2.8 Asset
 
@@ -499,7 +500,7 @@ This section describes the core business concepts of the PFM domain and their re
 | State | Meaning | Transitions to |
 |-------|---------|----------------|
 | ACTIVE | The User can authenticate and use the System normally (`is_active = true`) | INACTIVE |
-| INACTIVE | The ADMIN has deactivated the User (UM-US-05; BR-16); login is rejected, but all of the User's Wallets, Transactions, Budgets, Goals, Investment Portfolio, and Notifications remain intact. Terminal for now — SRS does not yet define a reactivation flow (same terminal-state convention as `FinancialGoal.CLOSED` below) | — |
+| INACTIVE | The ADMIN has deactivated the User (UM-US-05; BR-16); login is rejected, but all of the User's Wallets, Transactions, Budgets, Goals, InvestmentPortfolio, and Notifications remain intact. Terminal for now — SRS does not yet define a reactivation flow (same terminal-state convention as `FinancialGoal.CLOSED` below) | — |
 
 > Permanent deletion (UM-US-06; BR-17) is a separate, non-reversible operation gated on `INACTIVE` — it removes the row entirely rather than transitioning to a further state, so it is not shown as a node on this diagram.
 
@@ -550,7 +551,7 @@ This section describes the core business concepts of the PFM domain and their re
 
 > Low-fidelity mockups for the 6 MVP screens, stored under [`ui/`](ui/). Each maps to one Feature from §5.
 
-#### Dashboard — Data Overview Dashboard (DOD)
+#### Dashboard (DB)
 
 ![Dashboard](ui/Dashboard.png)
 
@@ -626,9 +627,9 @@ At a logical level, the PFM system consists of the following major functional ar
 7. Financial Reporting
 8. FinancialGoal
 9. Asset Management (system-level, ADMIN-managed shared reference data — §7.9)
-10. Investment Portfolio
+10. InvestmentPortfolio
 11. Notification Handling
-12. Data Overview Dashboard
+12. Dashboard
 
 This view focuses on responsibilities and separation of concerns, not implementation details.
 
@@ -1212,17 +1213,17 @@ Authenticates an ADMIN or USER by email and password and issues a JWT access/ref
 
 *(Remaining details to be defined)*
 
-### 5.10 Investment Portfolio (IP)
+### 5.10 InvestmentPortfolio (IP)
 
-#### 5.10.1 IP-US-01: View the Investment Portfolio (USER)
-
-*(Details to be defined)*
-
-#### 5.10.2 IP-US-02: Update the Investment Portfolio Settings (USER)
+#### 5.10.1 IP-US-01: View the InvestmentPortfolio (USER)
 
 *(Details to be defined)*
 
-#### 5.10.3 IP-US-03: Add a Holding to the Investment Portfolio (USER)
+#### 5.10.2 IP-US-02: Update the InvestmentPortfolio Settings (USER)
+
+*(Details to be defined)*
+
+#### 5.10.3 IP-US-03: Add a Holding to the InvestmentPortfolio (USER)
 
 *(Details to be defined)*
 
@@ -1260,9 +1261,9 @@ Authenticates an ADMIN or USER by email and password and issues a JWT access/ref
 
 *(Remaining details to be defined)*
 
-### 5.12 Data Overview Dashboard (DOD)
+### 5.12 Dashboard (DB)
 
-#### 5.12.1 DOD-US-01: View the Dashboard (USER)
+#### 5.12.1 DB-US-01: View the Dashboard (USER)
 
 **Goal:** Aggregate the authenticated User's own Wallet balances, recent Transactions, Budget status, and FinancialGoal progress into a single read (BR-13).
 
@@ -1272,16 +1273,16 @@ Authenticates an ADMIN or USER by email and password and issues a JWT access/ref
 
 *(Remaining details to be defined)*
 
-#### 5.12.2 DOD-US-02: Filter the Dashboard by Date Range (USER)
+#### 5.12.2 DB-US-02: Filter the Dashboard by Date Range (USER)
 
-**Goal:** Allow a User to scope the Dashboard's balances/recent-Transactions/Budget-status/Goal-progress read (DOD-US-01) to a specific date range, mirroring RPT-US-04's filter pattern.
+**Goal:** Allow a User to scope the Dashboard's balances/recent-Transactions/Budget-status/Goal-progress read (DB-US-01) to a specific date range, mirroring RPT-US-04's filter pattern.
 
 **APIs Involved:**
 - Endpoint: `GET /dashboard?date_from=&date_to=`
 
 *(Remaining details to be defined)*
 
-#### 5.12.3 DOD-US-03: Navigate from a Dashboard Summary to its Detail Screen (USER)
+#### 5.12.3 DB-US-03: Navigate from a Dashboard Summary to its Detail Screen (USER)
 
 **Goal:** Pure client-side navigation from a Dashboard summary card to the corresponding Wallet (WM-US-03) or Budget (BM-US-03) detail screen — no new API, reuses existing detail endpoints.
 

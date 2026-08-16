@@ -188,7 +188,7 @@ Use these terms consistently across code, API contracts, database, and UI — th
 | Budget | Limit, Cap |
 | Transaction | Entry, Record |
 | FinancialGoal | Goal alone, or "Financial Goal" (two words) — the entity name is written as one PascalCase word, `FinancialGoal`, everywhere it appears (headings, story titles, prose, code, API URLs excepted per NC-02 kebab-case) |
-| InvestmentPortfolio | Portfolio alone — always qualify as "Investment Portfolio" |
+| InvestmentPortfolio | Portfolio alone, or "Investment Portfolio" (two words) — the entity name is written as one PascalCase word, `InvestmentPortfolio`, everywhere it appears (headings, story titles, prose, code, API URLs excepted per NC-02 kebab-case) |
 | Holding | Position, Investment alone |
 | Asset | Instrument, Security |
 | Notification | Alert, Message (in code/API identifiers — "alert" is fine in casual UI copy) |
@@ -232,8 +232,8 @@ PFM has exactly two roles (SRS §1.5), and — unlike a typical fixed-role syste
 
 | Role | Scope |
 |---|---|
-| `ADMIN` | User account lifecycle management (create/list/deactivate/delete — UM-US-01/04/05/06) and maintenance of the shared, system-level Asset catalog (create/list/view/update-price — AM-US-01..04, SRS §7.9) only. No visibility into any User's Wallets, Transactions, Budgets, Goals, Investment Portfolio, or Notifications — including their own, unless they also hold `USER` |
-| `USER` | Full access to their own Wallets, Categories, Budgets, Transactions, FinancialGoals, Investment Portfolio, and Notifications only. References (read-only) the ADMIN-maintained Asset catalog when adding a Holding (IP-US-03) — Asset itself is never USER-writable |
+| `ADMIN` | User account lifecycle management (create/list/deactivate/delete — UM-US-01/04/05/06) and maintenance of the shared, system-level Asset catalog (create/list/view/update-price — AM-US-01..04, SRS §7.9) only. No visibility into any User's Wallets, Transactions, Budgets, Goals, InvestmentPortfolio, or Notifications — including their own, unless they also hold `USER` |
+| `USER` | Full access to their own Wallets, Categories, Budgets, Transactions, FinancialGoals, InvestmentPortfolio, and Notifications only. References (read-only) the ADMIN-maintained Asset catalog when adding a Holding (IP-US-03) — Asset itself is never USER-writable |
 
 **AC-02: Backend Enforces All Authorization**
 Authorization decisions must be enforced in the backend (DRF permission classes + `get_queryset()` ownership filtering), never only in the frontend. Frontend controls are for UX only. The backend must return `401` for unauthenticated requests and `403` for authenticated-but-disallowed actions (e.g. a `USER`-only account calling an `ADMIN`-only endpoint).

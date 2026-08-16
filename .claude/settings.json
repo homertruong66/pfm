@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip --version)",
+      "Bash(python -c \"print\\(open\\('requirements.txt','rb'\\).read\\(\\)[:20]\\)\")",
+      "Bash(pip install *)",
+      "Bash(py -0)",
+      "Bash(where python *)",
+      "Bash(/d/Project/pfm/.venv/Scripts/python.exe --version)",
+      "Bash(/d/Project/pfm/.venv/Scripts/pip.exe --version)",
+      "Bash(curl -s https://pypi.org/pypi/django/json)",
+      "Bash(curl -sk https://pypi.org/pypi/django/json)",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(sorted\\(d['releases'].keys\\(\\)\\)[-15:]\\)\")",
+      "Bash(curl -sk https://pypi.org/pypi/django/6.0.7/json)",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('requires_python:', d['info']['requires_python']\\)\")",
+      "Bash(python -c \"import ssl, certifi; print\\(certifi.where\\(\\)\\)\")",
+      "Bash(python -c \"import ssl; print\\(ssl.get_default_verify_paths\\(\\)\\)\")",
+      "Bash(curl -sv https://pypi.org/simple/django/)",
+      "Bash(winget install *)",
+      "Bash(rm -rf /d/Project/pfm/backend/.venv && echo \"removed old venv\")",
+      "Bash(py -3.12 -m venv .venv)",
+      "Bash(.venv/Scripts/python.exe --version)",
+      "Bash(.venv/Scripts/python.exe manage.py check)",
+      "Bash(npm run *)",
+      "Bash(curl -s http://localhost:3000/ -o /dev/null -w \"%{http_code}\\\\n\")",
+      "Read(//tmp/**)",
+      "Bash(netstat -ano)",
+      "Bash(chromium-cli --help)",
+      "Bash(npx --no-install playwright --version)",
+      "Bash(python -c \"import playwright\")",
+      "Bash(pip show *)",
+      "Bash(curl -s http://localhost:3000/)"
+    ],
+    "additionalDirectories": [
+      
+    ]
+  }
+}
