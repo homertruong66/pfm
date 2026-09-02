@@ -1,4 +1,4 @@
-# Node.js (root-level: Playwright test runner for tests/, per aif-sdlc.md Quality/Verification Steps)
+# Node.js (Playwright test runner lives under tests/, per aif-sdlc.md Quality/Verification Steps)
 node_modules/
 test-results/
 playwright-report/

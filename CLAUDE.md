@@ -84,6 +84,7 @@ cd backend && python manage.py makemigrations && python manage.py migrate   # sc
 cd frontend && npm run dev                                             # frontend dev server → :3000
 cd frontend && npm run build                                           # frontend type-check + build
 cd frontend && npm run lint                                            # frontend lint
+cd tests && npx playwright test                                        # e2e tests (needs both dev servers running)
 ```
 
 ### Service URLs
@@ -99,4 +100,4 @@ cd frontend && npm run lint                                            # fronten
 <!-- High-frequency rules that affect almost every task but aren't prominent enough in the constitution -->
 - One Django app per domain entity under `backend/` (SDS §2.1) — a new entity gets a new app, not a new module inside an existing one
 - Feature/User Story IDs use the `{ABBR}-US-{NN}` convention (e.g. `WM-US-01`) — see constitution.md § User Story Conventions
-- Backend integration tests live in each app's `tests.py`; e2e coverage lives under `tests/[feature-id]-[slug]/test_[feature-id].spec.ts` (Quality Step) — no Playwright runner (`playwright.config.ts`, `@playwright/test` dependency) is installed yet, needed before those `.spec.ts` files can run
+- Backend integration tests live in each app's `tests.py`; e2e coverage lives under `tests/[feature-id]-[slug]/test_[feature-id].spec.ts` (Quality Step), run via the Playwright runner at `tests/playwright.config.ts` (`cd tests && npm install && npx playwright test`) — requires the frontend/backend dev servers already running

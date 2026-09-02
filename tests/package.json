@@ -3,11 +3,8 @@
   "version": "1.0.0",
   "description": "A full-stack personal finance management app built with **Next.js** (frontend) and **Django REST Framework** (backend).",
   "main": "index.js",
-  "directories": {
-    "test": "tests"
-  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "playwright test"
   },
   "repository": {
     "type": "git",
