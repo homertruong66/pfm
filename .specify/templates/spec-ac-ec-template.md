@@ -16,10 +16,51 @@ genuinely empty for the US, never leave an empty header):
   2. Standard Business Rules — core rules/validations a normal user can trigger
      without trying. Genuinely thin for View, a single-record read with no
      mutation logic — omit rather than force a row
-  3. Pagination & Sorting Behavior — LIST and SEARCH ONLY, always required, never
-     omitted for these two verbs: default page size/sort when none is specified,
-     caller-specified page number/size and sort field/direction, and (Search only)
-     that the active search term survives page/sort navigation
+  3. Pagination & Sorting Behavior — LIST and SEARCH ONLY, required for these two
+     verbs except in the two cases named at the end of this item. LIST carries the
+     full standard set (seven
+     criteria): default page size/sort when none is specified; caller-specified
+     page number/size and sort field/direction; pagination navigation controls
+     (first/previous/next/last, with next disabled/absent on the last page and
+     previous disabled/absent on the first); column sort toggle (ascending on
+     first selection, descending on reselection, active sort indicated); sort
+     preserved across page navigation; sort change resets to the first
+     page while preserving the active page size; and page size change
+     re-paginates from the first page while preserving the active sort. SEARCH
+     carries only three search-specific criteria — default
+     page/sort applied to the matched set; the active search term surviving
+     page/sort navigation; and a new search term resetting to the first page of
+     the new matched set — and does NOT restate LIST's navigation-control and
+     sort-toggle criteria, since the result table behaves identically to LIST's
+     there. Two related cases deliberately live elsewhere: a page number beyond
+     the last page is a Boundary Values edge case (EC group 2), and an empty
+     result set is an Explicit UI/UX Requirements criterion — the empty-state
+     message — not an edge case at all. Neither belongs in this group
+     TWO EXCEPTIONS to "required", and only these two — each one has to be stated
+     by the story itself, never assumed by the author:
+       (a) The feature deliberately does not paginate this list. Omit the four
+           paging criteria (default page and sort, requested page and size, page
+           navigation controls, page size change) and the two that couple sorting
+           to paging (sort preserved across pages, sort change resets page), since
+           with no pages they assert nothing. Keep in this group whatever ordering
+           behaviour the story does state — a default order for the whole list,
+           and the column sort toggle if a column is sortable — because sorting
+           belongs to this group even where paging does not. Leave an HTML comment
+           naming the omitted criteria and quoting the story's own words and the
+           record volume the decision assumes. Only where the story states no
+           ordering at all is the group genuinely empty: then omit it entirely,
+           with the same comment.
+       (b) The list paginates but has no sortable column — its order is fixed and
+           no actor can change it. Keep the four paging criteria (default page and
+           sort, requested page and size, page navigation controls, page size
+           change) and omit the three sorting ones (column sort toggle, sort
+           preserved across pages, sort change resets page) with an HTML comment
+           naming them and stating the list's fixed order. In this case the
+           requested-page criterion drops its sort field/direction clause, and the
+           page-size criterion states that the records keep the list's default
+           order instead of preserving an active sort.
+     Anything else keeps the full set. A story that simply forgot to specify
+     paging or sorting is not an exception — it is a gap to raise
   4. Data Inputs & Expected Outputs — the exact captured/returned fields and
      immediate system outputs (e.g. audit trail) not already covered by group 1's
      Then clause
@@ -216,27 +257,53 @@ feature against its route and auth summary, not re-derived per User Story here.
 
 **Pagination & Sorting Behavior**
 
-- **AC-03 — [short desc]:**  
+- **AC-03 — Default page and sort:**  
   **Given** more [Entities] exist than fit on one page,  
   **When** [actor] views the list with no page or sort specified,  
-  **Then** a default page size and default sort order are applied,  
-    &nbsp;&nbsp;**and** the response indicates the total count and total number of pages.
-- **AC-04 — [short desc]:**  
+  **Then** the first page is returned with a default page size of 20 and this list's default sort order,  
+    &nbsp;&nbsp;**and** the total record count and the total number of pages are indicated.
+- **AC-04 — Requested page and sort:**  
   **Given** [actor] specifies a page number, a page size, and a sort field and direction,  
   **When** the list is requested,  
   **Then** the [Entities] are returned on the requested page,  
     &nbsp;&nbsp;**and** ordered by the requested sort field and direction.
+- **AC-05 — Page navigation controls:**  
+  **Given** the [Entities] span more than one page,  
+  **When** [actor] views the list,  
+  **Then** pagination controls show the current page and the total record count, with navigation to the first, previous, next, and last pages,  
+    &nbsp;&nbsp;**and** the next control is disabled or absent on the last page,  
+    &nbsp;&nbsp;**and** the previous control is disabled or absent on the first page.
+- **AC-06 — Column sort toggle:**  
+  **Given** [actor] is viewing the list and a sortable column is not the active sort,  
+  **When** they select that column,  
+  **Then** the [Entities] are ordered by that column ascending,  
+    &nbsp;&nbsp;**and** selecting the same column again reverses the order to descending,  
+    &nbsp;&nbsp;**and** the active sort column and direction are indicated.
+- **AC-07 — Sort preserved across pages:**  
+  **Given** [actor] has sorted by a column other than the default,  
+  **When** they navigate to another page,  
+  **Then** the same sort column and direction remain applied.
+- **AC-08 — Sort change resets page:**  
+  **Given** [actor] is viewing a page other than the first,  
+  **When** they change the sort column or the sort direction,  
+  **Then** the first page of the list under the new sort is returned,  
+    &nbsp;&nbsp;**and** the active page size remains applied.
+- **AC-09 — Page size change:**  
+  **Given** [actor] is viewing a paginated list,  
+  **When** they change the page size using the list's page-size control,  
+  **Then** the list is paginated again from the first page using the new page size,  
+    &nbsp;&nbsp;**and** the active sort column and direction remain applied.
 
 **Data Inputs & Expected Outputs**
 
-- **AC-05 — [short desc]:**  
+- **AC-10 — [short desc]:**  
   **Given** the list is returned,  
   **When** [actor] views it,  
   **Then** each entry includes [the specific fields].
 
 **Explicit UI/UX Requirements**
 
-- **AC-06 — [short desc]:**  
+- **AC-11 — [short desc]:**  
   **Given** zero [Entities] exist within [actor]'s scope,  
   **When** [actor] views the list,  
   **Then** an empty-state message is shown instead of an empty table,  
@@ -326,20 +393,26 @@ feature against its route and auth summary, not re-derived per User Story here.
 
 **Pagination & Sorting Behavior**
 
-- **AC-04 — [short desc]:**  
+- **AC-04 — Default page and sort:**  
   **Given** a search returns more [Entities] than fit on one page,  
   **When** no page or sort is specified,  
-  **Then** a default page size and default sort order are applied to the matching results,  
-    &nbsp;&nbsp;**and** the response indicates the total matched count and total pages.
-- **AC-05 — [short desc]:**  
+  **Then** the first page of matching results is returned with a default page size of 20 and this list's default sort order,  
+    &nbsp;&nbsp;**and** the total matched count and the total number of pages are indicated.
+- **AC-05 — Search preserved across pages:**  
   **Given** [actor] has an active search term and is viewing a page of results,  
   **When** they navigate to another page or change the sort field,  
   **Then** the same search term remains active,  
-    &nbsp;&nbsp;**and** the newly requested page/sort is applied to the same matched set.
+    &nbsp;&nbsp;**and** the newly requested page and sort are applied to the same matched set.
+- **AC-06 — New search resets page:**  
+  **Given** [actor] has an active sort and is viewing a page of results other than the first,  
+  **When** they submit a different search term,  
+  **Then** the first page of the new matched set is returned,  
+    &nbsp;&nbsp;**and** the active sort column and direction remain applied,  
+    &nbsp;&nbsp;**and** the total matched count and the total number of pages are recalculated for the new term.
 
 **Data Inputs & Expected Outputs**
 
-- **AC-06 — [short desc]:**  
+- **AC-07 — [short desc]:**  
   **Given** a search is submitted,  
   **When** the results are returned,  
   **Then** the search term is applied as entered,  
@@ -347,11 +420,11 @@ feature against its route and auth summary, not re-derived per User Story here.
 
 **Explicit UI/UX Requirements**
 
-- **AC-07 — [short desc]:**  
+- **AC-08 — [short desc]:**  
   **Given** [actor]'s search term matches no [Entities],  
   **When** the search is applied,  
   **Then** an empty-state message indicating no matching results is shown.
-- **AC-08 — [short desc]:**  
+- **AC-09 — [short desc]:**  
   **Given** [actor] clears the search field,  
   **When** the field becomes empty,  
   **Then** the full, unfiltered, paginated [Entity] list is restored.
@@ -809,27 +882,53 @@ feature against its route and auth summary, not re-derived per User Story here.
 
 **Pagination & Sorting Behavior**
 
-- **AC-03 — Default pagination and sort applied:**  
+- **AC-03 — Default page and sort:**  
   **Given** more Projects exist than fit on one page,  
   **When** a `WORKSPACE_ADMIN` views the list with no page or sort specified,  
-  **Then** a default page size and default sort order, by project name, are applied,  
-    &nbsp;&nbsp;**and** the response indicates the total Project count and total number of pages.
-- **AC-04 — Explicit pagination and sort honored:**  
+  **Then** the first page is returned with a default page size of 20 and the default sort order, by project name,  
+    &nbsp;&nbsp;**and** the total Project count and the total number of pages are indicated.
+- **AC-04 — Requested page and sort:**  
   **Given** a `WORKSPACE_ADMIN` specifies a page number, a page size, and a sort field and direction,  
   **When** the Project list is requested,  
   **Then** the Projects are returned on the requested page,  
     &nbsp;&nbsp;**and** ordered by the requested sort field and direction.
+- **AC-05 — Page navigation controls:**  
+  **Given** the Projects span more than one page,  
+  **When** a `WORKSPACE_ADMIN` views the list,  
+  **Then** pagination controls show the current page and the total Project count, with navigation to the first, previous, next, and last pages,  
+    &nbsp;&nbsp;**and** the next control is disabled or absent on the last page,  
+    &nbsp;&nbsp;**and** the previous control is disabled or absent on the first page.
+- **AC-06 — Column sort toggle:**  
+  **Given** a `WORKSPACE_ADMIN` is viewing the list and a sortable column is not the active sort,  
+  **When** they select that column,  
+  **Then** the Projects are ordered by that column ascending,  
+    &nbsp;&nbsp;**and** selecting the same column again reverses the order to descending,  
+    &nbsp;&nbsp;**and** the active sort column and direction are indicated.
+- **AC-07 — Sort preserved across pages:**  
+  **Given** a `WORKSPACE_ADMIN` has sorted by a column other than project name,  
+  **When** they navigate to another page,  
+  **Then** the same sort column and direction remain applied.
+- **AC-08 — Sort change resets page:**  
+  **Given** a `WORKSPACE_ADMIN` is viewing a page other than the first,  
+  **When** they change the sort column or the sort direction,  
+  **Then** the first page of the Project list under the new sort is returned,  
+    &nbsp;&nbsp;**and** the active page size remains applied.
+- **AC-09 — Page size change:**  
+  **Given** a `WORKSPACE_ADMIN` is viewing a paginated Project list,  
+  **When** they change the page size using the list's page-size control,  
+  **Then** the list is paginated again from the first page using the new page size,  
+    &nbsp;&nbsp;**and** the active sort column and direction remain applied.
 
 **Data Inputs & Expected Outputs**
 
-- **AC-05 — Captured summary fields per entry:**  
+- **AC-10 — Captured summary fields per entry:**  
   **Given** the Project list is returned,  
   **When** a `WORKSPACE_ADMIN` views it,  
   **Then** each entry includes the project name, description, Task count, and creation date.
 
 **Explicit UI/UX Requirements**
 
-- **AC-06 — Empty-state message for a Workspace with no Projects:**  
+- **AC-11 — Empty-state message for a Workspace with no Projects:**  
   **Given** the Workspace has zero Projects,  
   **When** a `WORKSPACE_ADMIN` views the Project list,  
   **Then** an empty-state message is shown instead of an empty table,  
@@ -915,20 +1014,26 @@ feature against its route and auth summary, not re-derived per User Story here.
 
 **Pagination & Sorting Behavior**
 
-- **AC-04 — Default pagination and sort applied to search results:**  
+- **AC-04 — Default page and sort:**  
   **Given** a search returns more Projects than fit on one page,  
   **When** no page or sort is specified,  
-  **Then** a default page size and default sort order are applied to the matching results,  
-    &nbsp;&nbsp;**and** the response indicates the total matched count and total pages.
-- **AC-05 — Pagination and search term preserved together:**  
+  **Then** the first page of matching results is returned with a default page size of 20 and the default sort order, by project name,  
+    &nbsp;&nbsp;**and** the total matched count and the total number of pages are indicated.
+- **AC-05 — Search preserved across pages:**  
   **Given** a `WORKSPACE_ADMIN` has an active search term and is viewing a page of results,  
   **When** they navigate to another page or change the sort field,  
   **Then** the same search term remains active,  
-    &nbsp;&nbsp;**and** the newly requested page/sort is applied to the same matched set.
+    &nbsp;&nbsp;**and** the newly requested page and sort are applied to the same matched set.
+- **AC-06 — New search resets page:**  
+  **Given** a `WORKSPACE_ADMIN` has an active sort and is viewing a page of results other than the first,  
+  **When** they submit a different search term,  
+  **Then** the first page of the new matched set is returned,  
+    &nbsp;&nbsp;**and** the active sort column and direction remain applied,  
+    &nbsp;&nbsp;**and** the total matched count and the total number of pages are recalculated for the new term.
 
 **Data Inputs & Expected Outputs**
 
-- **AC-06 — Captured search term and returned fields:**  
+- **AC-07 — Captured search term and returned fields:**  
   **Given** a search is submitted,  
   **When** the results are returned,  
   **Then** the search term is applied as entered,  
@@ -936,11 +1041,11 @@ feature against its route and auth summary, not re-derived per User Story here.
 
 **Explicit UI/UX Requirements**
 
-- **AC-07 — Empty-state message for no matches:**  
+- **AC-08 — Empty-state message for no matches:**  
   **Given** a `WORKSPACE_ADMIN`'s search term matches no Projects,  
   **When** the search is applied,  
   **Then** an empty-state message indicating no matching results is shown.
-- **AC-08 — Clearing the search restores the full list:**  
+- **AC-09 — Clearing the search restores the full list:**  
   **Given** a `WORKSPACE_ADMIN` clears the search field,  
   **When** the field becomes empty,  
   **Then** the full, unfiltered, paginated Project list is restored.

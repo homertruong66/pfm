@@ -24,12 +24,18 @@
 <!--
   ACTION REQUIRED: file header — copy verbatim as the top of test_cases.md, once per
   feature (not once per US). [PREFIX] is the short feature code (e.g. DC, PM, BU).
+  Jira Epic is feature-level — fill it once here from the Quality Prompt's own [Jira Epic]
+  value, linked to its Jira issue URL. Never repeat it per US (see Jira Story below instead).
+  Created is written once, on first creation of this file, using today's date. Updated is
+  overwritten every time this file changes (new US appended, or existing content revised) —
+  today's date plus a one-line summary of what changed in this edit; it always reflects only
+  the MOST RECENT change, not a running log of every past edit.
 -->
 
 # Test Cases: [FEATURE NAME] ([PREFIX])
 
-> **Spec:** [spec.md](spec.md)
-> **Plan:** [plan.md](plan.md)
+> **Spec:** [spec.md](spec.md) | **Plan:** [plan.md](plan.md)  
+> **Created:** [YYYY-MM-DD] | **Updated:** [YYYY-MM-DD] — [one-line summary of the most recent change]
 
 <!--
   ACTION REQUIRED: Classify every AC before writing any test case for it:
@@ -38,9 +44,21 @@
     [BOTH] — requires both integration AND e2e coverage
 -->
 
-### [PREFIX]-US-NN: [Story Title]
+## [PREFIX]-US-NN: [Story Title] ([ACTOR])
 
-#### AC Classification *(optional — add when a label isn't self-evident)*
+<!--
+  ACTION REQUIRED: (ACTOR) must match the actor tag on this US's SRS §7 header verbatim —
+  a single actor (e.g. `(ADMIN)`, `(SYSTEM)`), a comma-separated list (e.g.
+  `(ADMIN, BRAND_ADMIN)`), or `(ALL)` per constitution.md's Access Control convention when
+  every RBAC role can perform it. SYSTEM/AI-actor stories are never `(ALL)`. Jira Story and
+  Jira Quality Task are both per-US — fill Jira Story from the Quality Prompt's own
+  [Jira Story] value for this US, and Jira Quality Task from the TASK_ID created/found for
+  this US's own Quality Step ticket (its summary is "OBMS-{us}: Quality Step" per
+  aif-sdlc.md Step 3) — both linked to their Jira issue URL. Do not reuse another US's
+  values here.
+-->
+
+### AC Classification *(optional — add when a label isn't self-evident)*
 
 <!--
   OPTIONAL: add this table only when an AC's [API]/[UI]/[BOTH] label needs justification —
@@ -54,13 +72,13 @@
 |----|-----------------|-----------|
 | AC-01 — [short title] | [API \| UI \| BOTH] | [why this label — cite the AC's own wording, a missing dependency, or a deferred surface] |
 
-#### Coverage Matrix
+### Coverage Matrix
 
 <!--
   ACTION REQUIRED — produce this table BEFORE finalising the test cases below it.
   AC-IDs restart at AC-01 for every User Story and are only unique within this US's own
   table — never globally unique across the file. When referencing an AC outside this
-  section (cross-US Note, PR description), prefix it with the US-ID, e.g.
+  section (Jira comment, cross-US Note, PR description), prefix it with the US-ID, e.g.
   `[PREFIX]-US-NN/AC-01`.
 
   Defect condition — resolve before proceeding, do not finalise with either open:
@@ -75,7 +93,9 @@
 | AC-01 — [short title] | [API \| UI \| BOTH] | TC-01, TC-02 | TC-05 |
 | Error path — [condition] → [status] | [API \| UI \| BOTH] | TC-NN | — |
 
-#### Negative-scenario applicability *(optional — add when a required category is N/A)*
+- [ ] Self-checked against [aif-review-checklist.md § `test_cases.md` — Coverage](../../aif-review-checklist.md#test_casesmd--coverage)
+
+### Negative-scenario applicability *(optional — add when a required category is N/A)*
 
 <!--
   OPTIONAL: add this list only when one of the Coverage-required-per-US negative categories
@@ -87,7 +107,7 @@
 
 - **[Category, e.g. Authentication (401) / Authorization (403)]:** [why N/A, or which other US/TC-NN already covers it]
 
-#### Test Cases
+### Test Cases
 
 <!--
   ACTION REQUIRED: TC-NN is numbered sequentially across the WHOLE file, never reset per
@@ -98,19 +118,19 @@
 ### TC-NN: [Test Name]
 - **US:** [PREFIX]-US-NN
 - **Given:** xxx...
-  - And yyy...
-  - And zzz...
+  - **And** yyy...
+  - **And** zzz...
   - ...
 - **When:** xxx...
-  - And yyy...
-  - And zzz...
+  - **And** yyy...
+  - **And** zzz...
   - ...
 - **Then:** xxx...
-  - And yyy...
-  - And zzz...
+  - **And** yyy...
+  - **And** zzz...
   - ...
-- **AC:** [link to the item this TC verifies — an Acceptance Scenario/Criterion, Edge
-  Case, Functional Requirement, Success Criterion, or Assumption, whichever applies]
+- **AC:** [link to the item this TC verifies — AC-NN (Acceptance Criteria) or EC-NN
+  (Edge Case) only, per spec.md's own numbering]
 - **Type:** [unit | integration | e2e]
 - **Severity:** [Critical | Major | Minor — Critical for main flow (happy path), Major for
   alternative flow (validation errors, rejected states, guardrail violations), Minor for
@@ -148,6 +168,11 @@
   since it governs the .spec.ts code, not this document's structure.
 -->
 
+- [ ] Self-checked against [aif-review-checklist.md § `test_cases.md` — Structure](../../aif-review-checklist.md#test_casesmd--structure)
+- [ ] Self-checked against [aif-review-checklist.md § Playwright Code — Integration Tests](../../aif-review-checklist.md#playwright-code--integration-tests)
+- [ ] Self-checked against [aif-review-checklist.md § Playwright Code — E2E Tests](../../aif-review-checklist.md#playwright-code--e2e-tests)
+- [ ] Self-checked against [aif-review-checklist.md § Playwright Code — General](../../aif-review-checklist.md#playwright-code--general)
+
 <!-- Repeat the "Coverage Matrix" + "Test Cases" sub-sections above once per User Story in this Feature. -->
 
 ---
@@ -171,10 +196,9 @@
   against the Test Environment, with the result documented inline here.
 -->
 
-### [PREFIX]-US-NN: [Story Title]
+## [PREFIX]-US-NN: [Story Title] ([ACTOR])
 
-> **Test Env:** [env URL]
-> **Suite:** `[Testing folder]/test_[feature-id].spec.ts` ([describe-block name], N tests) | **HTML report:** `[Testing folder]/[xx-us-nn-keyword]/index.html`
+> **Suite:** `[Testing folder]/test_[feature-id]-[slug].spec.ts` ([describe-block name], N tests) | **HTML report:** `[Testing folder]/[xx-us-nn-keyword]/index.html`
 
 <!--
   ACTION REQUIRED: this metadata block is mandatory, not decorative — every verified US
@@ -183,30 +207,43 @@
   never write "same as above".
 -->
 
-#### Results
+### Results
 
 | TC-NN | Test Name | AC | Type | Result | Notes |
 |-------|-----------|----|------|--------|-------|
 | TC-01 | [short name] | [PREFIX]-US-NN/AC-01 | e2e | PASS / FAIL / BLOCKED | [only if not a plain PASS — the column stays even when every row is blank] |
 
-#### Summary
+- [ ] Self-checked against [aif-review-checklist.md § Playwright Run](../../aif-review-checklist.md#playwright-run)
+- [ ] Self-checked against [aif-review-checklist.md § Verification Report](../../aif-review-checklist.md#verification-report)
+
+### Summary
 
 <!--
   ACTION REQUIRED: one short paragraph — pass/fail count, plus any context worth keeping
-  (an accepted known-bug FAIL with its reference, a re-verification date, a coverage
-  caveat).
+  (an accepted known-bug FAIL with its bug ticket ID, a re-verification date, a coverage
+  caveat). This is the same substance as the Jira comment's one-liner in step 8 below —
+  write it once here and reuse it there, don't re-derive it from scratch twice.
 -->
 
-[N/M PASS — one-line summary of scope and any accepted gaps, citing bug references for accepted FAILs.]
+[N/M PASS — one-line summary of scope and any accepted gaps, citing bug ticket IDs for accepted FAILs.]
 
 <!-- Append one such US block (metadata + Results + Summary) per User Story verified. Never modify or remove a previously appended block for a different US. -->
 
 <!--
   ACTION REQUIRED — after producing the Results table for this US:
 
+  If ALL ACs for this US pass:
+  - Comment on the Jira Story: reuse the Summary paragraph above as the one-line pass-count
+    summary, plus a compact results table (short Test Name so it doesn't wrap in the Jira
+    comment pane), a link to this full report and the HTML report/screenshots, and any
+    accepted/known gaps (e.g. blocked checks) called out by TC ID with the reason.
+  - Leave the Jira Story In Review — QC transitions it to Done only once all
+    manual/e2e checks across every US in the Feature are complete.
+
   If any AC fails or is blocked:
   - List each failure: test case ID, AC reference, observed vs expected behaviour.
-  - Raise a bug record (description = Severity: [failing TC's Severity] / Pre-condition /
-    Test data / Steps / Expected Result / Actual Result) and reference it from the Summary
-    above.
+  - Raise a Bug ticket linked to the Jira Story (type Bug, same Epic as parent,
+    description = Severity: [failing TC's Severity] / Pre-condition / Test data / Steps /
+    Expected Result / Actual Result).
+  - Comment the failure summary + Bug ticket link on the Jira Story.
 -->
