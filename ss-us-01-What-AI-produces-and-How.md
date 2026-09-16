@@ -1,6 +1,9 @@
-# SS-US-01: Login — Generated Files Explained
+# SS-US-01: Login — What Claude Produced, and How
 
-This document lists every file created or modified while taking **SS-US-01: Login (ADMIN, USER)** through all 6 AIF-SDLC steps (Spec → Design → Quality → Implementation → Deployment → Verification), per [aif-sdlc.md](aif-sdlc.md). For each file: what it is, why it was created, when it's used, and how it works.
+This document explains how **SS-US-01: Login (ADMIN, USER)** was taken through all 6 AIF-SDLC steps (Spec → Design → Quality → Implementation → Deployment → Verification), per [aif-sdlc.md](aif-sdlc.md), in two halves:
+
+- **What Claude produced** — every file created or modified at each step. For each file: what it is, why it was created, when it's used, and how it works.
+- **How Claude produced it** — the input documents Claude read at each step and, for each, exactly what information it pulled out and which downstream artifact that information fed.
 
 Deployment (Step 5) produced no new files — it only ran the existing test suites and started the dev servers, so it has no entry here.
 
@@ -211,3 +214,88 @@ Deployment (Step 5) produced no new files — it only ran the existing test suit
 | 4. Implementation | `tasks.md`, `frontend/src/app/login/page.tsx`, `package.json`, `package-lock.json`, `playwright.config.ts` | `backend/users/tests.py`, `SDS.md`, `plan.md`, `research.md`, `data-model.md`, `.gitignore` |
 | 5. Deployment | *(none)* | *(none — ran existing tests/servers)* |
 | 6. Verification | `ss-us-01-login/index.html`, `ss-us-01-login/data/`, `ss-us-01-login/verification-report.md` | `aif-sdlc.md` |
+
+---
+
+## Input Documents — What Claude Reads to Generate Each Artifact
+
+The tables above list *outputs*. This section lists the *inputs* — every document Claude consulted while producing them, and specifically what information was pulled from each one — grouped by the AIF-SDLC step where each document was first read.
+
+### Step 1 — Spec Step
+
+### [CLAUDE.md](CLAUDE.md)
+
+**Read first — automatically, at the start of every session**, before any task. What's used: the Project Structure tree (where each app/folder lives), the trigger table (which SRS/SDS section to open for a given kind of change, so Claude doesn't read whole documents unnecessarily), and Dev Commands (exact commands to run tests/migrations/dev servers rather than guessing). It also pulls in `constitution.md` via an `@constitution.md` reference, which is why that file loads next, automatically, in the same pass.
+
+### [constitution.md](constitution.md)
+
+Read second — loaded automatically by CLAUDE.md's `@constitution.md` reference, and re-consulted before generating any artifact at every step after that. What's used: the Layered Architecture rules (AR-01..05, e.g. "login is stock `djangorestframework-simplejwt`, no service layer needed"), API Design Standards (API-01..07, e.g. status-code mapping, JWT header format), Naming Conventions (NC-01..05, e.g. serializer/field naming), Frontend Conventions (FE-01..08, e.g. no form library, native `fetch`), Validation Rules (VL-01..05), and the Definition of Done (DOD-01..05) checklist used to confirm the US is actually finished. This is the authority every other document's content is checked against.
+
+### [aif-sdlc.md](aif-sdlc.md)
+
+Read next, at the start of each of the 6 steps, once it's clear which AIF-SDLC step is being run. What's used: the exact prompt template for that step — its numbered instructions, required output files, and `--- Git ---` branching rules (e.g. branch off `develop`, not off the previous step's branch) — so every step's process is followed the same way for every future US.
+
+### [SRS.md](SRS.md)
+
+Read at the start of the Spec Step (Step 1), per CLAUDE.md's trigger table and aif-sdlc.md's Spec Prompt. What's used: §2 CDM for domain entity names/fields (`User.email`, `is_active`) so code never invents synonyms; §2.4 Business Rules (e.g. BR-16, authentication mechanism); §6 Business Flows to check a flow step maps to a story; §7 for the existing (empty) `SS-US-01` header and its place in the ToC, so the new story slots into the right Feature/prefix.
+
+### [.specify/feature.json](.specify/feature.json)
+
+Read by `/speckit-specify` immediately after SRS.md, before writing `spec.md`. What's used: the single `feature_directory` value, so the command (and every speckit command after it) knows where to read/write without being told again.
+
+### [.specify/templates/spec-template.md](.specify/templates/spec-template.md)
+
+Read by `/speckit-specify` right after `feature.json`, as the last input before `spec.md` is generated. What's used: the placeholder structure and `AC-NN`/`EC-NN` ID-numbering convention, so the newly generated `spec.md` follows the same shape as every other feature's spec.
+
+### Step 2 — Design Step
+
+### [specs/001-system-security/spec.md](specs/001-system-security/spec.md)
+
+Read starting in the Design Step (Step 2) and again in the Quality Step (Step 3), once it exists. What's used: the numbered `AC-NN`/`EC-NN` Acceptance Criteria/Edge Cases (so `plan.md`, `test_cases.md`, and `contracts/auth-login.md` can cite a stable ID instead of re-describing behavior), the Functional Requirements (`FR-NN`), and the Success Criteria (`SC-NN`).
+
+### [SDS.md](SDS.md)
+
+Read next in the Design Step, alongside `spec.md`, and again during Implementation. What's used: §2.1 Domain Layer Traceability (which model/table backs an entity), §4.3.3 Data Integrity Rules (DB-level enforcement of a Business Rule, e.g. BR-16), §6.2 DTO Registry (exact serializer field lists), §6.3 API Index and §6.4 API Specification (existing endpoint conventions to match when documenting `/auth/login/`), and §5 for the Feature/story structure `plan.md` must trace back to.
+
+### [specs/001-system-security/plan.md](specs/001-system-security/plan.md)
+
+Read by `/speckit-tasks` and by the Implementation Step. What's used: the Technical Context (which stack pieces are in play) and the Constitution Check table (which principles are already satisfied vs. still `OPEN`, e.g. the DOD-02 API-doc gap), so `tasks.md` only creates tasks for what's actually missing.
+
+### [specs/001-system-security/research.md](specs/001-system-security/research.md)
+
+Read alongside `plan.md`. What's used: the Decision/Rationale/Alternatives-considered entries (e.g. "reuse `TokenObtainPairView`, don't build a custom service") — read so implementation doesn't re-open a decision already made and rejected.
+
+### [specs/001-system-security/data-model.md](specs/001-system-security/data-model.md)
+
+Read before touching any model field. What's used: the field table naming exactly which existing `User` fields (`email`, `password`, `is_active`) this US reads, and the note on `is_staff`/`is_superuser` standing in for the not-yet-built `Role` entity — so tests simulate roles the same way consistently.
+
+### [specs/001-system-security/contracts/auth-login.md](specs/001-system-security/contracts/auth-login.md)
+
+Read while writing both the backend tests and the frontend page. What's used: the exact request/response field names (`access`/`refresh`) and status codes (400/401) per AC/EC, so the frontend's `fetch` call and the backend's `APITestCase` assertions match the same contract instead of drifting from each other.
+
+### [specs/001-system-security/quickstart.md](specs/001-system-security/quickstart.md)
+
+Generated at the end of Design (Step 2), but first actually *read* during the Implementation Step's manual check (T018) and again in Verification. What's used: the per-AC/EC `curl` commands and browser steps, run as-is to confirm the built feature actually behaves as specified, independent of the automated test suite.
+
+### Step 3 — Quality Step
+
+### [tests/001-system-security/test_cases.md](tests/001-system-security/test_cases.md)
+
+Derived from `spec.md`'s `AC-NN`/`EC-NN` list — no new source document beyond what Step 1/2 already produced. Then, once written, it becomes an input in its own right: read at the start of Step 4 while writing test code. What's used: each `TC-NN`'s Given/When/Then, its `Type` (`integration` vs. `e2e`), and its cited `AC-NN`/`EC-NN`, so `backend/users/tests.py` and `test_ss.spec.ts` each implement exactly the cases assigned to them without duplicating the other's coverage.
+
+### Step 4 — Implementation Step
+
+### [specs/001-system-security/tasks.md](specs/001-system-security/tasks.md)
+
+Generated first in this step (by `/speckit-tasks`, reading `plan.md`), then read continuously for the rest of Implementation. What's used: each task's file path and dependency ordering (e.g. "T012 depends on T011"), followed in sequence so nothing — e.g. `backend/users/tests.py` before the endpoint it tests — is built before its prerequisite exists.
+
+**Re-reads that directly produced the code files** — nothing new is introduced here; these are the same documents from Steps 1–3, opened again with a narrower question in mind:
+
+- **`SDS.md` §6.3/§6.4** — re-read to confirm `POST /auth/login/`/`POST /auth/refresh/` needed adding to the API Index/Specification (closing the DOD-02 gap), and §4.3.3's BR-16 row — re-read to catch it wrongly naming a nonexistent `AuthenticationService`, corrected to Django's actual `ModelBackend`.
+- **`data-model.md`** — re-read to confirm exactly which `User` fields (`email`, `password`, `is_active`) `backend/users/tests.py` needed to exercise, and how `is_staff`/`is_superuser` stand in for the not-yet-built `Role` entity.
+- **`contracts/auth-login.md`** — re-read while writing both `backend/users/tests.py` and `frontend/src/app/login/page.tsx`, so the response field names (`access`/`refresh`) and status codes (400/401) match on both sides of the contract.
+- **`test_cases.md`** (above) — the direct source for every assertion in `backend/users/tests.py` and every scenario in `test_ss.spec.ts`.
+- **`constitution.md`** — re-read for AR-01 (no service layer needed for a stock JWT view), FE-02/FE-06/FE-08 (native `fetch`, no form library, loading/error states) while writing `frontend/src/app/login/page.tsx`, and NC-04 (element-ID conventions like `#login-email`, `#btn-submit-login`) so the Playwright spec's selectors would have stable hooks.
+- **`CLAUDE.md`** — re-read for the exact Dev Commands (`python manage.py test`, `npm run dev`) used to run and verify the new code.
+
+**Not document-derived:** `package.json`/`package-lock.json` (tests/), `playwright.config.ts`, and the `.gitignore` update are tooling/process artifacts generated by running `npm init`/`npm install` and hand-written config — they don't trace back to content in any spec/design document.
