@@ -1,6 +1,6 @@
 # Tasks: System Security — SS-US-01 Login
 
-**Input**: Design documents from `specs/001-system-security/` (plan.md, spec.md, research.md, data-model.md, contracts/auth-login.md, quickstart.md) and `tests/001-system-security/` (test_cases.md, test_ss.spec.ts)
+**Input**: Design documents from `specs/001-system-security/` (spec.md, plan.md — including its SS-US-01 Decisions & Rationale/Domain Objects/API Contracts/Quickstart Validation subsections) and `tests/001-system-security/` (test_cases.md, test_ss.spec.ts)
 
 **Tests**: Included — constitution.md DOD-05 requires at least one `APITestCase` per new/formalized endpoint; e2e Playwright automation for TC-02/TC-04/TC-08 already exists in `tests/001-system-security/test_ss.spec.ts` from the Quality Step and is referenced, not duplicated.
 
@@ -24,7 +24,7 @@
 
 **Goal**: An ADMIN or USER logs in with email + password and reaches their account; a login rejects bad/deactivated credentials with one generic message and requires no separate step per role.
 
-**Independent Test**: Follow `specs/001-system-security/quickstart.md` — `curl` the login endpoint for the valid/invalid/deactivated cases (AC-01..03), then open `http://localhost:3000/login` in a browser and confirm the redirect and inline-error behavior (AC-01, AC-02, EC-01) without needing any other Feature implemented.
+**Independent Test**: Follow `plan.md`'s SS-US-01 Quickstart Validation subsection — `curl` the login endpoint for the valid/invalid/deactivated cases (AC-01..03), then open `http://localhost:3000/login` in a browser and confirm the redirect and inline-error behavior (AC-01, AC-02, EC-01) without needing any other Feature implemented.
 
 ### Tests for User Story 1
 
@@ -107,7 +107,7 @@ Task: "Create login page shell in frontend/src/app/login/page.tsx"
 1. T001 (confirm existing wiring)
 2. T002–T008 (backend characterization tests)
 3. T009–T013 (frontend login page)
-4. **STOP and VALIDATE**: run `specs/001-system-security/quickstart.md` manually
+4. **STOP and VALIDATE**: run `plan.md`'s SS-US-01 Quickstart Validation steps manually
 5. T014–T018 (doc sync, full regression, e2e infra note, manual browser check)
 
 No incremental multi-story delivery applies — SS-US-01 is this feature's only story so far (SS-US-02 Logout will be a future pass through this same workflow).

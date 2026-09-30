@@ -193,8 +193,9 @@ layer, not SQL statements or exact response payloads. Follow these rules:
   then rejection/error paths — not chronological-only ordering, which tends to bury the happy path
   under edge cases.
 - **No database queries.** Don't show a DB participant or SQL (`SELECT ...`, `INSERT ...`, etc.) —
-  that's implementation detail for `data-model.md`, not the sequence diagram. If a step needs a
-  data lookup, name it as a plain message (e.g. `Auth-->>Ser: active User`), not a query.
+  that's implementation detail for `plan.md`'s Domain Objects subsection, not the sequence diagram.
+  If a step needs a data lookup, name it as a plain message (e.g. `Auth-->>Ser: active User`), not
+  a query.
 - **No response bodies or UI copy.** Show the HTTP status code only (`200`, `401`, `400`) — never
   the JSON payload, error `detail` string, or the exact inline message text a User sees. Message
   wording belongs in `spec.md`'s Acceptance Criteria or `test_cases.md`, not the diagram.

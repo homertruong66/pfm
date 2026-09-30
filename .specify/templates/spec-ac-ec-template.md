@@ -10,6 +10,20 @@ Everything else about spec.md — metadata, GWT hard-break formatting, ID number
 banned words, WHAT-only content — is governed by spec-template.md and the
 constitution unchanged.
 
+SIBLING-FILE SET (this project): a spec-kit feature folder here produces spec.md and
+plan.md (both under specs/[feature-id]-[slug]/), then tasks.md once /speckit-tasks
+runs. The parallel Quality Step artifact, test_cases.md, is NOT a sibling file in the
+same folder — it lives under tests/[feature-id]-[slug]/ instead (CLAUDE.md's
+specs/ vs. tests/ split), alongside the Playwright test_[feature-id].spec.ts. Unlike a
+more generic spec-kit scaffold, this project's template set does not generate
+research.md, data-model.md, contracts/, or quickstart.md as separate files — those
+concerns (technical decisions, domain objects, API contracts, a runnable validation
+guide) are folded directly into each plan.md's "## [CODE]-US-NN" section instead, as
+its Decisions & Rationale / Domain Objects / API Contracts / Quickstart Validation
+subsections (see plan-template.md's "No sibling design files" note). This project DOES
+use a .specify/feature.json pointer file to track the active feature directory for
+speckit commands — it is not tracked by branch-name convention alone.
+
 AC GROUP ORDER (fixed per verb, always in this sequence — omit a group entirely if
 genuinely empty for the US, never leave an empty header):
   1. Main Success Scenario   — the happy path for this verb, start to finish

@@ -8,10 +8,12 @@
 
 | Story | Status | Last updated |
 |---|---|---|
-| SS-US-01: Login | ✅ Designed & implemented | 2026-07-21 |
+| SS-US-01: Login | ✅ Designed & implemented | 2026-09-21 |
 | SS-US-02: Logout | Not yet designed | — |
 
-> This plan covers the whole **System Security** feature, not a single User Story — per aif-sdlc.md's Design Step, `plan.md` is created once per feature folder and *extended* (not replaced) each time a new US in this feature goes through `/speckit-plan`. `## Technical Context`, `## Constitution Check`, `## Project Structure`, and `## Complexity Tracking` below are feature-wide and will grow rows/entries as SS-US-02 (and beyond) are designed. Each User Story's own narrative (Summary + Sequence Diagram) gets its own `### SS-US-NN` subsection under **User Story Plans** so they don't blend together.
+> This plan covers the whole **System Security** feature, not a single User Story — per aif-sdlc.md's Design Step, `plan.md` is created once per feature folder and *extended* (not replaced) each time a new US in this feature goes through `/speckit-plan`. `## Technical Context`, `## Constitution Check`, `## Project Structure`, and `## Complexity Tracking` below are feature-wide and will grow rows/entries as SS-US-02 (and beyond) are designed. Each User Story's own design — Summary, Decisions & Rationale, Domain Objects, API Contracts, Sequence Diagram, and Quickstart Validation — gets its own `### SS-US-NN` subsection under **User Story Plans** so they don't blend together.
+>
+> **No sibling design files.** This feature's design lives entirely in this one file — there is no separate `research.md`, `data-model.md`, `contracts/`, or `quickstart.md`. SS-US-01 was originally designed with those as four standalone files; on 2026-09-21 they were folded into the **SS-US-01: Login** section below (per the project's finalized convention — see `.specify/templates/plan-template.md`) and the standalone files were deleted. Nothing about SS-US-01's actual design changed in that move, only where it lives.
 
 ## User Story Plans
 
@@ -19,7 +21,71 @@
 
 **Summary**: Authenticate an ADMIN or USER by email + password and issue a JWT access/refresh credential pair, so the caller can reach the account and the actions permitted to their role(s) (AC-01). The backend side of this already exists as-is: `djangorestframework-simplejwt`'s stock `TokenObtainPairView` is wired at `POST /api/v1/auth/login/` (`backend/config/api_router.py`), and Django's default `ModelBackend` already refuses to authenticate a deactivated account (`is_active=False`), which is exactly BR-16/AC-03. No new backend service module is introduced — this is a case of AR-01's "straightforward CRUD/auth" threshold, not a multi-model side-effecting operation. What's actually missing is (1) a frontend login page — none exists yet under `frontend/src/app/` — and (2) test coverage + SDS documentation for the already-working endpoint.
 
-**Sequence Diagram**: covers AC-01 (success), AC-02/AC-03 (generic rejection — wrong credentials and deactivated account both take the same path), and EC-01 (missing field, rejected before any network call).
+#### Decisions & Rationale
+
+No `[NEEDS CLARIFICATION]` markers remained in Technical Context below, so this phase confirms existing decisions already fixed by the constitution rather than evaluating new alternatives.
+
+- **Decision**: Reuse `djangorestframework-simplejwt`'s stock `TokenObtainPairView`, no custom login view/serializer.
+  **Rationale**: `POST /api/v1/auth/login/` is already wired to `TokenObtainPairView`. It authenticates via Django's `authenticate()`, which delegates to `ModelBackend.user_can_authenticate()` — this already rejects `is_active=False` accounts (AC-03/BR-16) and returns one generic error message for both wrong-credentials and deactivated-account cases (AC-02), with no per-field detail leaked. Constitution AR-01 reserves a dedicated service module for logic spanning more than one model or with side effects (e.g. budget recompute, notification fan-out) — login has neither, so introducing an `AuthenticationService` would violate Simplicity Over Premature Scale.
+  **Alternatives considered**: A custom login `APIView` + service function — rejected: duplicates behavior the stock view already provides correctly. Session-based auth — rejected: constitution API-07 already fixes JWT Bearer as the auth mechanism project-wide.
+
+- **Decision**: Frontend login page uses native `fetch` + React state, no form library.
+  **Rationale**: Constitution FE-02 forbids adding React Hook Form/Formik/Zod until complexity genuinely warrants it. A 2-field (email, password) login form with HTML5 `required` validation is well within native handling. FE-08 fixes direct `fetch` calls to `NEXT_PUBLIC_API_URL` — no API-proxy route.
+  **Alternatives considered**: React Hook Form — rejected: no repeated ad hoc duplication problem yet to justify the dependency (same reasoning as FE-04).
+
+- **Decision**: Token storage is client-side, with no specific cookie/session mechanism mandated by this US.
+  **Rationale**: No existing frontend auth pattern exists in this codebase yet to follow. The simplest mechanism consistent with FE-08 (direct fetch, `Authorization: Bearer <token>` header per API-07) is storing the returned `access`/`refresh` tokens in the browser and attaching `access` as a Bearer header on subsequent requests. The concrete choice (e.g. in-memory vs. persisted) is an implementation-time detail for `tasks.md`, not a spec-level or business-rule concern.
+  **Alternatives considered**: None evaluated at this phase — deferred to implementation, since no AC in spec.md constrains storage mechanism.
+
+- **Open items — resolved during Implementation**: SDS §6.3 API Index / §6.4 API Specification now list `POST /auth/login/` (API-SS-01) and `POST /auth/refresh/` (API-SS-02) — added in tasks.md T014. SDS §4.3.3's BR-16 row now references the actual Django `ModelBackend` mechanism instead of a nonexistent `AuthenticationService` — corrected in tasks.md T015.
+
+#### Domain Objects
+
+No schema change is required for this US — it reads the existing `User` entity only.
+
+| Domain Entity (SRS §2) | Model / Table | Key Fields | Notes |
+|---|---|---|---|
+| `User` | `users.User` / `users` table | `email` (`USERNAME_FIELD`, unique), `password` (hashed, from `AbstractUser`), `is_active` (`BooleanField`, default `True`, from `AbstractUser`) | `email` is the login identifier submitted by the caller. `password` is verified against the submitted value by Django's `authenticate()`. `is_active=False` makes `ModelBackend.user_can_authenticate()` refuse authentication regardless of correct credentials (AC-03, BR-16). |
+
+No `Role` entity exists yet (constitution's documented open drift) — login does not read or branch on Role; AC-04 (dual-role single login) holds by the absence of any role-gated check at login time, not by explicit design in this US. Where a test needs to stand in for "an account holding both roles" (TC-06), `is_staff`/`is_superuser` (already present on `AbstractUser`) are used as the closest existing analog to an elevated/dual-capability account until `Role` is scaffolded — these are test-only proxies, not a modeled part of this US.
+
+**State Transitions**: None triggered by login itself. `is_active` transitions (`ACTIVE` → `INACTIVE`) belong to UM-US-05 (Deactivate User), not this US — login only *reads* the current state.
+
+*Data Modeling checklist*
+- [x] Entity/field names match SRS §2 domain language verbatim (NC-01) — no synonyms
+- [x] No new Domain Entity introduced — SDS §2.1 traceability table needs no change
+- [x] No divergence from SDS §2.2/§4.3.3 introduced by this US
+
+#### API Contracts
+
+**`POST /api/v1/auth/login/`**
+
+Maps to spec.md AC-01, AC-02, AC-03, EC-01. Already implemented (stock `TokenObtainPairView`) — documented here for traceability into SDS §6.4.
+
+| Field | Type | Notes |
+|---|---|---|
+| `email` | string | required |
+| `password` | string | required |
+
+| Status | Body | Maps to |
+|---|---|---|
+| 200 | `{"access": "<JWT, 1 hour lifetime>", "refresh": "<JWT, 7 day lifetime>"}` | AC-01, AC-04 (no role-specific field — same shape regardless of which role(s) the account holds) |
+| 400 | DRF default `{field: [messages]}` | EC-01 (`email` or `password` missing) |
+| 401 | `{"detail": "No active account found with the given credentials"}` — one generic message, does not distinguish which case or which field | AC-02, AC-03 |
+
+**`POST /api/v1/auth/refresh/`**
+
+Out of scope for SS-US-01's acceptance criteria (no AC references token refresh) — documented here only because it is the paired endpoint the login response's `refresh` token is used against. Already implemented via stock `TokenRefreshView`.
+
+*API Design checklist*
+- [x] Endpoint is versioned under `/api/v1/`, matches existing convention (API-01)
+- [x] Response shape follows API-02 — no custom envelope
+- [x] Status codes follow the API-04 mapping table
+- [x] No sensitive field (e.g. `password`) ever appears in a response (AC-04 access-control sense / field-level filtering)
+
+#### Sequence Diagram
+
+Covers AC-01 (success), AC-02/AC-03 (generic rejection — wrong credentials and deactivated account both take the same path), and EC-01 (missing field, rejected before any network call).
 
 ```mermaid
 sequenceDiagram
@@ -52,9 +118,42 @@ sequenceDiagram
     end
 ```
 
+#### Business Rules Enforced
+
+| Code | Rule | Source | Enforcement |
+|---|---|---|---|
+| BR-16 | A deactivated account cannot authenticate even with correct credentials | SRS §2.4 BR-16 / AC-03 | Django's `ModelBackend.user_can_authenticate()`, invoked transparently by `TokenObtainPairSerializer.validate()` → `401` generic error |
+
+#### Element IDs
+
+| Element | ID | Status | File |
+|---|---|---|---|
+| Email input | `login-email` | Done | `frontend/src/app/login/page.tsx` |
+| Password input | `login-password` | Done | `frontend/src/app/login/page.tsx` |
+| Submit button | `btn-submit-login` | Done | `frontend/src/app/login/page.tsx` |
+| Error message container | `message-error` | Done | `frontend/src/app/login/page.tsx` |
+
+#### Quickstart Validation
+
+**Prerequisites**: Backend running (`cd backend && .venv\Scripts\activate && python manage.py runserver`); at least one active User account exists (`python manage.py createsuperuser` or `POST /api/v1/users/`).
+
+- **AC-01 — successful login issues credentials**:
+  `curl -X POST http://localhost:8000/api/v1/auth/login/ -H "Content-Type: application/json" -d '{"email": "<existing-active-user-email>", "password": "<correct-password>"}'`
+  Expected: `200`, body contains `access` and `refresh` tokens.
+- **AC-02 — invalid credentials rejected generically**:
+  Same call with a wrong password. Expected: `401`, single generic `detail` message — does not say "wrong password" specifically.
+- **AC-03 — deactivated account rejected**:
+  `python manage.py shell -c "from users.models import User; u = User.objects.get(email='<email>'); u.is_active = False; u.save()"`, then the AC-01 call with the correct password. Expected: `401`, same generic message as AC-02 — does not reveal the account is deactivated.
+- **AC-04 — dual-role account, single login**: No separate flow to test — create a User, log in once, confirm the returned token authorizes requests against any endpoint the account's queryset-scoped views allow (no role-specific gating exists yet in the backend — see Constitution Check below).
+- **EC-01 — missing field**:
+  Same call with `password` omitted. Expected: `400`, field-level validation error for `password`.
+- **Frontend** (once `frontend/src/app/login/page.tsx` exists): `cd frontend && npm run dev` → open `http://localhost:3000/login` → submit valid credentials → redirected to Dashboard, tokens stored; submit invalid credentials → inline `#message-error` shown, form remains.
+
+*(Implementation-level task breakdown for SS-US-01 lives in `tasks.md`, not repeated here.)*
+
 ### SS-US-02: Logout
 
-*(Not yet designed — add a `### SS-US-02: Logout` Summary + Sequence Diagram here when this US goes through the Design Step.)*
+*(Not yet designed — add a `### SS-US-02: Logout` section here, following the same subsection structure as SS-US-01 above, when this US goes through the Design Step.)*
 
 ## Technical Context
 
@@ -78,7 +177,7 @@ sequenceDiagram
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*GATE: Must pass before Decisions & Rationale. Re-check after Domain Objects/API Contracts design.*
 
 | Principle | Status | Notes |
 |---|---|---|
@@ -90,7 +189,7 @@ sequenceDiagram
 | API-02 Response Shape — DRF-Native | ✅ PASS | `TokenObtainPairView` returns the stock `{access, refresh}` body, no custom envelope |
 | API-04 HTTP Status Mapping | ✅ PASS | 200 success, 401 for bad credentials/deactivated account (SimpleJWT default) |
 | API-07 Authentication | ✅ PASS | Already the fixed mechanism this US formalizes |
-| Simplicity Over Premature Scale | ✅ PASS | Explicitly rejects adding an `AuthenticationService` module (see Summary) |
+| Simplicity Over Premature Scale | ✅ PASS | Explicitly rejects adding an `AuthenticationService` module (see Decisions & Rationale) |
 | VL-01 Backend Is Source of Truth | ✅ PASS | Frontend HTML5 required-field checks are UX-only; DRF/SimpleJWT validation is authoritative |
 | DOD-02 API Contract Documented | ✅ RESOLVED | `POST /auth/login/` (API-SS-01) and `POST /auth/refresh/` (API-SS-02) added to SDS §6.3 API Index and §6.4.7/§6.4.8 API Specification during the Implementation Step (tasks.md T014) |
 | Cross-Document Consistency (BR-16 mapping) | ✅ RESOLVED | SDS §4.3.3's BR-16 row corrected during the Implementation Step (tasks.md T015) to name Django's `ModelBackend.user_can_authenticate()`, invoked transparently by `TokenObtainPairSerializer.validate()`, instead of the nonexistent `AuthenticationService` |
@@ -103,12 +202,9 @@ No unjustified violations — Complexity Tracking table is empty.
 
 ```text
 specs/001-system-security/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md         # Phase 1 output
-├── quickstart.md         # Phase 1 output
-├── contracts/            # Phase 1 output
-│   └── auth-login.md
+├── plan.md              # This file — Decisions & Rationale, Domain Objects, API Contracts,
+│                         #   and Quickstart Validation live per-US inside this file (no sibling
+│                         #   research.md/data-model.md/contracts//quickstart.md)
 └── tasks.md              # Phase 2 output (/speckit-tasks — not created by this command)
 ```
 
@@ -139,3 +235,4 @@ frontend/
 ## Complexity Tracking
 
 *No violations — table intentionally empty.*
+</content>

@@ -4,10 +4,18 @@
 > **Spec:** [spec.md](spec.md)
 > **SDS §5.x:** [SDS.md §5.x](../../SDS.md#5x-feature-name-code)
 
-**Note**: This file is generated and extended by the `/speckit.plan` command — one `## [CODE]-US-NN` section
-per user story, appended in the order stories are designed. See `.claude/skills/speckit-plan/SKILL.md` for the
-execution workflow. When `plan.md` already exists for this feature, **append** the new US section below the
-existing ones — never delete, rewrite, or renumber a previously completed US section.
+**Note**: This file is generated and extended by the `/speckit-plan` command — one `## [CODE]-US-NN` section
+per user story, appended in the order stories are designed. When `plan.md` already exists for this feature,
+**append** the new US section below the existing ones — never delete, rewrite, or renumber a previously
+completed US section.
+
+**No sibling design files.** Unlike a generic spec-kit scaffold, this project does not generate `research.md`,
+`data-model.md`, `contracts/`, or `quickstart.md` as separate files. Those four concerns are folded directly
+into each `## [CODE]-US-NN` section below — see **Decisions & Rationale**, **Domain Objects**, **API Contracts**,
+and **Quickstart Validation**. This keeps one feature's whole design (why, what, and how to verify it) in one
+file instead of scattered across five. (A small number of features designed before this convention — e.g.
+`001-system-security` — still carry standalone `research.md`/`data-model.md`/`contracts/`/`quickstart.md` files
+alongside their `plan.md`; those are left as historical record, not retrofitted.)
 
 ---
 
@@ -31,174 +39,140 @@ Reviewed `spec.md` and existing implementation before design. The following gaps
 
 ---
 
-### Architecture
+### Decisions & Rationale
 
-**Package layout**
+*(Folds what a generic spec-kit scaffold would put in a separate `research.md` — Phase 0 output.)*
 
-List only files that are new or modified for this story. Annotate each with `# new:` or `# modify:` plus a one-line purpose — enough that a reviewer doesn't need to open the file to know why it exists. Wrap onto a `#` continuation line when one line isn't enough; do not let inline comments overflow without wrapping.
+One entry per technical decision this story required (framework/library choice, whether a new service module is
+needed per AR-01, how an edge case is enforced, etc.). Skip this section only if the story introduces literally
+no new decision beyond "follow the existing pattern."
 
-```text
-backend/app/
-├── api/
-│   └── admin_routes.py                  # modify: [HTTP method + path] — [what it does, what it delegates to]
-├── services/
-│   └── [entity]_service.py              # new: [business rules owned, key delegations]
-├── models/
-│   ├── domain/
-│   │   └── [entity].py                  # new: read model + Create/Update value objects
-│   └── entities/
-│       └── [entity]_row.py              # new: SQLAlchemy ORM row → [table_name]
-├── models/
-│   ├── exceptions.py                    # modify: [Entity]NotFoundError → [HTTP code] [ERROR_CODE]
-│   └── dtos.py                          # modify: [Entity]Request/[Entity]Response
-├── repositories/
-│   └── [entity]_repository.py           # new: [key query methods]
-└── dependencies.py                      # modify: get_[entity]_repo(), get_[entity]_service()
+- **Decision**: [what was chosen]
+- **Rationale**: [why chosen — tie back to constitution.md principles or an SRS/SDS constraint where relevant]
+- **Alternatives considered**: [what else was evaluated, and why it was rejected]
 
-backend/tests/
-└── test_[entity].py                     # new: integration tests through the HTTP layer
+---
 
-frontend/admin/src/
-├── pages/[feature]/
-│   └── [Page].tsx                       # new: [what it renders]
-└── api/
-    └── client.ts                        # modify: [API calls added]
-```
+### Domain Objects
 
-*Technical Design checklist* (self-check against [Layer Architecture](../../CLAUDE.md#layer-architecture) in `CLAUDE.md`/`constitution.md`)
-- [ ] Business logic is assigned to the **service layer**; routes are thin (map DTO ↔ domain object, catch domain exceptions → `HTTPException`); repositories are data-access only
-- [ ] Services accept/return domain value objects and read models only — **never DTOs** (DTOs live at the HTTP boundary only, per `dtos.py`)
-- [ ] Repository mapping boundary is respected: read → ORM row → `model_validate()` → domain model; write → value object (`CreateX`/`UpdateX`) → ORM row
-- [ ] Multi-entity write operations are wrapped in a single repository/service transaction
-- [ ] Sequence diagrams follow the correct call chain: Route → Service → Repository (or Route → Service → Agent → Core → Provider for BusinessOutcome-pipeline work)
-- [ ] Service layer never touches route-level objects (`Request`/`HTTPException` construction) — that belongs to the route
-- [ ] New Postgres table → **Repository** (`AsyncSession`); external system/infra client → **Provider** singleton — never the reverse
+*(Folds what a generic spec-kit scaffold would put in a separate `data-model.md` — Phase 1 output.)*
 
-**Domain objects**
-
-| Domain Object | Database Entity | Key Fields | Notes |
+| Domain Entity (SRS §2) | Model / Table | Key Fields | Notes |
 |--------|-------|------------|-------|
-| `[Entity]` | `[table_name]` | `id` (PK), [field1, field2] | [uniqueness, nullability, or lifecycle notes worth calling out] |
+| `[Entity]` | `[app].[Model]` / `[table_name]` | `id`, [field1, field2] | [uniqueness, nullability, validation, or lifecycle notes worth calling out; state explicitly if no schema change is needed] |
 
 *Data Modeling checklist*
-- [ ] Domain Entities (SRS §2 CDM) are kept distinct from Domain Objects (`backend/app/models/domain/`) — no premature technical binding
-- [ ] Read models and write value objects (`CreateX`/`UpdateX`) are placed in the correct file per the `backend/app/models/domain/` layout table in `CLAUDE.md`
-- [ ] A separate model/table for a Many-to-Many relationship is introduced **only** when the join table carries extra attributes; otherwise a plain join table is used
-- [ ] Business rules touching discount caps, frequency caps, scarcity thresholds, or plan min score are read from Brand Config (`core/config.py`) — never hardcoded
+- [ ] Entity/field names match SRS §2 domain language verbatim (NC-01) — no synonyms
+- [ ] If a new Domain Entity is introduced: SDS §2.1 Domain Layer Traceability table is updated in the same PR
+- [ ] Primary keys, enum casing, and any other divergence from SDS §2.2/§4.3.3 follow the project's documented "Known open drift" — don't introduce a new inconsistency (e.g. don't add a `uuid` PK to one new app while the rest stay integer-keyed)
+- [ ] New indexed query pattern → note where `db_index=True` or a `Meta.indexes` entry is needed (PF-01)
 
-**Business rules enforced in service layer**
+---
 
-| Code | Rule | Source | Enforcement |
-|------|------|--------|-------------|
-| [CODE]-BR-01 | [rule description] | AC-NN | `[Repository/Service method()]` → [HTTP code] `[ERROR_CODE]` |
+### API Contracts
 
-> `[CODE]-BR-NN` codes are local to this plan's business-rules table — do not confuse with the numbered rules in `constitution.md`, which are project-wide and referenced separately in Constitution notes below.
+*(Folds what a generic spec-kit scaffold would put in a separate `contracts/*.md` — Phase 1 output. Skip this
+section entirely if the story adds no new/changed endpoint.)*
 
-**Sequence diagram — [Action Name]**
+**`[METHOD] /api/v1/[resource]/`**
 
-Use a Mermaid `sequenceDiagram` (matches the convention already used in `SDS.md`). Show the happy path first, then one `alt` block per error/edge case, each tagged with the AC it satisfies.
+| Field | Type | Notes |
+|---|---|---|
+| [request field] | [type] | [required/optional, validation rule] |
+
+| Status | Body | Maps to |
+|---|---|---|
+| 200/201 | [response shape] | AC-NN |
+| 4xx | `{"detail": "...", "code": "..."}` per API-03, or DRF's default `{field: [messages]}` | AC-NN / EC-NN |
+
+*API Design checklist*
+- [ ] Endpoint is versioned under `/api/v1/`, plural lowercase (kebab-case if multi-word) resource name (API-01, NC-02)
+- [ ] Response shape follows API-02 — no custom envelope; list endpoints use DRF `PageNumberPagination`
+- [ ] Status codes follow the API-04 mapping table
+- [ ] A state transition uses its own explicit action endpoint (API-05) — never a generic `PATCH` for a lifecycle change
+- [ ] A semantic business-rule error already catalogued in SDS §6.6 raises the matching `APIException` subclass (API-03); a new code is added to SDS §6.6 in the same PR, not invented ad hoc
+- [ ] Serializer `fields` list is explicit and matches the SDS §6.2 DTO Registry (AR-04, PF-02) — no `password` or other sensitive field ever exposed (AC-04)
+
+---
+
+### Sequence Diagram — [Action Name]
+
+Use a Mermaid `sequenceDiagram` (matches the convention already used in `SDS.md`). Show the happy path first, then one `alt` block per error/edge case, each tagged with the AC/EC it satisfies.
 
 *Sequence Diagrams checklist*
-- [ ] Arrows follow correct logical order and are numbered for traceability
-- [ ] Every action arrow has a matching return arrow
+- [ ] Arrows follow correct logical order; every action arrow has a matching return arrow
 - [ ] Arrow labels describe the action/intent, not a method name or UI click target
-- [ ] Diagram favors earliest possible UI response — the user is not made to wait on DB/agent operations before seeing feedback
-- [ ] Feature access goes straight to the relevant page instead of intermediate click-throughs
-- [ ] Each workflow is cut off cleanly when it ends — separate flows are not blended into one diagram
-- [ ] No direct SQL statements, backend method signatures, or frontend method parameters appear on the diagram — only actor-level actions
-- [ ] If this story touches the BusinessOutcome pipeline: guardrail evaluation appears at both plan-evaluation time and step-execution time, and HITL steps use `interrupt()` explicitly — never shown as auto-approved
+- [ ] Each `alt` block is tagged with the AC/EC it demonstrates
+- [ ] No direct SQL/ORM calls or method signatures appear on the diagram — only actor-level actions (View/Serializer/Service granularity at most)
 
 ```mermaid
 sequenceDiagram
-    participant U as User
-    participant FE as Frontend
-    participant BE as Backend
+    actor User
+    participant FE as [page.tsx]
+    participant View as [DRF View]
+    participant Ser as [Serializer]
     participant DB as Database
 
-    U->>FE: [action]
-    FE->>BE: GET /api/v1/[resource]
-    BE->>DB: [query]
-    DB-->>BE: [result]
-    BE-->>FE: 200 · [Response]
-    FE-->>U: [render] [AC-NN]
+    User->>FE: [action]
+    FE->>View: [METHOD] /api/v1/[resource]/
+    View->>Ser: validate(data)
+    Ser->>DB: [query/persist]
+    DB-->>Ser: [result]
+    Ser-->>View: [validated data]
+    View-->>FE: [status] · [Response]
+    FE-->>User: [render] [AC-NN]
 
-    U->>FE: [submit action]
-    FE->>BE: POST/PUT /api/v1/[resource] + X-XSRF-TOKEN
-    BE->>DB: [persist]
-    DB-->>BE: OK
-    BE->>BE: Write audit log entry
-    BE-->>FE: 200 · [Response]
-    FE-->>U: [render] [AC-NN]
-
-    alt [Error case, e.g. Wrong role]
-        BE-->>FE: 403 FORBIDDEN
-        FE-->>U: Show error [AC-NN]
-    end
-
-    alt [Error case, e.g. Not found]
-        BE-->>FE: 404 [ENTITY]_NOT_FOUND
-        FE-->>U: Show error [AC-NN]
+    alt [Error case, e.g. validation failure]
+        View-->>FE: 400 [ERROR_CODE]
+        FE-->>User: inline error [EC-NN]
     end
 ```
 
-*API Design checklist*
-- [ ] All endpoints are versioned under `/api/v1/` with kebab-case plural resource names
-- [ ] Response envelope is present: `{ success, message, data, timestamp }`
-- [ ] HTTP status codes follow the mapping table (201 for creation, 400 for malformed input, 409 for conflicts, 422 for validation, etc.)
-- [ ] Error codes use `UPPER_SNAKE_CASE` with a resource prefix — e.g. `SIGNAL_CONFIG_NOT_FOUND` — and are listed in the SDS error catalog
-- [ ] No generic `updateStatus` endpoint — each business action that triggers a state transition has its own explicit endpoint
-- [ ] List endpoints include `page`/`pageSize` parameters; max 1000
-- [ ] SSE-streamed endpoints (if any) meet the `< 500ms per step event` latency SLA and are not treated as an enhancement
+---
 
-*Naming & Security checklist*
-- [ ] Module/package names follow the existing `backend/app/<layer>/` layout — no ad-hoc top-level packages
-- [ ] Entity, Request/Response DTO, and DB table names match the domain language in SRS §2 verbatim — no synonyms
-- [ ] Method names are concise within their service context (e.g. within `SignalConfigService`, `create` not `createSignalConfig`) — qualified only when disambiguating a different operation
-- [ ] Enum values match the SRS state machine definitions and serialize as human-readable string labels in API responses
-- [ ] Each endpoint's permitted roles match the permission matrix in SRS/SDS
-- [ ] Role authorization is specified on every protected endpoint
-- [ ] CSRF validation is specified for all POST/PUT/PATCH/DELETE endpoints
-- [ ] Any new public API route (no auth required) is explicitly justified — not silently added to the allowlist
-- [ ] No direct Salesforce SCAPI/CRM/SFMC calls from OBMS code — all external data access goes through `core/tools.py → dispatch()` via MCP
-- [ ] Passwords/secrets are designed to be hashed/stored via existing provider patterns — never stored or compared as plain text
-- [ ] Bookmark/direct-URL access is validated at the route/dependency layer in addition to route guarding (double validation)
+### Business Rules Enforced
 
-**Error flows**
+| Code | Rule | Source | Enforcement |
+|------|------|--------|-------------|
+| BR-NN | [rule description] | SRS §2.4 BR-NN / AC-NN | [Serializer/Service method] → [HTTP code] |
 
-List the scenarios that apply to this story's endpoint(s).
+*Naming & Layered Architecture checklist* (self-check against constitution.md's Layered Architecture, AR-01..05)
+- [ ] Straightforward ownership-scoped CRUD stays in the View + Serializer — no service module added speculatively (AR-01, Simplicity)
+- [ ] If this story spans more than one model, has a business rule beyond field validation, or has side effects (e.g. writes a Notification): logic moves into a plain module-level `[app]/services.py` function, not inline in the View or `Serializer.create()`
+- [ ] Views stay thin — HTTP binding, permission checks, ownership-scoped `get_queryset()` only (AR-02)
+- [ ] No hand-written Repository class wrapping the Django ORM (AR-03)
+- [ ] Multi-model writes are wrapped in `transaction.atomic()` (AR-05)
+- [ ] Every list/detail/update/delete View filters its queryset by the authenticated User (AC-03)
 
-| Scenario | HTTP | Error Code |
-|----------|------|------------|
-| [scenario] | [code] | `[ERROR_CODE]` |
+---
 
-**Constitution notes**
-
-List the constitution rules relevant to this story's design.
-
-| Rule | Status | Note |
-|------|--------|------|
-| [rule] | Satisfied / Required / Note | [why] |
-| [other applicable rule] | Satisfied / Required / Note | [why] |
-
-*Cross-Document Sync checklist*
-- [ ] If a new Domain Entity is introduced: SDS §2.1 traceability table is updated in the same edit
-- [ ] SRS §2 ↔ SDS §2.1 sync dates are current
-- [ ] Every entity name in this `plan.md` matches the SRS §2 domain language exactly — no synonyms
-
-**Element IDs**
+### Element IDs
 
 | Element | ID | Status | File |
 |---------|----|--------|------|
-| [button/input/message] | `[btn-action-entity]` | Done / **Missing** | `[component.tsx:line]` |
+| [button/input/message] | `[entity-field]` / `btn-submit-[entity]` per NC-04 | Done / **Missing** | `[component.tsx:line]` |
 
-**Open tasks**
+---
 
-Number tasks `T1, T2, ...` in implementation order (repository → domain model → service → dependency wiring → route → frontend). Use a lettered suffix (`T4b`, `T4c`) to insert a task discovered mid-planning without renumbering everything after it. Each row must name the concrete file(s) touched — a task without a file path is not planning-complete.
+### Quickstart Validation
+
+*(Folds what a generic spec-kit scaffold would put in a separate `quickstart.md` — Phase 1 output.)* One runnable
+check per AC/EC — `curl` for API-only cases, a short browser-step list for UI cases. Do not include full
+implementation code or migrations here; that belongs in `tasks.md` and the implementation itself.
+
+- **AC-NN**: `curl -X [METHOD] http://localhost:8000/api/v1/[resource]/ -H "Authorization: Bearer <token>" -d '{...}'` → expect [status/body]
+- **EC-NN**: [browser step] → expect [observable UI behavior]
+
+---
+
+### Open tasks
+
+Number tasks `T1, T2, ...` in implementation order (model/migration → serializer → view/service → URL wiring → frontend). Use a lettered suffix (`T4b`, `T4c`) to insert a task discovered mid-planning without renumbering everything after it. Each row must name the concrete file(s) touched — a task without a file path is not planning-complete.
 
 | ID | Task | File |
 |----|------|------|
-| T1 | [what to implement, including key delegations/collaborators] | `[path/to/file.py]` |
-| T2 | [what to implement] | `[path/to/file.tsx]` |
+| T1 | [what to implement, including key delegations/collaborators] | `backend/[app]/[file].py` |
+| T2 | [what to implement] | `frontend/src/app/[route]/page.tsx` |
 
 ---
 
@@ -208,12 +182,55 @@ Number tasks `T1, T2, ...` in implementation order (repository → domain model 
   prior US section when adding a new one.
 -->
 
+## Technical Context
+
+**Language/Version**: Python 3.12 (Django 6.0.7) for backend; TypeScript 5 (Next.js 16.2.10, React 19.2.4) for frontend
+
+**Primary Dependencies**: [DRF / SimpleJWT / other already-approved constitution.md stack pieces this story uses; call out explicitly if none are new]
+
+**Storage**: SQLite (MVP) — [note whether a migration is required]
+
+**Testing**: `python manage.py test` (DRF `APITestCase`, real throwaway test DB per Integration Testing Over Mocking); Playwright e2e under `tests/[feature-id]-[slug]/` for UI-facing behavior, if applicable
+
+**Target Platform**: Single-machine home-LAN deployment (RUNBOOK.md) — backend :8000, frontend :3000
+
+**Constraints**: [any fixed value this story must not change, e.g. JWT token lifetimes]
+
+**Scale/Scope**: [per SRS §1.4/§4 — do not invent a stricter number than SRS states]
+
+## Constitution Check
+
+*GATE: Must pass before Decisions & Rationale. Re-check after Domain Objects/API Contracts design.*
+
+| Principle | Status | Notes |
+|---|---|---|
+| [relevant AR-0x / API-0x / NC-0x / VL-0x / DOD-0x] | PASS / OPEN | [why] |
+
+No unjustified violations — Complexity Tracking table below is empty unless one is documented.
+
+## Project Structure
+
+```text
+backend/[app]/
+├── models.py       # [new/modify — what]
+├── serializers.py  # [new/modify — what]
+├── views.py        # [new/modify — what]
+├── urls.py         # [new/modify — what]
+└── tests.py        # [new/modify — what]
+
+frontend/src/app/[route]/
+└── page.tsx        # [new/modify — what]
+```
+
+**Structure Decision**: [one line — does this story need a new Django app (per constitution's Package-by-Feature Structure), or does it extend an existing one?]
+
 ## Complexity Tracking
 
-> Fill ONLY if a US design above required a Constitution Check violation (see `constitution.md`
+> Fill ONLY if a US design above required a Constitution Check violation (see constitution.md
 > § "Simplicity Over Premature Scale"). One row per violation. Append new rows as later US
 > sections introduce them — never delete a row belonging to a previously completed US.
 
 | Violation | US | Why Needed | Simpler Alternative Rejected Because |
 |-----------|----|-----------|-----------------------------------|
-| [e.g., new PostgresSaver checkpoint store] | [CODE]-US-NN | [current need] | [why the simpler alternative — e.g. MemorySaver — was insufficient] |
+| [e.g., a new service module for straightforward CRUD] | [CODE]-US-NN | [current need] | [why the simpler alternative was insufficient] |
+</content>

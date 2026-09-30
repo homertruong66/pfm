@@ -116,6 +116,10 @@ Given that feature description, do this:
 
 5. **IF EXISTS**: Load `.specify/memory/constitution.md` for project principles and governance constraints.
 
+5a. **CRUD verb check — Acceptance Criteria / Edge Cases format**: Determine whether this feature description is one of the six CRUD-style verbs `.specify/templates/spec-ac-ec-template.md` covers — **Create**, **List**, **Search**, **View**, **Update**, or **Delete** of a single Domain Entity, by a single actor role.
+   - **If it is**: load `.specify/templates/spec-ac-ec-template.md` now, in addition to `spec-template.md`. When step 6 below fills the spec's `### Acceptance Criteria` and `### Edge Cases` blocks, use that file's fixed **AC GROUP ORDER** / **EC GROUP ORDER** for the matching verb — grouping items under headings in that exact sequence (e.g. for Create: Main Success Scenario, Standard Business Rules, Data Inputs & Expected Outputs, Explicit UI/UX Requirements; for Edge Cases: Access Control, Boundary Values, State Conflicts, Missing Dependencies/Missing Foreign Keys, Graceful Degradation) — instead of a flat, ungrouped "Acceptance Scenarios" list. Omit a group only where that file's own stated exceptions allow it (documented with an HTML comment per its rules), never silently. Follow its GWT hard-break formatting and `&nbsp;&nbsp;**and**` continuation-line convention exactly, and number `AC-NN`/`EC-NN` flat and sequential across all groups (never restarting per group), per that file's own numbering rule.
+   - **If it is not** (e.g. Login, Logout, or any other non-CRUD/action-endpoint story): skip `spec-ac-ec-template.md` entirely and follow `spec-template.md`'s own Acceptance Scenario format only — do not force a non-CRUD story's ACs/ECs into the six-group structure.
+
 6. Follow this execution flow:
     1. Parse user description from arguments
        If empty: ERROR "No feature description provided"
@@ -131,6 +135,9 @@ Given that feature description, do this:
        - Prioritize clarifications by impact: scope > security/privacy > user experience > technical details
     4. Fill User Scenarios & Testing section
        If no clear user flow: ERROR "Cannot determine user scenarios"
+       If step 5a determined this is a CRUD-verb story: group Acceptance Criteria/Edge
+       Cases per spec-ac-ec-template.md's AC GROUP ORDER/EC GROUP ORDER instead of a
+       flat scenario list (see step 5a for the exact rule)
     5. Generate Functional Requirements
        Each requirement must be testable
        Use reasonable defaults for unspecified details (document assumptions in Assumptions section)
@@ -344,5 +351,6 @@ Success criteria must be:
 ## Done When
 
 - [ ] Specification written to `SPEC_FILE` and validated against quality checklist
+- [ ] If this is a CRUD-verb story (step 5a): its Acceptance Criteria/Edge Cases follow `spec-ac-ec-template.md`'s AC GROUP ORDER/EC GROUP ORDER — not a flat scenario list
 - [ ] Extension hooks dispatched or skipped according to the rules in Mandatory Post-Execution Hooks above
 - [ ] Completion reported to user with feature directory, spec file path, and checklist results

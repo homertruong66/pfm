@@ -60,17 +60,17 @@ You **MUST** consider the user input before proceeding (if not empty).
 1. **Setup**: Run `.specify/scripts/bash/setup-tasks.sh --json` from repo root and parse FEATURE_DIR, TASKS_TEMPLATE, and AVAILABLE_DOCS list. `FEATURE_DIR` and `TASKS_TEMPLATE` must be absolute paths when provided. `AVAILABLE_DOCS` is a list of document names/relative paths available under `FEATURE_DIR` (for example `research.md` or `contracts/`). For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
 
 2. **Load design documents**: Read from FEATURE_DIR:
-   - **Required**: plan.md (tech stack, libraries, structure), spec.md (user stories with priorities)
-   - **Optional**: data-model.md (entities), contracts/ (interface contracts), research.md (decisions), quickstart.md (test scenarios)
+   - **Required**: plan.md (tech stack, libraries, structure, and — per this project's convention — each user story's Decisions & Rationale/Domain Objects/API Contracts/Quickstart Validation subsections), spec.md (user stories with priorities)
+   - **Legacy fallback (older features only)**: if AVAILABLE_DOCS lists standalone `data-model.md`, `contracts/`, `research.md`, or `quickstart.md` files (features designed before the folded-into-plan.md convention, e.g. `001-system-security`), read those instead of looking for the equivalent subsection in `plan.md`
    - **IF EXISTS**: Load `.specify/memory/constitution.md` for project principles and governance constraints
    - Note: Not all projects have all documents. Generate tasks based on what's available.
 
 3. **Execute task generation workflow**:
    - Load plan.md and extract tech stack, libraries, project structure
    - Load spec.md and extract user stories with their priorities (P1, P2, P3, etc.)
-   - If data-model.md exists: Extract entities and map to user stories
-   - If contracts/ exists: Map interface contracts to user stories
-   - If research.md exists: Extract decisions for setup tasks
+   - For each user story: read its **Domain Objects** subsection in `plan.md` (or the legacy `data-model.md` if that's what this feature has) and map entities to that story
+   - For each user story: read its **API Contracts** subsection in `plan.md` (or the legacy `contracts/`) and map interface contracts to that story
+   - For each user story: read its **Decisions & Rationale** subsection in `plan.md` (or the legacy `research.md`) and extract decisions for setup tasks
    - Generate tasks organized by user story (see Task Generation Rules below)
    - Generate dependency graph showing user story completion order
    - Create parallel execution examples per user story

@@ -62,7 +62,7 @@ class LoginTests(APITestCase):
 
     def test_tc06_dual_role_account_single_login_one_token_pair(self):
         # No Role table exists yet — is_staff/is_superuser stand in for "holds elevated,
-        # dual-capability access" per data-model.md's documented proxy note.
+        # dual-capability access" per plan.md's SS-US-01 Domain Objects note.
         user = self._register(email='tc06@example.com')
         User.objects.filter(email=user['email']).update(is_staff=True, is_superuser=True)
 

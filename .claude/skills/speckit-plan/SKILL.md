@@ -59,14 +59,14 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 1. **Setup**: Run `.specify/scripts/bash/setup-plan.sh --json` from repo root and parse JSON for FEATURE_SPEC, IMPL_PLAN, SPECS_DIR, BRANCH. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
 
-2. **Load context**: Read FEATURE_SPEC and `.specify/memory/constitution.md`. Load IMPL_PLAN template (already copied).
+2. **Load context**: Read FEATURE_SPEC and `.specify/memory/constitution.md`. Load IMPL_PLAN template (already copied). This project's `plan-template.md` folds Phase 0/Phase 1 design output directly into each `## [CODE]-US-NN` section of `plan.md` — it does not generate separate `research.md`/`data-model.md`/`contracts/`/`quickstart.md` files. (A small number of features designed before this convention still carry those as standalone files alongside `plan.md` — leave those as-is; do not retrofit them.)
 
 3. **Execute plan workflow**: Follow the structure in IMPL_PLAN template to:
    - Fill Technical Context (mark unknowns as "NEEDS CLARIFICATION")
    - Fill Constitution Check section from constitution
    - Evaluate gates (ERROR if violations unjustified)
-   - Phase 0: Generate research.md (resolve all NEEDS CLARIFICATION)
-   - Phase 1: Generate data-model.md, contracts/, quickstart.md
+   - Phase 0: Fill the current US section's **Decisions & Rationale** subsection in `plan.md` (resolve all NEEDS CLARIFICATION)
+   - Phase 1: Fill the current US section's **Domain Objects**, **API Contracts**, and **Quickstart Validation** subsections in `plan.md`
    - Re-evaluate Constitution Check post-design
 
 ## Mandatory Post-Execution Hooks
@@ -106,7 +106,7 @@ Check if `.specify/extensions.yml` exists in the project root.
 
 ## Completion Report
 
-Command ends after Phase 1 design. Report branch, IMPL_PLAN path, and generated artifacts.
+Command ends after Phase 1 design. Report branch, IMPL_PLAN path, and the US section(s) filled in `plan.md`.
 
 ## Phases
 
@@ -126,36 +126,35 @@ Command ends after Phase 1 design. Report branch, IMPL_PLAN path, and generated 
      Task: "Find best practices for {tech} in {domain}"
    ```
 
-3. **Consolidate findings** in `research.md` using format:
+3. **Consolidate findings** in the current US section's **Decisions & Rationale** subsection of `plan.md`, one entry per decision, using format:
    - Decision: [what was chosen]
    - Rationale: [why chosen]
    - Alternatives considered: [what else evaluated]
 
-**Output**: research.md with all NEEDS CLARIFICATION resolved
+**Output**: `plan.md`'s **Decisions & Rationale** subsection, with all NEEDS CLARIFICATION resolved
 
 ### Phase 1: Design & Contracts
 
-**Prerequisites:** `research.md` complete
+**Prerequisites:** Decisions & Rationale complete
 
-1. **Extract entities from feature spec** → `data-model.md`:
+1. **Extract entities from feature spec** → the current US section's **Domain Objects** subsection of `plan.md`:
    - Entity name, fields, relationships
    - Validation rules from requirements
    - State transitions if applicable
 
-2. **Define interface contracts** (if project has external interfaces) → `/contracts/`:
-   - Identify what interfaces the project exposes to users or other systems
-   - Document the contract format appropriate for the project type
-   - Examples: public APIs for libraries, command schemas for CLI tools, endpoints for web services, grammars for parsers, UI contracts for applications
-   - Skip if project is purely internal (build scripts, one-off tools, etc.)
+2. **Define interface contracts** (if this story adds or changes an endpoint) → the current US section's **API Contracts** subsection of `plan.md`:
+   - Document the request/response shape and status codes for each new/changed endpoint
+   - Map each field/status back to the specific AC/EC it satisfies
+   - Skip this subsection entirely if the story adds no new/changed endpoint
 
-3. **Create quickstart validation guide** → `quickstart.md`:
+3. **Create quickstart validation guide** → the current US section's **Quickstart Validation** subsection of `plan.md`:
    - Document runnable validation scenarios that prove the feature works end-to-end
    - Include prerequisites, setup commands, test/run commands, and expected outcomes
-   - Use links or references to contracts and data model details instead of duplicating them
-   - Do not include full implementation code, model/service/controller bodies, migrations, or complete test suites
-   - Keep this artifact as a validation/run guide; implementation details belong in `tasks.md` and the implementation phase
+   - Use links or references to the Domain Objects/API Contracts subsections above instead of duplicating them
+   - Do not include full implementation code, model/service/view bodies, migrations, or complete test suites
+   - Keep this as a validation/run guide; implementation details belong in `tasks.md` and the implementation phase
 
-**Output**: data-model.md, /contracts/*, quickstart.md
+**Output**: `plan.md`'s **Domain Objects**, **API Contracts**, and **Quickstart Validation** subsections
 
 ## Key rules
 

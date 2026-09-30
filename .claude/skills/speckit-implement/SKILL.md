@@ -92,12 +92,9 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 3. Load and analyze the implementation context:
    - **REQUIRED**: Read tasks.md for the complete task list and execution plan
-   - **REQUIRED**: Read plan.md for tech stack, architecture, and file structure
-   - **IF EXISTS**: Read data-model.md for entities and relationships
-   - **IF EXISTS**: Read contracts/ for API specifications and test requirements
-   - **IF EXISTS**: Read research.md for technical decisions and constraints
+   - **REQUIRED**: Read plan.md for tech stack, architecture, file structure, and — per this project's convention — each user story's Domain Objects (entities/relationships), API Contracts (specs and test requirements), Decisions & Rationale (technical constraints), and Quickstart Validation (integration scenarios) subsections
+   - **Legacy fallback (older features only)**: if AVAILABLE_DOCS lists standalone `data-model.md`, `contracts/`, `research.md`, or `quickstart.md` files (features designed before the folded-into-plan.md convention, e.g. `001-system-security`), read those instead of looking for the equivalent subsection in `plan.md`
    - **IF EXISTS**: Read .specify/memory/constitution.md for governance constraints
-   - **IF EXISTS**: Read quickstart.md for integration scenarios
 
 4. **Project Setup Verification**:
    - **REQUIRED**: Create/verify ignore files based on actual project setup:
