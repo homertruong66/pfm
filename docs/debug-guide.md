@@ -23,11 +23,15 @@ Debug configs used below live in [.vscode/launch.json](../.vscode/launch.json):
    **Important — check the TERMINAL panel, not the DEBUG CONSOLE tab.** A compound launch runs two debug sessions at once, and the DEBUG CONSOLE tab only shows one of them (often whichever session is currently selected — usually Chrome's, showing HMR/source-map noise, not Django). `runserver`'s actual output goes to a separate integrated terminal the debugger opens automatically. Click the **TERMINAL** tab and look for the terminal named `Python Debugger: BE: Django (manage.py runserver)` (there'll be a dropdown at the top-right of the TERMINAL panel if more than one terminal is open — use it to switch). Wait there for `Starting development server at http://127.0.0.1:8000/` before continuing — registering the demo account (next step) needs the backend already listening.
 
    **If the server prints its startup banner then the terminal immediately returns to a `PS ...>` prompt (server has quit, no port listening, no Ctrl+Break pressed):** this was caused by `--noreload` in the launch config fighting debugpy's own process supervision — removed from `.vscode/launch.json` (added `"subProcess": true` instead, which is debugpy's own supported way to auto-attach to Django's autoreloader child process, so breakpoints still work correctly without needing to disable the reloader). If you still see it recur, try launching **just** the `BE: Django (manage.py runserver)` config on its own (not the compound) to rule out any interaction with the Chrome session.
-3. Register one demo account, in a separate PowerShell terminal (not the Debug Console). Windows PowerShell aliases `curl` to `Invoke-WebRequest`, which doesn't take `-d`/`-X` the same way — use `Invoke-RestMethod` instead:
+3. Create one demo account, in a separate PowerShell terminal (not the Debug Console). Only an ADMIN can create accounts (UM-US-01), so first create the ADMIN once with `python manage.py createsuperuser`, log in as it, then use its token. Windows PowerShell aliases `curl` to `Invoke-WebRequest`, which doesn't take `-d`/`-X` the same way — use `Invoke-RestMethod` instead:
    ```powershell
-   Invoke-RestMethod -Uri http://localhost:8000/api/v1/users/ -Method Post `
+   $admin = Invoke-RestMethod -Uri http://localhost:8000/api/v1/auth/login/ -Method Post `
      -ContentType "application/json" `
-     -Body '{"username":"demo","email":"demo@example.com","password":"Demo-Passw0rd!"}'
+     -Body '{"email":"<admin-email>","password":"<admin-password>"}'
+   Invoke-RestMethod -Uri http://localhost:8000/api/v1/users/ -Method Post `
+     -Headers @{ Authorization = "Bearer $($admin.access)" } `
+     -ContentType "application/json" `
+     -Body '{"full_name":"Demo User","email":"demo@example.com","password":"Demo-Passw0rd!"}'
    ```
    (If real `curl.exe` is on PATH — check with `Get-Command curl.exe` — the original `curl -X POST ... -d '...'` form works too, just call it as `curl.exe` explicitly so PowerShell doesn't route it through the `Invoke-WebRequest` alias.)
    If this still fails with "Unable to connect to the remote server", the backend debug session in step 2 either hasn't finished starting yet or failed to start — check the Debug Console for errors before retrying.

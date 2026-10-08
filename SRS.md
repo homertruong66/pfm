@@ -509,7 +509,7 @@ After adding or editing data, Users should instantly see updated balances, budge
 
 This flow describes the typical end-to-end interaction of a User with the PFM system during daily financial management.
 
-1. A predefined ADMIN (seeded via a migration/setup script — see RUNBOOK §9) creates a new User account for a family member. There is no self-service registration; a User cannot create their own account.
+1. A predefined ADMIN (created during first-time setup — see RUNBOOK §9) creates a new User account for a family member. There is no self-service registration; a User cannot create their own account.
 2. The User logs into the System.
 3. The User creates a Wallet W1 (e.g. Cash Wallet).
 4. The User creates a Category C1 (e.g. Salary), C2 (e.g. Food).

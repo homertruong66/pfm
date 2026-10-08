@@ -140,7 +140,7 @@ Deployment (Step 5) produced no new files — it only ran the existing test suit
 | What | The Django `APITestCase` suite for login — 6 tests (`test_tc01`..`test_tc09`), replacing an empty stub. |
 | Why | Constitution.md's DOD-05 and "Integration Testing Over Mocking" principle require real API tests against a real (throwaway) test database — no mocking of models/querysets. |
 | When | Run via `python manage.py test users` (or `python manage.py test` for the full suite) — during Implementation (T008), Deployment (regression check), and Verification (re-confirmed fresh). |
-| How | Each test registers a real user via the actual registration endpoint (never an ORM shortcut that bypasses password hashing), then exercises the login endpoint and asserts the exact status code and response shape — e.g. `test_tc05` deactivates an account mid-test and confirms it gets the *same* generic 401 body as a wrong password, proving AC-02 and AC-03 are indistinguishable to the caller. |
+| How | Each test creates a real user with `User.objects.create_user` (hashed password; originally via the then-public registration endpoint, which UM-US-01 made ADMIN-only), then exercises the login endpoint and asserts the exact status code and response shape — e.g. `test_tc05` deactivates an account mid-test and confirms it gets the *same* generic 401 body as a wrong password, proving AC-02 and AC-03 are indistinguishable to the caller. |
 
 ### [frontend/src/app/login/page.tsx](../frontend/src/app/login/page.tsx)
 

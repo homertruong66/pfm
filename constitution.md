@@ -73,7 +73,7 @@ SRS, SDS, and code are three views of the same system. Any change to one that af
 - Primary keys — SDS §2.2/§4.3.3 specify `uuid`; the current Django models use the default integer `BigAutoField`.
 - Enum values — SDS §2.2 documents upper-case values (e.g. `INCOME`/`EXPENSE`); the current code's `TextChoices` use lower-case values (e.g. `'income'`).
 - `Budget` shape — SDS §2.2.4/§2.3.12 model a many-to-many `Budget ↔ Category` with a `period` enum; the current `Budget` model has a single nullable `category` FK and an explicit `period_start`/`period_end` date range.
-- `Role` — SDS §2.2.11/§2.3.14 model `Role` as its own entity in a many-to-many with `User`; no `Role`/`user_roles` table exists in code yet (`users.User` is a plain `AbstractUser`).
+- `Role` — *(resolved by UM-US-01)* `roles.Role` and the `user_roles` many-to-many now exist; `User.has_role()` and the `IsAdmin` permission use them. Remaining drift: the join table has Django's own integer `id` rather than SDS's composite PK, and `Role.code` is upper-case (an NC-05 exception, see specs/002-user-management/plan.md D2).
 
 ### Governance
 
@@ -209,7 +209,7 @@ Business Rules (BR-01 through BR-13) are owned by **SRS §2.4** — this constit
 Backend and frontend are separate top-level folders in a single repository. Backend code must not be placed in `frontend/` and vice versa. Each module owns its own dependencies (`requirements.txt` / `package.json`) and build tooling.
 
 **II. Backend Package-by-Feature Structure**
-Backend code is organized package-by-feature (one Django app per Aggregate Root / major entity), not package-by-layer — this mirrors the SDS §2.1 Domain Layer Traceability table 1:1. Current apps: `users`, `wallets`, `categories`, `budgets`, `transactions`, `notifications`. `financial_goals`, `investment_portfolios` (with `holdings`), `assets`, and `roles` are designed in SDS §2.2 but not yet scaffolded — when added, follow the same one-app-per-entity pattern with `models.py` / `serializers.py` / `views.py` / `urls.py` / `tests.py`. `assets` is its own app, separate from `investment_portfolios` — Asset is system-level shared reference data with no `user_id` (SRS §7.9 Asset Management, ADMIN-only), unlike the User-owned `investment_portfolios`/`holdings`. Shared/cross-cutting code (e.g. custom permissions, base serializers) lives in `config/` or a new `common/` app — do not duplicate it per-app.
+Backend code is organized package-by-feature (one Django app per Aggregate Root / major entity), not package-by-layer — this mirrors the SDS §2.1 Domain Layer Traceability table 1:1. Current apps: `users`, `roles`, `wallets`, `categories`, `budgets`, `transactions`, `notifications`. `financial_goals`, `investment_portfolios` (with `holdings`), and `assets` are designed in SDS §2.2 but not yet scaffolded — when added, follow the same one-app-per-entity pattern with `models.py` / `serializers.py` / `views.py` / `urls.py` / `tests.py`. `assets` is its own app, separate from `investment_portfolios` — Asset is system-level shared reference data with no `user_id` (SRS §7.9 Asset Management, ADMIN-only), unlike the User-owned `investment_portfolios`/`holdings`. Shared/cross-cutting code (e.g. custom permissions, base serializers) lives in `config/` or a new `common/` app — do not duplicate it per-app.
 
 **III. Django Migrations Are the Schema Source of Truth**
 All schema changes go through `python manage.py makemigrations` + `migrate`; never hand-edit `db.sqlite3` or bypass migrations with raw DDL. Migration files under `<app>/migrations/` are immutable once merged — create a new migration to amend a previous one, never edit a merged one in place. SQLite has limited `ALTER TABLE` support; prefer additive changes (new nullable columns/tables) and be aware some changes require Django's migration to rebuild the table under the hood.
@@ -270,7 +270,7 @@ For the semantic error codes already catalogued in SDS §6.6 (e.g. `WALLET_ACCES
 | 401 | Unauthenticated (missing/expired/invalid JWT) |
 | 403 | Authenticated but forbidden (wrong role, or a documented ownership-denial code per API-03) |
 | 404 | Resource not found (including "exists but you don't own it," per AC-03, unless API-03 applies) |
-| 409 | Business conflict (e.g. duplicate email on registration) |
+| 409 | Business conflict (e.g. duplicate email when an ADMIN creates a User account) |
 | 500 | Unexpected server error |
 
 **API-05: Explicit Action Endpoints for State Transitions**

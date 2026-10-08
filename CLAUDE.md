@@ -58,7 +58,7 @@ pfm/
 │   ├── categories/
 │   ├── budgets/
 │   ├── transactions/
-│   └── notifications/        # financial_goals / investment_portfolios (with holdings) / assets / roles
+│   └── notifications/        # financial_goals / investment_portfolios (with holdings) / assets
 │                              #   are designed in SDS §2.2 but not yet scaffolded as apps —
 │                              #   assets is its own app (system-level, ADMIN-only, SRS §7.9), not nested under investment_portfolios
 ├── ui/                   # Wireframe screenshots referenced from SDS §3.2
