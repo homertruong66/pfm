@@ -62,6 +62,8 @@
 - [x] T019 *(added 2026-10-08)* Login success logging and 401/403 `WARN` logging: `backend/users/auth.py` (`LoginView`/`LoginSerializer`), `backend/config/exceptions.py`, `LOGGING` and `EXCEPTION_HANDLER` in `backend/config/settings.py` — closes the Logging & Audit gap (plan.md Pre-flight G3); covered by TC-11
 - [x] T020 *(added 2026-10-08)* TC-10 (unregistered email) and TC-11 (log lines carry no credentials) in `backend/users/tests.py`; TC-06 rewritten with real roles (T005); `test_ss.spec.ts` TC-02/TC-08 strengthened (Dashboard + stored tokens; no login request sent)
 
+- [x] T021 *(added 2026-10-08)* EC-04 email capitalization ignored at login: `backend/users/backends.py` (`EmailBackend`, case-insensitive email lookup), `AUTHENTICATION_BACKENDS` in `backend/config/settings.py`, TC-12 in `backend/users/tests.py`
+
 ---
 
 ## Dependencies & Execution Order

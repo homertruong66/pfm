@@ -142,6 +142,31 @@ class LoginTests(APITestCase):
         self.assertEqual(unknown.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(unknown.data, wrong_password.data)  # indistinguishable: email existence not revealed
 
+    def test_tc12_email_capitalization_is_ignored_at_login(self):
+        user = self._register(email='Homer.Tc12@Example.com')
+
+        for spelling in ('Homer.Tc12@Example.com', 'homer.tc12@example.com', 'HOMER.TC12@EXAMPLE.COM'):
+            response = self.client.post(reverse('token_obtain_pair'), {'email': spelling, 'password': user['password']})
+            self.assertEqual(response.status_code, status.HTTP_200_OK, spelling)
+            self.assertTrue(response.data.get('access'))
+
+        wrong_password = self.client.post(reverse('token_obtain_pair'), {
+            'email': 'HOMER.TC12@EXAMPLE.COM',
+            'password': 'WrongPassword!123',
+        })
+        self.assertEqual(wrong_password.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_tc12_deactivated_account_is_still_rejected_with_a_different_capitalization(self):
+        user = self._register(email='tc12b@example.com')
+        User.objects.filter(email=user['email']).update(is_active=False)
+
+        response = self.client.post(reverse('token_obtain_pair'), {
+            'email': 'TC12B@EXAMPLE.COM',
+            'password': user['password'],
+        })
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
     def test_tc11_login_events_are_logged_without_credentials(self):
         user = self._register(email='tc11@example.com')
 

@@ -1,7 +1,7 @@
 # Test Cases: System Security (SS)
 
 > **Spec:** [spec.md](spec.md) | **Plan:** [plan.md](plan.md)  
-> **Created:** 2026-07-21 | **Updated:** 2026-10-08 — restructured to the template (per-story heading, Severity, Coverage Matrix order); TC-06 rewritten with real roles; added TC-10, TC-11
+> **Created:** 2026-07-21 | **Updated:** 2026-10-08 — restructured to the template (per-story heading, Severity, Coverage Matrix order); TC-06 rewritten with real roles; added TC-10, TC-11, TC-12
 
 ## SS-US-01: Login (ADMIN, USER)
 
@@ -27,6 +27,7 @@
 | EC-01 — Empty email or password | BOTH | TC-07 | TC-08 |
 | EC-02 — Repeated failed attempts | API | TC-09 | — *(auth-only, no UI to exercise)* |
 | EC-03 — Credential expiry | *(out of scope)* | — | — *(deferred per spec Out of Scope)* |
+| EC-04 — Email capitalization ignored | API | TC-12 | — *(same login path as TC-02; the capitalization rule lives in the API)* |
 
 - [x] Self-checked against [aif-review-checklist.md § `test_cases.md` — Coverage](../../aif-review-checklist.md#test_casesmd--coverage)
 
@@ -147,6 +148,17 @@
 - **Type:** integration
 - **Severity:** Major
 - **Note:** exists for constitution § Logging & Audit (log authentication events without sensitive data) rather than a spec AC; it is tied to AC-01/AC-02 because those are the events logged.
+
+### TC-12: Email capitalization is ignored at login
+- **US:** SS-US-01
+- **Given:** an active User account whose email was created as "Homer.Tc12@Example.com", and a second account that is deactivated
+- **When:** login requests use the email in three different capitalizations with the correct password, then once with a wrong password, and the deactivated account's email in a different capitalization with its correct password
+- **Then:** the three correct logins return `200` with a token pair
+  - **And** the wrong password still returns `401`
+  - **And** the deactivated account is still rejected (`401`) whatever the capitalization
+- **AC:** EC-04
+- **Type:** integration
+- **Severity:** Major
 
 - [x] Self-checked against [aif-review-checklist.md § `test_cases.md` — Structure](../../aif-review-checklist.md#test_casesmd--structure)
 - [x] Self-checked against [aif-review-checklist.md § Playwright Code — Integration Tests](../../aif-review-checklist.md#playwright-code--integration-tests)

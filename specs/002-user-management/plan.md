@@ -75,7 +75,7 @@ Reviewed `spec.md` and the existing implementation (`backend/users/`, `backend/c
   **Alternatives considered**: DRF's `UniqueValidator` (`400`, case-sensitive) — rejected: wrong status for a business conflict and misses EC-07.
 
 - **Decision D6**: The email is stored as submitted (Django's `normalize_email` only), not lower-cased.
-  **Rationale**: Login (`ModelBackend`) looks the email up with an exact match; lower-casing only at creation would silently change which spelling logs in. The case-insensitive duplicate check still prevents near-duplicates (EC-07).
+  **Rationale**: Lower-casing only at creation would rewrite what the ADMIN typed. Login ignores capitalization instead (`users.backends.EmailBackend`, SS-US-01 EC-04), and the case-insensitive duplicate check prevents near-duplicates (EC-07), so the stored spelling never affects who can log in.
   **Alternatives considered**: Lower-casing everywhere (create + login) — rejected for this story: changes SS-US-01's behavior.
 
 - **Decision D7**: Frontend `frontend/src/app/users/new/page.tsx` uses native `fetch` + React state, no form library.

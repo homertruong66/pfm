@@ -1398,8 +1398,8 @@ Lets the ADMIN create the account of a family member with a full name, an email 
 
 **Main Flow**
 1. Client submits `email` + `password`.
-2. `TokenObtainPairSerializer` calls Django's `authenticate()`, which delegates to `ModelBackend`.
-3. `ModelBackend` verifies the password hash and calls `user_can_authenticate()`, which rejects `is_active=False` accounts (BR-16).
+2. `TokenObtainPairSerializer` calls Django's `authenticate()`, which delegates to the project's `users.backends.EmailBackend` (a `ModelBackend` subclass that matches the email case-insensitively, SS-US-01 EC-04).
+3. The backend verifies the password hash and calls `user_can_authenticate()`, which rejects `is_active=False` accounts (BR-16).
 4. On success, the serializer issues a JWT access/refresh pair.
 
 **Success Response** — `200`

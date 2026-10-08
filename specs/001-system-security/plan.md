@@ -32,6 +32,7 @@
 | G3 | **Gap** | AC-01..03 | Constitution § Logging & Audit asks for login success/failure logging; the stock view logs nothing. | Resolved 2026-10-08: thin `LoginView`/`LoginSerializer` subclass logs success at `INFO`; failures are logged at `WARN` with the acting User id (none, for a login) by `config.exceptions.api_exception_handler`. Neither line contains the email or the password. |
 | A1 | Ambiguity | EC-03 | "Session/credential expiry" is listed as an Edge Case but defers its outcome. | Left out of scope (spec Out of Scope); to be revisited with SS-US-02 Logout. |
 | A2 | Ambiguity | AC-02, EC-01 | FE-06 asks for inline field-level feedback; the spec's copy ("Invalid email or password.", "Email and password are required.") is form-level by design — field-level text would reveal which field was wrong (AC-02). | The login form deliberately uses one form-level `#message-error`. |
+| A4 | Gap (added 2026-10-08) | EC-04 | Login matched the email exactly, so an account created as `Homer@Example.com` only logged in with that spelling. | Spec amended (EC-04); a ~15-line `users.backends.EmailBackend` (`ModelBackend` subclass, `email__iexact` lookup) replaces the default backend in `AUTHENTICATION_BACKENDS`. Creation already forbids two accounts that differ only in capitalization (UM-US-01 EC-07), so the lookup cannot be ambiguous; if legacy data did produce two, neither can log in. |
 | A3 | Ambiguity | AC-02 | Should a network failure or a `5xx` look like a credential error? | No: only `400`/`401` show "Invalid email or password."; anything else shows a neutral error (fixed 2026-10-08, code and tasks.md T011). |
 
 *Pre-flight Gaps checklist*
@@ -80,7 +81,7 @@ Login does not read or branch on Role: the token it issues carries no role infor
 
 **`POST /api/v1/auth/login/`**
 
-Maps to spec.md AC-01, AC-02, AC-03, EC-01. Already implemented (stock `TokenObtainPairView`) — documented here for traceability into SDS §6.4.
+Maps to spec.md AC-01, AC-02, AC-03, EC-01, EC-04. Already implemented (stock `TokenObtainPairView`) — documented here for traceability into SDS §6.4.
 
 | Field | Type | Notes |
 |---|---|---|

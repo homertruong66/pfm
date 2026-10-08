@@ -61,6 +61,11 @@ System Security controls who can enter the System and what they can reach once i
   **Given** a logged-in User's credential has expired,  
   **When** they attempt an action,  
   **Then** the outcome is not defined by this story, because re-authentication after expiry is out of scope here.
+- **EC-04 — Email capitalization ignored:**
+  **Given** an active account whose email is "homer@example.com",
+  **When** its owner logs in with the email typed as "Homer@Example.com" and the correct password,
+  **Then** the System logs them in exactly as in AC-01,
+    &nbsp;&nbsp;**and** the same capitalization-insensitive match applies to every rejection in AC-02 and AC-03.
 
 <!-- Edge Case categories not listed above and why:
      - Access control: login is the System's public, unauthenticated entry point, so there is no caller to authorize or scope; role-based access is covered by AC-04 and by the features that follow login.
