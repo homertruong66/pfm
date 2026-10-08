@@ -13,7 +13,7 @@
 | TC-03 | Wrong password rejected with one generic error | AC-02 | integration | PASS | `backend/users/tests.py`, re-run fresh |
 | TC-04 | Invalid credentials show generic inline error | AC-02 | e2e | PASS | Playwright, screenshots in HTML report |
 | TC-05 | Deactivated account rejected, same generic error | AC-03 | integration | PASS | `backend/users/tests.py`, re-run fresh; also manually reproduced against the live `db.sqlite3` (not just the throwaway test DB) |
-| TC-06 | Dual-role account, single login, one token pair | AC-04 | integration | PASS | `backend/users/tests.py`, re-run fresh |
+| TC-06 | Dual-role account, single login, one token pair | AC-04 | integration | PASS | `backend/users/tests.py`, re-run fresh. *(2026-10-08: the test originally used an `is_staff`/`is_superuser` proxy and asserted only the response shape; rewritten with real `Role`s — see `test_cases.md` TC-06 — and re-run, PASS.)* |
 | TC-07 | Missing password rejected with 400 | EC-01 | integration | PASS | `backend/users/tests.py`, re-run fresh; also manually reproduced against live app |
 | TC-08 | Missing password caught by inline validation before submit | EC-01 | e2e | PASS | Playwright, screenshots in HTML report |
 | TC-09 | Repeated failed attempts, no lockout | EC-02 | integration | PASS | `backend/users/tests.py`, re-run fresh |

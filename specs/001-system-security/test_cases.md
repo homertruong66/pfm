@@ -66,11 +66,15 @@ Covers SS-US-01: Login (ADMIN, USER). Acceptance Criteria / Edge Cases refer to 
 ### TC-06: An account holding both ADMIN and USER roles logs in once
 
 - **US:** SS-US-01
-- **Given:** an active User account holds both the ADMIN and USER roles simultaneously
-- **When:** a single login request is submitted with that account's correct credentials
+- **Given:** an active User account holds both the ADMIN and USER roles simultaneously, and a second active account holds only the USER role
+- **When:** a single login request is submitted with the dual-role account's correct credentials
 - **Then:** the response is `200` with one token pair, with no additional per-role login step required or offered
+  - **And** that one token is accepted for an ADMIN-only action (creating a User, `201`) and for a USER action (listing the account's own Wallets, `200`)
+  - **And** the same ADMIN-only action with the USER-only account's token is refused (`403`) — the control that shows the dual-role result comes from the roles held
 - **AC:** AC-04
 - **Type:** integration
+- **Severity:** Critical
+- **Note:** previously proxied with `is_staff`/`is_superuser` and asserted only the response shape, which any account satisfies; rewritten once the `Role` entity existed (UM-US-01).
 
 ### TC-07: Missing password is rejected at the API
 

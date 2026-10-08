@@ -33,7 +33,7 @@
 - [x] T002 [P] [US1] TC-01: `APITestCase` for successful login (active user, correct credentials → `200` with non-empty `access`/`refresh`) in `backend/users/tests.py`
 - [x] T003 [P] [US1] TC-03: `APITestCase` for wrong password (correct email, wrong password → `401`, single generic error body) in `backend/users/tests.py`
 - [x] T004 [P] [US1] TC-05: `APITestCase` for deactivated account (`is_active=False`, correct credentials → `401`, same generic error body as TC-03) in `backend/users/tests.py`
-- [x] T005 [P] [US1] TC-06: `APITestCase` for an account with elevated Django permissions (`is_staff=True, is_superuser=True` — closest existing analog to "holds both roles" until `Role` is scaffolded per constitution's documented open drift) logging in once and getting the same one-token-pair response shape as a plain user, with no extra role-specific field or step, in `backend/users/tests.py`
+- [x] T005 [P] [US1] TC-06: `APITestCase` for an account holding both the `ADMIN` and `USER` roles logging in once (one token pair, no per-role field or step) and using that single token for an ADMIN-only action (create a User, `201`) and a USER action (list Wallets, `200`), with a USER-only account refused the ADMIN action as the control, in `backend/users/tests.py` *(originally an `is_staff`/`is_superuser` proxy that asserted only the response shape; rewritten after UM-US-01 added `Role`)*
 - [x] T006 [P] [US1] TC-07: `APITestCase` for missing password (`email` present, `password` omitted → `400`, field-level validation error) in `backend/users/tests.py`
 - [x] T007 [P] [US1] TC-09: `APITestCase` for 3 consecutive wrong-password attempts, asserting each independently returns `401` with the same generic error (no lockout/rate-limit) in `backend/users/tests.py`
 

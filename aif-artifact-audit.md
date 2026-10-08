@@ -2,7 +2,7 @@
 
 > Scan of every feature under `specs/` (`001-system-security`, `002-user-management`) for consistency between its AI-generated spec-kit artifacts and this project's templates (`.specify/templates/*.md`), review rubric (`aif-review-checklist.md`), process definition (`aif-sdlc.md`) and governing documents (`constitution.md`, `SRS.md`, `SDS.md`), plus spot-checks against the backend/frontend code.
 >
-> *Last updated 2026-10-08 (develop @ `1327844`). **Resolved findings and "verified clean" notes have been removed — this file lists only what is still open.** Resolved so far: rubric/template carry-over from the previous project, artifact location and file-name conflicts (`test_cases.md` now lives in `specs/`), the SRS-vs-constitution registration contradiction, documentation made stale by the `roles` app, and the Critical `users/<id>/` account-takeover endpoint (removed; regression test TC-20).*
+> *Last updated 2026-10-08 (develop @ `1327844`). **Resolved findings and "verified clean" notes have been removed — this file lists only what is still open.** Resolved so far: SS-US-01's AC-04 test (rewritten with real roles and a USER-only control; fails if the roles are ignored), rubric/template carry-over from the previous project, artifact location and file-name conflicts (`test_cases.md` now lives in `specs/`), the SRS-vs-constitution registration contradiction, documentation made stale by the `roles` app, and the Critical `users/<id>/` account-takeover endpoint (removed; regression test TC-20).*
 
 **Severity:** **Critical** = breaks traceability/correctness or hides a live bug; **Major** = a clear rule violation that isn't breaking anything today; **Minor** = cosmetic/formatting drift.
 
@@ -14,10 +14,10 @@
 
 | # | Scope | Critical | Major | Minor | Headline open issue |
 |---|---|---|---|---|---|
-| 1 | [001-system-security](#001-system-security-ss) | 0 | 6 | 14 | Login itself logs nothing (constitution § Logging & Audit); AC-04 (dual-role login) is reported PASS by a test that cannot distinguish dual-role from single-role — now fixable because `Role` exists |
+| 1 | [001-system-security](#001-system-security-ss) | 0 | 5 | 14 | Login itself logs nothing (constitution § Logging & Audit); token storage was never decided in the plan |
 | 2 | [002-user-management](#002-user-management-um) | 0 | 0 | 16 | Minor documentation and test-depth gaps; verified on localhost against a scratch database |
 | 3 | [Project-level](#project-level) | 0 | 1 | 2 | UM-US-01's steps were carried out by hand: no `/speckit-*` skill run and no `/speckit-analyze` report |
-| | **Total** | **0** | **7** | **32** | |
+| | **Total** | **0** | **6** | **32** | |
 
 ---
 
@@ -33,8 +33,7 @@
 
 1. **The six steps were hand-run, with no recorded `/speckit-analyze` gate** (process pattern 2, P7).
 2. **No auth-event logging on login itself.** `constitution.md` § Logging & Audit requires login success/failure at `INFO`/`WARN`. `create_user` logs and a `LOGGING` config exists, but SS-US-01's login is the stock `TokenObtainPairView` and logs nothing of its own (Django's `django.request` logs the `401`, not who). SS `plan.md`'s Constitution Check still omits Logging & Audit.
-3. **AC-04 (dual-role single login) is still not really verified.** `Role` now exists, so TC-06 can seed an account holding both roles; the test still uses `is_staff`/`is_superuser` and asserts only the `{access, refresh}` shape, which every account satisfies. Update `specs/001-system-security/test_cases.md` TC-06 and `backend/users/tests.py::test_tc06…`.
-4. **Token storage was never decided in SS `plan.md`.** Both JWTs live in `localStorage` (`pfm_access_token`, `pfm_refresh_token`); the Dashboard guard and the Create User page depend on it. Security-relevant (XSS exposure of a 7-day refresh token) and absent from `plan.md`/SDS §5.1.1 as a decision.
+3. **Token storage was never decided in SS `plan.md`.** Both JWTs live in `localStorage` (`pfm_access_token`, `pfm_refresh_token`); the Dashboard guard and the Create User page depend on it. Security-relevant (XSS exposure of a 7-day refresh token) and absent from `plan.md`/SDS §5.1.1 as a decision.
 
 ---
 
@@ -48,13 +47,12 @@
 | checklists/requirements.md | Minor | Still ticks "Success criteria are measurable" / "Feature meets measurable outcomes", but the rewritten spec (per the template) has no Success Criteria section — those items are vacuous. Re-review against the new spec. |
 | plan.md | Major | No `### Pre-flight: Spec Review Findings` section and no `### Open tasks` section, both required by `plan-template.md` and Step 2 of the rubric. Gaps that were clearly present (AC-04 unverifiable without `Role`; token storage; EC-03 deferral) are not recorded as findings. |
 | plan.md | Major | Constitution Check omits Logging & Audit (Priority #2). |
-| plan.md | Major | Decisions & Rationale defers token storage ("None evaluated at this phase"); the actual implementation (`localStorage`) was never written back (Priority #4). |
-| plan.md | Minor | Technical Context → Testing says "no frontend test runner is set up yet, so the login page is verified manually"; a Playwright runner and suite were added in the same story. Its "No `Role` entity exists yet … AC-04 holds by the absence of any role-gated check" note is also stale since UM-US-01. |
+| plan.md | Major | Decisions & Rationale defers token storage ("None evaluated at this phase"); the actual implementation (`localStorage`) was never written back (Priority #3). |
+| plan.md | Minor | Technical Context → Testing says "no frontend test runner is set up yet, so the login page is verified manually"; a Playwright runner and suite were added in the same story. |
 | plan.md | Minor | Project Structure: `tasks.md` is still annotated "Phase 2 output (/speckit-tasks — not created by this command)" though it exists; `checklists/requirements.md` and `test_cases.md` are not listed; the `logout/` entry is mis-indented. |
 | tasks.md | Minor | T011 specifies the generic error "on a `400`/`401`"; the code shows it for every non-OK response and for any thrown network error. |
 | tasks.md | Minor | T017 (add the Playwright runner) and T018 (validate in a real browser) were appended to Phase 4 after the fact; T017 is a prerequisite of the Phase 3 checkpoint's "confirmed end-to-end" claim, so the stated phase order no longer reflects the dependency order. |
 | test_cases.md | Major | No per-story `## SS-US-01: Login (ADMIN, USER)` heading — one H1 plus a "Covers SS-US-01…" sentence and a `**US:**` field per TC. The template requires the `(ACTOR)` heading (`specs/002-user-management/test_cases.md` shows the intended shape). |
-| test_cases.md | Major | TC-06's Given ("holds both the ADMIN and USER roles") describes a state its automation (an `is_staff`/`is_superuser` proxy) cannot represent; the Coverage Matrix presents AC-04 as covered (Priority #3). |
 | test_cases.md | Minor | Section order differs from the template: Coverage Matrix last, no Negative-scenario applicability block, no per-TC `Severity`. |
 | test_cases.md | Minor | The spec's promise that the response does not reveal whether an email is registered has no dedicated TC; it is exercised only incidentally inside `test_tc05`'s comparison. |
 | test_cases.md | Minor | TC-07 expects exactly `400`; stricter than the rubric's `[400, 422]` (DRF returns 400 here, so not wrong). |
@@ -102,4 +100,4 @@
 
 ---
 
-*Produced by one pass of Claude Code over `specs/`, `e2e/`, the templates, rubric, process and governing documents, with claims spot-checked against `backend/` and `frontend/`. Counts in the executive summary were tallied from the tables above (Critical 0, Major 6+0+1, Minor 14+16+2).*
+*Produced by one pass of Claude Code over `specs/`, `e2e/`, the templates, rubric, process and governing documents, with claims spot-checked against `backend/` and `frontend/`. Counts in the executive summary were tallied from the tables above (Critical 0, Major 5+0+1, Minor 14+16+2).*

@@ -63,19 +63,42 @@ class LoginTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(response.data, wrong_password_response.data)
 
-    def test_tc06_dual_role_account_single_login_one_token_pair(self):
-        # No Role table exists yet — is_staff/is_superuser stand in for "holds elevated,
-        # dual-capability access" per plan.md's SS-US-01 Domain Objects note.
-        user = self._register(email='tc06@example.com')
-        User.objects.filter(email=user['email']).update(is_staff=True, is_superuser=True)
+    def test_tc06_dual_role_account_single_login_covers_both_roles(self):
+        # AC-04: one login, one token, and that token works for an ADMIN action AND a USER action.
+        # The USER-only account is the control: it logs in the same way but is refused the ADMIN
+        # action, so this test fails if login (or the token) ignored the roles an account holds.
+        dual = self._register(email='tc06-dual@example.com')
+        User.objects.get(email=dual['email']).roles.add(
+            *Role.objects.filter(code__in=[Role.Code.ADMIN, Role.Code.USER]))
+        user_only = self._register(username='tc06_user', email='tc06-user@example.com')
+        User.objects.get(email=user_only['email']).roles.add(Role.objects.get(code=Role.Code.USER))
 
-        response = self.client.post(reverse('token_obtain_pair'), {
-            'email': user['email'],
-            'password': user['password'],
-        })
+        def login(account):
+            return self.client.post(reverse('token_obtain_pair'), {
+                'email': account['email'],
+                'password': account['password'],
+            })
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertCountEqual(response.data.keys(), ['access', 'refresh'])
+        def create_account_as(token, email):
+            client = APIClient()
+            client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+            return client, client.post(reverse('user-create'), {
+                'full_name': 'Created By Test', 'email': email, 'password': 'TestQC-Passw0rd!',
+            })
+
+        dual_login = login(dual)
+        self.assertEqual(dual_login.status_code, status.HTTP_200_OK)
+        self.assertCountEqual(dual_login.data.keys(), ['access', 'refresh'])  # no per-role step or field
+
+        # ADMIN action with the single token
+        client, admin_action = create_account_as(dual_login.data['access'], 'created-by-dual@example.com')
+        self.assertEqual(admin_action.status_code, status.HTTP_201_CREATED)
+        # USER action with the same token
+        self.assertEqual(client.get('/api/v1/wallets/').status_code, status.HTTP_200_OK)
+
+        # Control: a USER-only account is refused the ADMIN action.
+        _, refused = create_account_as(login(user_only).data['access'], 'created-by-user-only@example.com')
+        self.assertEqual(refused.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_tc07_missing_password_rejected_with_400(self):
         user = self._register(email='tc07@example.com')

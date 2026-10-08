@@ -47,7 +47,7 @@ No schema change is required for this US — it reads the existing `User` entity
 |---|---|---|---|
 | `User` | `users.User` / `users` table | `email` (`USERNAME_FIELD`, unique), `password` (hashed, from `AbstractUser`), `is_active` (`BooleanField`, default `True`, from `AbstractUser`) | `email` is the login identifier submitted by the caller. `password` is verified against the submitted value by Django's `authenticate()`. `is_active=False` makes `ModelBackend.user_can_authenticate()` refuse authentication regardless of correct credentials (AC-03, BR-16). |
 
-No `Role` entity exists yet (constitution's documented open drift) — login does not read or branch on Role; AC-04 (dual-role single login) holds by the absence of any role-gated check at login time, not by explicit design in this US. Where a test needs to stand in for "an account holding both roles" (TC-06), `is_staff`/`is_superuser` (already present on `AbstractUser`) are used as the closest existing analog to an elevated/dual-capability account until `Role` is scaffolded — these are test-only proxies, not a modeled part of this US.
+Login does not read or branch on Role: the token it issues carries no role information, and AC-04 (dual-role single login) holds because authorization is decided per request from the roles the account holds (`roles.Role` / `user_roles`, added by UM-US-01; `IsAdmin` for ADMIN-only endpoints). TC-06 therefore seeds a real dual-role account and proves one token works for an ADMIN action and a USER action, with a USER-only account as the control.
 
 **State Transitions**: None triggered by login itself. `is_active` transitions (`ACTIVE` → `INACTIVE`) belong to UM-US-05 (Deactivate User), not this US — login only *reads* the current state.
 
@@ -144,7 +144,7 @@ sequenceDiagram
   Same call with a wrong password. Expected: `401`, single generic `detail` message — does not say "wrong password" specifically.
 - **AC-03 — deactivated account rejected**:
   `python manage.py shell -c "from users.models import User; u = User.objects.get(email='<email>'); u.is_active = False; u.save()"`, then the AC-01 call with the correct password. Expected: `401`, same generic message as AC-02 — does not reveal the account is deactivated.
-- **AC-04 — dual-role account, single login**: No separate flow to test — create a User, log in once, confirm the returned token authorizes requests against any endpoint the account's queryset-scoped views allow (no role-specific gating exists yet in the backend — see Constitution Check below).
+- **AC-04 — dual-role account, single login**: No separate flow to test — create a User, log in once, assign the account both the `ADMIN` and `USER` roles, then confirm the returned token creates a User (`POST /api/v1/users/`, ADMIN-only → `201`) and lists Wallets (`GET /api/v1/wallets/` → `200`), while a USER-only account's token gets `403` on the first.
 - **EC-01 — missing field**:
   Same call with `password` omitted. Expected: `400`, field-level validation error for `password`.
 - **Frontend** (once `frontend/src/app/login/page.tsx` exists): `cd frontend && npm run dev` → open `http://localhost:3000/login` → submit valid credentials → redirected to Dashboard, tokens stored; submit invalid credentials → inline `#message-error` shown, form remains.
@@ -185,7 +185,7 @@ sequenceDiagram
 | AR-02 Thin Views | ✅ PASS | `TokenObtainPairView` is already thin; no custom view logic introduced |
 | AR-03 Django ORM Is the Repository | ✅ PASS | No repository abstraction introduced |
 | AR-05 Transactional Atomicity | N/A | Single read, no multi-model write |
-| AC-01/AC-02 Role-Based Access, Backend Enforces Authorization | ✅ PASS (scoped) | Login itself grants no role-specific permissions yet — AC-04 (dual role, single login) holds today only because no endpoint anywhere enforces Role-based gating yet (documented "known open drift": `Role` entity not scaffolded). Building Role/RBAC is out of scope for SS-US-01 |
+| AC-01/AC-02 Role-Based Access, Backend Enforces Authorization | ✅ PASS (scoped) | Login itself grants no role-specific permissions; roles are evaluated per request (`IsAdmin`, UM-US-01), which is what makes AC-04 (dual role, single login) true and testable |
 | API-02 Response Shape — DRF-Native | ✅ PASS | `TokenObtainPairView` returns the stock `{access, refresh}` body, no custom envelope |
 | API-04 HTTP Status Mapping | ✅ PASS | 200 success, 401 for bad credentials/deactivated account (SimpleJWT default) |
 | API-07 Authentication | ✅ PASS | Already the fixed mechanism this US formalizes |
