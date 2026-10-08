@@ -319,6 +319,17 @@ class CreateUserTests(APITestCase):
         self.assertEqual(response.data['code'], 'USER_ALREADY_EXISTS')
         self.assertEqual(User.objects.filter(email__iexact='homer@example.com').count(), 1)
 
+    def test_tc22_email_is_stored_in_lower_case_and_the_new_user_can_log_in_with_any_capitalization(self):
+        response = self.client.post(self.url, self._payload(email='Homer.Mixed@Example.COM'))
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['email'], 'homer.mixed@example.com')
+        stored = User.objects.get(pk=response.data['id'])
+        self.assertEqual(stored.email, 'homer.mixed@example.com')
+        self.assertEqual(stored.username, 'homer.mixed@example.com')
+        for spelling in ('homer.mixed@example.com', 'Homer.Mixed@Example.COM'):
+            self.assertEqual(self._login(spelling, self.PASSWORD).status_code, status.HTTP_200_OK, spelling)
+
     def test_tc21_database_level_collision_is_also_reported_as_account_already_exists(self):
         # The pre-check compares emails only; an existing account whose *username* equals the new
         # email slips past it and is stopped by the database's unique constraint instead
@@ -367,3 +378,25 @@ class CreateUserTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertFalse(User.objects.filter(email='homer@example.com').exists())
+
+
+class LowercaseEmailsMigrationTests(APITestCase):
+    """UM-US-01 EC-10: the data migration brings existing accounts in line without ever colliding."""
+
+    def test_lowercases_existing_emails_but_never_creates_a_collision(self):
+        from importlib import import_module
+        from django.apps import apps
+
+        migration = import_module('users.migrations.0004_lowercase_emails')
+        mixed = User.objects.create_user(username='Old.User@Example.com', email='Old.User@Example.com', password='Passw0rd!x')
+        taken = User.objects.create_user(username='taken@example.com', email='taken@example.com', password='Passw0rd!x')
+        clash = User.objects.create_user(username='Clash@Example.com', email='Clash@Example.com', password='Passw0rd!x')
+
+        migration.lowercase_emails(apps, None)
+
+        mixed.refresh_from_db()
+        clash.refresh_from_db()
+        self.assertEqual((mixed.email, mixed.username), ('old.user@example.com', 'old.user@example.com'))
+        self.assertEqual(clash.email, 'clash@example.com')
+        self.assertEqual(User.objects.filter(email='taken@example.com').count(), 1)
+        self.assertTrue(User.objects.filter(pk=taken.pk).exists())

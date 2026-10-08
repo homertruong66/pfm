@@ -8,7 +8,7 @@ class UserManager(DjangoUserManager):
         also grants the ADMIN role — the app authorizes by Role, not by Django's staff flags."""
         from roles.models import Role
 
-        user = super().create_superuser(username, email, password, **extra_fields)
+        user = super().create_superuser(username, email.lower() if email else email, password, **extra_fields)
         admin_role, _ = Role.objects.get_or_create(code=Role.Code.ADMIN)
         user.roles.add(admin_role)
         return user

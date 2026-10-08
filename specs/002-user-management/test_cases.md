@@ -1,7 +1,7 @@
 # Test Cases: User Management (UM)
 
 > **Spec:** [spec.md](spec.md) | **Plan:** [plan.md](plan.md)  
-> **Created:** 2026-10-08 | **Updated:** 2026-10-08 — added TC-20 (no account-by-id endpoint) and TC-21 (database-level duplicate); TC-07 now also asserts the new User reaches its own data; TC-10 asserts the 403 is logged
+> **Created:** 2026-10-08 | **Updated:** 2026-10-08 — added TC-22 (email stored in lower case); TC-20 (no account-by-id endpoint) and TC-21 (database-level duplicate); TC-07 now also asserts the new User reaches its own data; TC-10 asserts the 403 is logged
 
 ## UM-US-01: Create a User (ADMIN)
 
@@ -37,6 +37,7 @@
 | EC-07 — Same email, different capitalization | API | TC-17 | — *(same rejection path as TC-06)* |
 | EC-08 — Non-English full name | API | TC-18 | — *(API round-trip)* |
 | EC-09 — Creation fails part-way | API | TC-19 | — *(atomicity, not triggerable from the browser)* |
+| EC-10 — Email stored in lower case | API | TC-22 | — *(storage rule of the API)* |
 
 - [x] Self-checked against [aif-review-checklist.md § `test_cases.md` — Coverage](../../aif-review-checklist.md#test_casesmd--coverage)
 
@@ -265,6 +266,17 @@
 - **AC:** AC-03
 - **Type:** integration
 - **Severity:** Minor
+
+### TC-22: The email is stored in lower case and the new User can log in with any capitalization
+- **US:** UM-US-01
+- **Given:** an `ADMIN` is logged in
+- **When:** `POST /api/v1/users/` is submitted with the email "Homer.Mixed@Example.COM"
+- **Then:** the response is `201` and its `email` is "homer.mixed@example.com"
+  - **And** the stored account has that lower-case email
+  - **And** a login with the lower-case email and a login with "Homer.Mixed@Example.COM" both return `200`
+- **AC:** EC-10
+- **Type:** integration
+- **Severity:** Major
 
 - [x] Self-checked against [aif-review-checklist.md § `test_cases.md` — Structure](../../aif-review-checklist.md#test_casesmd--structure)
 - [x] Self-checked against [aif-review-checklist.md § Playwright Code — Integration Tests](../../aif-review-checklist.md#playwright-code--integration-tests)

@@ -96,6 +96,11 @@ User Management gives the household's `ADMIN` control over who can use the PFM a
   **When** the `ADMIN` confirms the creation,  
   **Then** the System shows an error,  
     &nbsp;&nbsp;**and** no User account is left behind, so no email is blocked by an account that cannot log in.
+- **EC-10 — Email stored in lower case:**
+  **Given** the `ADMIN` is on the Create User screen,
+  **When** they enter the email "Homer@Example.com" and confirm the creation,
+  **Then** the System creates the account with the email "homer@example.com",
+    &nbsp;&nbsp;**and** the new User can log in with the email in any capitalization.
 
 <!-- Edge Case categories not listed above and why:
      - Concurrency: a household has a single ADMIN creating accounts, and two near-simultaneous submissions of the same email can only end as in AC-03 (one account, one rejection), so no separate behavior is specified.

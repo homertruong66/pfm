@@ -74,8 +74,8 @@ Reviewed `spec.md` and the existing implementation (`backend/users/`, `backend/c
   **Rationale**: API-03/API-04/VL-02 — a clear business error, never a `500`; the `email` column's unique constraint remains the final guard against two simultaneous submissions.
   **Alternatives considered**: DRF's `UniqueValidator` (`400`, case-sensitive) — rejected: wrong status for a business conflict and misses EC-07.
 
-- **Decision D6**: The email is stored as submitted (Django's `normalize_email` only), not lower-cased.
-  **Rationale**: Lower-casing only at creation would rewrite what the ADMIN typed. Login ignores capitalization instead (`users.backends.EmailBackend`, SS-US-01 EC-04), and the case-insensitive duplicate check prevents near-duplicates (EC-07), so the stored spelling never affects who can log in.
+- **Decision D6**: The email is stored in lower case. *(Originally "as submitted"; changed 2026-10-08 with spec EC-10.)*
+  **Rationale**: The email is stored in lower case (spec EC-10; the response and the `username` follow it), the duplicate check is case-insensitive (EC-07), and login ignores capitalization (`users.backends.EmailBackend`, SS-US-01 EC-04) so accounts created before this rule still work. Migration `users/0004` lower-cases existing emails where that cannot collide.
   **Alternatives considered**: Lower-casing everywhere (create + login) — rejected for this story: changes SS-US-01's behavior.
 
 - **Decision D7**: Frontend `frontend/src/app/users/new/page.tsx` uses native `fetch` + React state, no form library.

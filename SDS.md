@@ -1427,7 +1427,7 @@ Creates a User account. ADMIN only (UM-US-01); there is no self-service registra
 1. Client submits `full_name`, `email` and `password` with a Bearer access token.
 2. The `IsAdmin` permission rejects the request unless the caller holds the `ADMIN` role.
 3. The serializer validates the three fields.
-4. `users.services.create_user` — in one transaction — rejects an existing email (case-insensitive), creates the active User with a hashed password and links the `USER` role.
+4. `users.services.create_user` — in one transaction — lower-cases the email, rejects an existing email (case-insensitive), creates the active User with a hashed password and links the `USER` role.
 
 **Success Response** — `201`
 - `id`, `full_name`, `email`, `is_active`, `created_at` (never `password`)

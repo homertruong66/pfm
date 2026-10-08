@@ -15,10 +15,11 @@ def create_user(*, full_name, email, password, actor=None):
     """UM-US-01: create an active User account holding the USER role.
 
     One atomic operation (AR-05): if any step fails, no User is left behind (EC-09).
-    The email is compared case-insensitively (EC-07); a database uniqueness violation caused by
+    The email is stored in lower case (EC-10) and compared case-insensitively (EC-07); a database uniqueness violation caused by
     a simultaneous request is reported the same way as an ordinary duplicate (AC-03).
     """
     actor_id = getattr(actor, 'id', None)
+    email = email.lower()  # stored in lower case (EC-10); login ignores capitalization (SS-US-01 EC-04)
 
     if User.objects.filter(email__iexact=email).exists():
         logger.warning('create_user rejected: account already exists (actor_id=%s)', actor_id)

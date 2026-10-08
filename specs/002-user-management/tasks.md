@@ -63,6 +63,8 @@
 - [x] T017 [P] constitution.md §V and CLAUDE.md: drop `POST /api/v1/users/` from the public routes and the "register a USER via POST /api/v1/users/" hint; RUNBOOK.md §9 rewritten (ADMIN via `createsuperuser`, family accounts created through the app); `specs/001-system-security/plan.md` quickstart no longer offers `POST /api/v1/users/` as a seeding option
 - [x] T018 Run the full suites: `python manage.py test`, `npm run lint`, `npm run build`
 
+- [x] T019 *(added 2026-10-08)* EC-10: store the email in lower case in `create_user`, migration `backend/users/migrations/0004_lowercase_emails.py` for existing accounts, TC-22 in `backend/users/tests.py`
+
 ---
 
 ## Dependencies & Execution Order
