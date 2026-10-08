@@ -1,64 +1,88 @@
-# Feature Specification: System Security
+# Feature: System Security
 
-**Feature Branch**: `001-system-security`
-
-**Created**: 2026-07-21
-
-**Status**: Draft
-
-**Input**: User description: "SS-US-01: Login (ADMIN, USER) — As a/an ADMIN or USER, I want to log in to the System with my email and password so that I can securely access my own account and the data/actions permitted to my role(s)."
-
-## User Scenarios & Testing *(mandatory)*
-
-### User Story 1 - SS-US-01: Login (ADMIN, USER) (Priority: P1)
-
-An ADMIN or a USER opens the System and signs in with their email and password so they can reach the account and the data/actions their role(s) permit. A single family member may hold both the ADMIN and USER roles at once and expects one login to unlock everything they're permitted to do — not a separate login per role.
-
-**Why this priority**: Login is the entry point to every other capability in the System — no other feature is reachable without it. It is the first MVP story of the System Security feature.
-
-**Independent Test**: Can be fully tested by submitting valid credentials for an active account and confirming the caller is authenticated and can subsequently reach a role-appropriate action, independent of any other feature.
-
-**Acceptance Criteria**:
-
-1. **AC-01: Successful login issues credentials** — **Given** an active account with valid email and password, **When** the User submits those credentials, **Then** the System authenticates the User and issues an access/refresh credential pair scoped to that account.
-2. **AC-02: Invalid credentials rejected generically** — **Given** an email or password that does not match an active account, **When** the User submits those credentials, **Then** the System rejects the attempt with a single generic error that does not indicate whether the email or the password was the incorrect part.
-3. **AC-03: Deactivated account login rejected** — **Given** an account that has been deactivated, **When** the account's owner submits their correct email and password, **Then** the System rejects the login attempt, even though the credentials themselves are valid.
-4. **AC-04: Single login covers dual roles** — **Given** an account that holds both the ADMIN and the USER role at the same time, **When** that account's owner logs in once, **Then** the System grants access to every action permitted by either role, with no additional per-role login step.
+> **Prefix:** `SS`
+> **SRS:** [SRS.md §7.1](../../SRS.md#71-system-security-ss)
+> **Created:** 2026-07-21 · **Updated:** 2026-10-08
 
 ---
 
+## Overview
+
+System Security controls who can enter the System and what they can reach once inside. It starts with login: an `ADMIN` or a `USER` proves who they are with an email and a password, so each family member sees only their own account and the data and actions their role(s) permit. Login is the entry point to every other capability in the System.
+
+### Business Flows
+
+- `6.1` — [Main Business Flow — End-to-End User Journey](../../SRS.md#61-main-business-flow--end-to-end-user-journey) (step 2: the User logs into the System)
+
+---
+
+## SS-US-01: Login (ADMIN, USER)
+
+> **Feature group:** 7.1 System Security
+
+**As an** `ADMIN` or `USER`, **I want to** log in to the System with my email and password **so that** I can securely access my own account and the data and actions permitted to my role(s).
+
+### Acceptance Criteria
+
+- **AC-01 — Successful login:**  
+  **Given** an active account with a valid email and password,  
+  **When** the account holder submits those credentials,  
+  **Then** the System authenticates them and issues an access and a refresh credential scoped to that account.
+- **AC-02 — Invalid credentials rejected:**  
+  **Given** an email or password that does not match an active account,  
+  **When** the account holder submits those credentials,  
+  **Then** the System rejects the attempt with one generic error,  
+    &nbsp;&nbsp;**and** the error does not reveal whether the email or the password was incorrect,  
+    &nbsp;&nbsp;**and** the error does not reveal whether the email is registered.
+- **AC-03 — Deactivated account rejected:**  
+  **Given** an account that has been deactivated,  
+  **When** its owner submits their correct email and password,  
+  **Then** the System rejects the login attempt with the same generic error as AC-02,  
+    &nbsp;&nbsp;**and** the error does not reveal that the account is deactivated.
+- **AC-04 — Single login for dual roles:**  
+  **Given** an account that holds both the `ADMIN` and the `USER` role,  
+  **When** its owner logs in once,  
+  **Then** the System grants access to every action permitted by either role,  
+    &nbsp;&nbsp;**and** no additional per-role login step is required.
+
 ### Edge Cases
 
-- **EC-01: Missing email or password** — What happens when the email field or the password field is left empty? System rejects the submission with a field-level validation error before attempting authentication.
-- **EC-02: Repeated failed attempts** — What happens when a User repeatedly submits incorrect credentials? System continues to reject each attempt with the same generic error (no lockout/rate-limiting behavior is specified by this story).
-- **EC-03: Session/credential expiry** — What happens when a currently-logged-in User's session/credential expires? Treated as a distinct story (re-authentication is out of scope for SS-US-01; see SS-US-02 Logout for session termination).
+- **EC-01 — Empty email or password:**  
+  **Given** the account holder leaves the email field or the password field empty,  
+  **When** they submit the login form,  
+  **Then** a field-level validation error is shown,  
+    &nbsp;&nbsp;**and** no authentication is attempted.
+- **EC-02 — Repeated failed attempts:**  
+  **Given** the account holder has submitted incorrect credentials several times in a row,  
+  **When** they submit incorrect credentials again,  
+  **Then** the attempt is rejected with the same generic error as AC-02,  
+    &nbsp;&nbsp;**and** no lockout or rate limiting is applied.
+- **EC-03 — Credential expiry:**  
+  **Given** a logged-in User's credential has expired,  
+  **When** they attempt an action,  
+  **Then** the outcome is not defined by this story, because re-authentication after expiry is out of scope here.
 
-## Requirements *(mandatory)*
+<!-- Edge Case categories not listed above and why:
+     - Access control: login is the System's public, unauthenticated entry point, so there is no caller to authorize or scope; role-based access is covered by AC-04 and by the features that follow login.
+     - Multi-language/multi-currency data: login handles no monetary or translated data.
+     - AI service error: no AI service is involved in login.
+     Boundary values, concurrency and dependency timeout are not yet specified for this story. -->
 
-### Functional Requirements
+---
 
-- **FR-001**: System MUST allow an ADMIN or a USER to log in by submitting an email and a password.
-- **FR-002**: System MUST, upon successful authentication of an active account, issue that account an access credential and a refresh credential.
-- **FR-003**: System MUST reject a login attempt whose email or password does not match an active account, returning one generic failure indication that does not disclose which field was incorrect or whether the email is registered.
-- **FR-004**: System MUST reject a login attempt for a deactivated account even when the submitted email and password are otherwise correct.
-- **FR-005**: System MUST, for an account holding both the ADMIN and USER roles, grant access to all actions permitted by both roles from a single login — no role-specific login step.
-- **FR-006**: System MUST validate that both email and password are provided before attempting authentication.
+## Scope Boundary
 
-### Key Entities
+### Out of Scope
 
-- **User**: The account holder who authenticates; identified by a unique email and a password, has an active/deactivated status, and holds one or both of the ADMIN and USER roles simultaneously.
+- Third-party or social sign-in and multi-factor authentication (SRS §1.6, §4.4.1).
+- Self-service password reset and account recovery — account issues are handled manually by the `ADMIN` (SRS §1.6).
+- Account lockout or rate limiting after repeated failed attempts (EC-02).
+- Handling of an expired credential and re-authentication (EC-03).
+- Ending a session — covered by SS-US-02 Logout.
 
-## Success Criteria *(mandatory)*
+### Dependencies
 
-### Measurable Outcomes
-
-- **SC-001**: A User with valid, active credentials completes login in a single submission with no additional steps.
-- **SC-002**: 100% of login attempts using incorrect credentials or a deactivated account are rejected, and none of those rejections reveal whether the email exists, which field was wrong, or the account's active/deactivated state.
-- **SC-003**: A User holding both roles reaches every action permitted by either role after exactly one successful login, with zero additional login prompts.
-
-## Assumptions
-
-- Login is performed with email + password only; no third-party/social sign-in or multi-factor authentication is in scope (SRS §1.6 Out of Scope, §4.4.1).
-- Self-service password reset/account recovery is out of scope for this story (SRS §1.6) — account issues are handled manually by the ADMIN.
-- No account lockout or rate-limiting behavior after repeated failed attempts is specified by this story.
-- A successful login's access/refresh credential pair is the sole mechanism by which the System authorizes all subsequent requests (see SS-US-02 Logout for how a session ends).
+| Type | Name | Nature | Risk if unavailable |
+|---|---|---|---|
+| Upstream | User account provisioning and deactivation by the `ADMIN` (UM-US-01, UM-US-05) | Login can only succeed for an account that exists and is active | No account can ever log in |
+| Downstream | Every protected feature of the System | Relies on the credential issued at login to authorize each request | No protected feature is reachable |

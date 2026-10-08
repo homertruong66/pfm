@@ -13,8 +13,8 @@ constitution unchanged.
 SIBLING-FILE SET (this project): a spec-kit feature folder here produces spec.md and
 plan.md (both under specs/[feature-id]-[slug]/), then tasks.md once /speckit-tasks
 runs. The parallel Quality Step artifact, test_cases.md, is NOT a sibling file in the
-same folder — it lives under tests/[feature-id]-[slug]/ instead (CLAUDE.md's
-specs/ vs. tests/ split), alongside the Playwright test_[feature-id].spec.ts. Unlike a
+same folder — it lives under e2e/[feature-id]-[slug]/ instead (CLAUDE.md's
+specs/ vs. e2e/ split), alongside the Playwright test_[abbr].spec.ts. Unlike a
 more generic spec-kit scaffold, this project's template set does not generate
 research.md, data-model.md, contracts/, or quickstart.md as separate files — those
 concerns (technical decisions, domain objects, API contracts, a runnable validation
@@ -91,13 +91,15 @@ EC GROUP ORDER (fixed per verb, always in this sequence — same omit-if-empty r
           to a disallowed role) and API (the backend independently rejects the
           request even if called directly). UI hiding is a UX convenience only,
           never the sole enforcement — the API check is authoritative
-       c. Data Authorization (tenant/ownership scope) — in a multi-tenant or
-          Workspace/Brand-scoped setting, does the caller's own scope cover the
-          record being acted on. For List/Search this is a filtering guarantee
-          (the returned set never includes another tenant's records), not a
+       c. Data Authorization (ownership scope) — PFM data is owned per User, so
+          does the caller own the record being acted on. (The worked examples at
+          the end of this file use a generic Workspace/tenant world purely as a
+          domain-agnostic illustration — read "tenant/Workspace" there as "the
+          owning User" in PFM.) For List/Search this is a filtering guarantee
+          (the returned set never includes another User's records), not a
           rejection. For Create/Update/Delete of one specific record, an existing
-          record the caller has no access to is rejected the same way as a
-          non-existent record, so the response never confirms another tenant's
+          record the caller does not own is rejected the same way as a
+          non-existent record, so the response never confirms another User's
           record exists
   2. Boundary Values — extreme/edge-of-range input the happy path doesn't exercise.
      For List/Search this includes a page number beyond the last page and a page
@@ -121,7 +123,7 @@ EC GROUP ORDER (fixed per verb, always in this sequence — same omit-if-empty r
 
 Numbering stays flat and sequential across all groups in both blocks per User Story
 (AC-01, AC-02... never restarts per group; same for EC-01, EC-02...) so
-cross-references like "PM-US-02 AC-03" stay stable if a group's content count
+cross-references like "WM-US-02 AC-03" stay stable if a group's content count
 changes.
 
 GWT FORMATTING: identical hard-break rules as spec-template.md — every unfinished

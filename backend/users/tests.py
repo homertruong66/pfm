@@ -6,7 +6,7 @@ from .models import User
 
 
 class LoginTests(APITestCase):
-    """SS-US-01: Login (ADMIN, USER). See tests/001-system-security/test_cases.md."""
+    """SS-US-01: Login (ADMIN, USER). See e2e/001-system-security/test_cases.md."""
 
     def _register(self, **overrides):
         payload = {

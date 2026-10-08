@@ -190,7 +190,7 @@ Number tasks `T1, T2, ...` in implementation order (model/migration → serializ
 
 **Storage**: SQLite (MVP) — [note whether a migration is required]
 
-**Testing**: `python manage.py test` (DRF `APITestCase`, real throwaway test DB per Integration Testing Over Mocking); Playwright e2e under `tests/[feature-id]-[slug]/` for UI-facing behavior, if applicable
+**Testing**: `python manage.py test` (DRF `APITestCase`, real throwaway test DB per Integration Testing Over Mocking); Playwright e2e under `e2e/[feature-id]-[slug]/` for UI-facing behavior, if applicable
 
 **Target Platform**: Single-machine home-LAN deployment (RUNBOOK.md) — backend :8000, frontend :3000
 

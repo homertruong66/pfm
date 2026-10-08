@@ -61,8 +61,9 @@ pfm/
 │                              #   are designed in SDS §2.2 but not yet scaffolded as apps —
 │                              #   assets is its own app (system-level, ADMIN-only, SRS §7.9), not nested under investment_portfolios
 ├── ui/                   # Wireframe screenshots referenced from SDS §3.2
+├── docs/                 # Supporting docs: debug-guide.md, ss-us-01-What-AI-produces-and-How.md
 ├── specs/                # spec-kit feature folders: specs/[feature-id]-[slug]/spec.md, plan.md, ...
-├── tests/                # Quality Step artifacts, mirrors specs/: tests/[feature-id]-[slug]/test_cases.md, test_[feature-id].spec.ts
+├── e2e/                  # Quality Step artifacts, mirrors specs/: e2e/[feature-id]-[slug]/test_cases.md, test_[abbr].spec.ts
 ├── aif-sdlc.md           # AI-First SDLC
 ├── SRS.md                # Software Requirements Specification
 ├── SDS.md                # Software Design Specification
@@ -70,7 +71,7 @@ pfm/
 ├── RUNBOOK.md            # Operational reference (home-LAN setup/deploy/troubleshoot)
 └── README.md
 ```
-`specs/` holds spec/plan/design artifacts (spec-kit); `tests/` holds the parallel Quality Step artifacts (`test_cases.md`, Playwright `.spec.ts`) for the same `[feature-id]-[slug]` — kept separate so design docs and generated test code don't mix in the same folder.
+`specs/` holds spec/plan/design artifacts (spec-kit); `e2e/` holds the parallel Quality Step artifacts (`test_cases.md`, Playwright `.spec.ts`) for the same `[feature-id]-[slug]` — kept separate so design docs and generated test code don't mix in the same folder.
 
 ### Dev Commands
 
@@ -84,7 +85,7 @@ cd backend && python manage.py makemigrations && python manage.py migrate   # sc
 cd frontend && npm run dev                                             # frontend dev server → :3000
 cd frontend && npm run build                                           # frontend type-check + build
 cd frontend && npm run lint                                            # frontend lint
-cd tests && npx playwright test                                        # e2e tests (needs both dev servers running)
+cd e2e && npx playwright test                                        # e2e tests (needs both dev servers running)
 ```
 
 ### Service URLs
@@ -100,4 +101,4 @@ cd tests && npx playwright test                                        # e2e tes
 <!-- High-frequency rules that affect almost every task but aren't prominent enough in the constitution -->
 - One Django app per domain entity under `backend/` (SDS §2.1) — a new entity gets a new app, not a new module inside an existing one
 - Feature/User Story IDs use the `{ABBR}-US-{NN}` convention (e.g. `WM-US-01`) — see constitution.md § User Story Conventions
-- Backend integration tests live in each app's `tests.py`; e2e coverage lives under `tests/[feature-id]-[slug]/test_[feature-id].spec.ts` (Quality Step), run via the Playwright runner at `tests/playwright.config.ts` (`cd tests && npm install && npx playwright test`) — requires the frontend/backend dev servers already running
+- Backend integration tests live in each app's `tests.py`; e2e coverage lives under `e2e/[feature-id]-[slug]/test_[abbr].spec.ts` (`[abbr]` = lowercase story prefix, e.g. `test_ss.spec.ts`; Quality Step), run via the Playwright runner at `e2e/playwright.config.ts` (`cd e2e && npm install && npx playwright test`) — requires the frontend/backend dev servers already running

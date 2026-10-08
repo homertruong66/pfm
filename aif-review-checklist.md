@@ -2,6 +2,8 @@
 
 > Use this after Claude produces an artifact at each step.
 > Your job is to catch what Claude gets wrong (not follow `constitution.md`) — **not to redo the work**.
+>
+> PFM is a solo/personal project: one person plays BA, SE and QC, there is no ticket tracker, and the only deployment target is the home-LAN host ([RUNBOOK.md](RUNBOOK.md)). The step definitions live in [aif-sdlc.md](aif-sdlc.md); this checklist reviews their output.
 
 - [Process Notes](#process-notes)
 - [Step 1 — Spec Step · BA Reviews](#step-1--spec-step--ba-reviews)
@@ -10,7 +12,6 @@
 - [Step 4 — Implementation Step · SE Reviews](#step-4--implementation-step--se-reviews)
 - [Step 5 — Deployment Step · SE Reviews](#step-5--deployment-step--se-reviews)
 - [Step 6 — Verification Step · QC Reviews](#step-6--verification-step--qc-reviews)
-- [Presentation to PO](#presentation-to-po)
 - [Experience Sharing](#experience-sharing)
   - [Spec Step (BA)](#spec-step-ba)
   - [Quality Step (QC)](#quality-step-qc)
@@ -19,40 +20,45 @@
 
 ## Process Notes
 
-- [ ] SDLC flow is followed in strict order: **Spec → Design → Quality → Implement → Deploy → Verification** — no step skipped or reordered
+- [ ] SDLC flow is followed in strict order: **Spec → Design → Quality → Implement → Deploy → Verification** — no step skipped or reordered (Quality may run in parallel with Implementation, per [aif-sdlc.md](aif-sdlc.md))
 - [ ] If implementation diverges from `plan.md`, the plan is redefined first — never deviate silently and patch the plan afterward
 - [ ] `spec.md` / `plan.md` are the artifacts under review here and do **not** need to match `SDS.md` / `SRS.md` verbatim — if `SDS.md` / `SRS.md` violate a constitution principle, that violation is not propagated into `spec.md` / `plan.md`
-- [ ] Step 6 Verification is carried out directly on the existing Jira Story/US ticket — no separate verification ticket is created
+- [ ] Step 6 closes the User Story directly — no separate verification ticket, because no tracker is used; a US is Done when it meets the [Definition of Done](constitution.md#definition-of-done) (DOD-01..05)
 - [ ] Cross-document inconsistency (SRS ↔ SDS ↔ code) is treated as a **defect, not a backlog item** ([constitution.md § Cross-Document Consistency](constitution.md#cross-document-consistency))
+- [ ] Every step branch is created from an up-to-date `develop` (never from another step's branch) and merged back into `develop` before the next step's branch is created
 
 ---
 
 ## Step 1 — Spec Step · BA Reviews
 
-**Artifacts:** `spec.md` in `specs/[feature-id]-[slug]/` (ex: `specs/003-signal-configuration/`) + SRS §7 update
+**Artifacts:** `spec.md` in `specs/[feature-id]-[slug]/` (ex: `specs/002-wallet-management/`) + SRS §7 update
 
 ### Git
-- [ ] Branch is checked out: `feature/NNN-xx-us-NN-spec-step` (ex: `feature/234-pp-us-01-spec-step`)
+- [ ] Branch is checked out: `feature/[us-id-lowercase]-spec-step` (ex: `feature/wm-us-01-spec-step`)
 
 ### SRS §7 Entry
 - [ ] Story statement is under the correct Feature section (`§7.x`)
+- [ ] Story heading is `#### [§7.x.N] [XX-US-NN]: [Title] ([ACTOR])`
 - [ ] Story format is correct: **As a/an** [actor], **I want to** [goal] **so that** [reason]
-- [ ] Actor matches one of the roles defined in [SRS §1.5 Roles and Actors](SRS.md#15-roles-and-actors): `CUSTOMER | SYSTEM | BRAND_ADMIN | ADMIN`
-- [ ] **No ACs in SRS** — only the story statement; AC block is detailed in `spec.md`
+- [ ] Actor is one of the roles defined in [SRS §1.5 Roles and Actors](SRS.md#15-roles-and-actors): `ADMIN | USER` (a User may hold both)
+- [ ] **No ACs in SRS** — only the story statement; the AC block lives in `spec.md`
 - [ ] Spec link (`> Spec: [...]`) appears **once** on the Feature header (`§7.x`), not under the US entry
 - [ ] SRS Table of Contents is updated to include the new US entry
 
 ### `spec.md` Content
 - [ ] All acceptance criteria provided in the prompt are present in `spec.md`, cited as `AC-NN` / `EC-NN` (per `.specify/templates/testcase-template.md`) — not `FR-NNN`/`AS-N`/`SC-NNN`, which belong to the FR/Success-Criteria tables, not the AC citation shape
 - [ ] Every AC describes a **testable, observable outcome** — not an implementation detail
-- [ ] No technology names, endpoint paths, DB field/table names, or LangGraph/provider internals leaked into ACs (those belong to `plan.md`) — per [constitution.md § Cross-Document Consistency](constitution.md#cross-document-consistency)
+- [ ] No technology names, endpoint paths, DB field/table names, serializer/model class names, or token formats leaked into ACs (those belong to `plan.md`) — per [constitution.md § Cross-Document Consistency](constitution.md#cross-document-consistency)
+- [ ] No banned vague words from `spec-template.md` (e.g. "fast", "user-friendly", "appropriate", "seamless")
+- [ ] The 7 mandatory Edge Case categories (empty/null, boundary, concurrency, access control, dependency timeout, multi-language/currency, AI error) were each scanned — any omitted category has an inline "N/A" justification
 - [ ] No Domain Objects, no ERD, no sequence diagrams, no pre-defined table fields present — `spec.md` stays conceptual; those belong to the Design step
-- [ ] Domain entities/terms match [SRS §2 CDM](SRS.md) verbatim — no synonyms (e.g. `BusinessOutcome`, not "outcome record") per [constitution.md § Cross-Document Consistency](constitution.md#cross-document-consistency)
-- [ ] `spec.md` contains exactly **one US** per block — heading includes the `(ACTOR)` suffix matching SRS §7 verbatim (see [Experience Sharing → Quality Step](#quality-step-qc) for the recurring drift here)
+- [ ] Domain entities/terms match [SRS §2 CDM](SRS.md) and the [constitution's Business Terminology](constitution.md#business-terminology) verbatim — no synonyms (e.g. `Wallet`, not "account"; `FinancialGoal`, not "Financial Goal")
+- [ ] `spec.md` contains exactly **one US** per block — heading includes the `(ACTOR)` suffix matching SRS §7 verbatim
+- [ ] `Status` in the spec header reflects reality (not left at `Draft` once the story ships)
 
 ### Traceability
 - [ ] This US can be traced to a CDM entity (SRS §2) or a Business Flow step (SRS §6) — per [constitution.md § Feature Derivation Method](constitution.md#feature-derivation-method)
-- [ ] If a new Domain Entity is introduced, SRS §2 is updated and the "Last synced" date is current
+- [ ] If a new Domain Entity is introduced, SRS §2 is updated, SDS §2.1 gets a traceability row in the same PR, and both "Last synced" dates are current
 - [ ] Story prefix and numbering follow [constitution.md § User Story Conventions](constitution.md#user-story-conventions) — uppercase initials of the Feature name, sequential with no gaps
 
 ---
@@ -62,34 +68,42 @@
 **Artifacts:** `plan.md` in `specs/[feature-id]-[slug]/` + SDS §5 update
 
 ### Git
-- [ ] Branch is checked out: `feature/NNN-xx-us-NN-design-step` (ex: `feature/235-pp-us-01-design-step`)
+- [ ] Branch is checked out: `feature/[us-id-lowercase]-design-step` (ex: `feature/wm-us-01-design-step`)
 
 ### Pre-flight Gaps
+- [ ] `plan.md` has a `### Pre-flight: Spec Review Findings` section for this US — gaps/ambiguities listed with a resolution, or an explicit "no gaps found" statement (never silently omitted)
 - [ ] Claude flagged zero spec gaps — or flagged gaps were resolved before `plan.md` was reviewed
 - [ ] If `plan.md` still has significant gaps or ambiguity after review, the work goes back to the Spec step rather than being patched forward
 - [ ] Design scope matches the US being designed — no scope creep into unrelated stories
 
 ### SDS §5 Entry
 - [ ] Plan link (`> Plan: [...]`) appears **once** on the Feature header (`§5.x`), not under a US sub-section
-- [ ] SDS Table of Contents is updated to include the new US sub-section, and stays 1:1 with the SRS §7 ToC per [constitution.md § User Story Conventions](constitution.md#user-story-conventions)
+- [ ] The SDS US sub-section (`§5.x.N`) contains **only** the Purpose field — ACs live in `spec.md`, flows/diagrams in `plan.md`
+- [ ] SDS Table of Contents is updated to include the new US sub-section, and stays 1:1 with the SRS §7 ToC (names and IDs identical, including any suffix such as `[MVP]`) per [constitution.md § User Story Conventions](constitution.md#user-story-conventions)
 
-### `plan.md` — Layer Architecture
-- [ ] Business logic lives in the **Services** layer (`backend/app/services/`) — Routes stay thin (HTTP shape, DTO↔domain mapping, exception→`HTTPException`), Repositories stay pure SQL ([constitution.md § Layer Architecture](constitution.md#layer-architecture))
-- [ ] Services accept/return domain value objects and read models only — **never** DTOs ([constitution.md § Layer Architecture](constitution.md#layer-architecture))
-- [ ] New Postgres-owned tables get a **Repository**; external systems/infrastructure clients get a **Provider** — not conflated ([constitution.md § Layer Architecture](constitution.md#layer-architecture) — "Provider vs Repository rule")
-- [ ] ORM rows (`backend/app/models/entities/`, `Row` suffix) never leak past the Repository boundary — Services/Routes/Agents use `backend/app/models/domain/` only
-- [ ] Exception contract is followed: Repository raises `IntegrityError` → Service raises `ConflictError`/`NotFoundError`/`AuthError` → Route raises `HTTPException` ([constitution.md § Layer Architecture](constitution.md#layer-architecture))
-- [ ] Any BusinessOutcome-pipeline design change respects stage order (signal capture → trigger detection → plan generation → plan evaluation → step execution → outcome evaluation) — no stage bypassed, reordered, or merged without an explicit SDS amendment ([constitution.md § Agentic Pipeline Integrity](constitution.md#agentic-pipeline-integrity))
+### `plan.md` — Layered Architecture ([constitution.md § Layered Architecture](constitution.md#layered-architecture))
+- [ ] **AR-01** — Logic that spans more than one model, has a business rule beyond field validation, or has side effects is designed into a module-level service function (e.g. `transactions/services.py`); plain ownership-scoped CRUD stays in the View + Serializer
+- [ ] **AR-02** — Views only do HTTP binding, permission checks, ownership-scoped `get_queryset()` and delegation — no business logic
+- [ ] **AR-03** — No hand-written Repository class wrapping the Django ORM
+- [ ] **AR-04** — Serializers are the DTOs; `fields`/`read_only_fields` are explicit and aligned with the SDS §6.2 DTO Registry (never `'__all__'`, never `password` or other internal-only fields)
+- [ ] **AR-05** — Multi-model writes are wrapped in `transaction.atomic()` in the design
+- [ ] New entity → new Django app (one app per entity, SDS §2.1), with `models.py` / `serializers.py` / `views.py` / `urls.py` / `tests.py`
 
-### `plan.md` — Guardrails & Observability
-- [ ] Any new PEV/guardrail check is designed at **both** plan-evaluation time and step-execution time — not one layer only ([constitution.md § Guardrails Are Non-Negotiable](constitution.md#guardrails-are-non-negotiable))
-- [ ] HITL checkpoints use the `interrupt()`/`resume_graph()` cycle — no auto-approve or bypass path designed in ([constitution.md § Guardrails Are Non-Negotiable](constitution.md#guardrails-are-non-negotiable))
-- [ ] New pipeline events are designed to emit a structured JSON log entry (`timestamp`, `level`, `event_slug`, `session_id`, `trace_id`, payload) ([constitution.md § Observability First](constitution.md#observability-first))
-- [ ] Any Salesforce/CRM/SFMC data access is designed to go through DPS via MCP tool calls — no direct HTTP call to Salesforce APIs from OBMS code ([constitution.md § DPS as the Salesforce Integration Boundary](constitution.md#dps-as-the-salesforce-integration-boundary))
+### `plan.md` — API, Security & Observability
+- [ ] Endpoints are versioned under `/api/v1/`, use plural lowercase (kebab-case for multi-word) resource names, and follow the API-02 DRF-native response shape (no custom envelope) and API-04 status mapping
+- [ ] State transitions use explicit action endpoints (`POST …/{id}/close/`), never a generic `PATCH` (API-05)
+- [ ] Every protected endpoint states its authentication (JWT, API-07), role check (ADMIN / USER / both) and ownership scoping (AC-02/AC-03); anything public is on the documented public list or has a documented reason
+- [ ] Business-rule errors use SDS §6.6 catalogued codes (API-03); any new code is added to SDS §6.6 in the same change
+- [ ] List endpoints are paginated (API-06)
+- [ ] The Constitution Check table covers **Logging & Audit** (auth events and state-changing operations at `INFO`/`WARN`, no passwords/JWTs/financial data in logs) and Security Requirements (no secrets in source), not only the layering principles
+- [ ] Decisions with security impact (e.g. where tokens are stored on the client) are recorded with a rationale in Decisions & Rationale — not deferred to implementation
 
 ### `plan.md` — Technology & Complexity
-- [ ] No stack substitution outside [constitution.md § Technology Stack Constraints](constitution.md#technology-stack-constraints) (FastAPI, LangGraph, PostgreSQL, Qdrant, Elasticsearch) without a documented SDS §9 ADR entry
-- [ ] Any complexity beyond the current validated requirement (new infra, new abstraction before 3 similar call sites, multi-tenant groundwork) is logged in the plan's Complexity Tracking table with rationale ([constitution.md § Simplicity Over Premature Scale](constitution.md#simplicity-over-premature-scale))
+- [ ] No stack substitution outside [constitution.md § Technology Stack](constitution.md#technology-stack) (Django 6 / DRF / SimpleJWT / SQLite; Next.js 16 / React 19 / TypeScript / Tailwind v4) and no new core dependency without approval; no form/state/HTTP/icon/UI library added speculatively (FE-02, FE-04, FE-05)
+- [ ] Any complexity beyond the current validated requirement (new abstraction, new dependency, speculative generality) is logged in the plan's Complexity Tracking table with rationale ([constitution.md § Simplicity Over Premature Scale](constitution.md#simplicity-over-premature-scale))
+- [ ] Schema changes go through new Django migrations; no edit of a merged migration; additive changes preferred for SQLite (Technical Principle III)
+- [ ] Sequence diagrams follow the conventions in [aif-sdlc.md § Sequence Diagram Conventions](aif-sdlc.md#sequence-diagram-conventions): Happy → Alternative → Negative order, no DB queries, status codes only (no bodies or UI copy)
+- [ ] Technical Context and Project Structure describe the **current** repo (e.g. test tooling that already exists, files that already exist) — no stale "not yet created" notes
 
 ### Cross-Document Sync
 - [ ] If a new Domain Entity is introduced: SDS §2.1 traceability table is updated in the same edit
@@ -100,151 +114,154 @@
 
 ## Step 3 — Quality Step · QC Reviews
 
-**Artifacts:** `test_cases.md` + `test_[feature-id]-[slug].spec.ts` (ex: `test_003-signal-configuration.spec.ts`) in `specs/[feature-id]-[slug]/` and `testing/[feature-id]-[slug]/` respectively
+**Artifacts:** `test_cases.md` + `test_[abbr].spec.ts` in `e2e/[feature-id]-[slug]/` (ex: `e2e/002-wallet-management/`) — **not** under `specs/`, which holds planning artifacts only
 
 ### Git
-- [ ] Branch is checked out: `feature/obms-NNN-xx-us-NN-quality-step` (ex: `feature/obms-236-pp-us-01-quality-step`)
+- [ ] Branch is checked out: `feature/[us-id-lowercase]-quality-step` (ex: `feature/wm-us-01-quality-step`)
 
 ### `test_cases.md` — Coverage
 - [ ] At least **one test case per acceptance criterion** in `spec.md`
-- [ ] Unhappy paths covered: validation errors, rejected states, guardrail violations
+- [ ] Unhappy paths covered: validation errors, rejected states, wrong role / not-owner (`403`/`404` per AC-03), unauthenticated (`401`)
 - [ ] Edge cases covered: boundary values, empty/null inputs, concurrent or duplicate actions
+- [ ] Business Rules (SRS §2.4 BR-xx) the US touches each have a test case
 - [ ] `[BOTH]` ACs have **both** an integration TC (API error code) and an e2e TC (inline error message) — a `[BOTH]`/`[UI]` AC with an empty E2E column, or one whose e2e doesn't demonstrate every facet its integration TC(s) cover, is a defect (note as "e2e N/A: [reason]" if genuinely not applicable)
 - [ ] Audit-log and auth-only ACs are `[API]`-only — no e2e case required
+- [ ] A test case's **Given** describes a state the system can actually be put in today; where a proxy is used (e.g. a missing `Role` entity), the TC says so and the Coverage Matrix does not present the AC as fully covered
 
 ### `test_cases.md` — Structure
+- [ ] Per-story heading `## [PREFIX]-US-NN: [Title] ([ACTOR])` is present and matches SRS §7 verbatim
 - [ ] Every TC-NN has all six fields: **US, Given, When, Then, AC reference, Type**
 - [ ] TC numbers are sequential with **no gaps**, continuing from the last TC-NN in the file
 - [ ] New TCs are appended — existing TCs from prior USs are not modified or removed
 - [ ] AC-IDs in the Coverage Matrix restart at `AC-01` per User Story — only unique within that US's own table, not globally
-- [ ] US heading carries the `(ACTOR)` suffix matching SRS §7 verbatim — this is the single most frequently missed rule in this repo's own history (29 headings across 6 features were found missing it in one pass; see [Experience Sharing → Quality Step](#quality-step-qc))
 - [ ] `**AC:**` cites only `AC-NN`/`EC-NN` — if the linked `spec.md` still uses `FR-NNN`/`AS-N`/`SC-NNN`, that's a `spec.md` defect to flag upstream, not something to silently paper over in `test_cases.md`
+- [ ] Links back to `spec.md` use a relative path (`../../specs/[feature-id]-[slug]/spec.md`)
 
 ### Playwright Code — Integration Tests
 - [ ] Entity ID extracted from **POST response directly** (`const { id } = await res.json()`) — never from a GET list
-- [ ] Validation error assertions use `expect([400, 422]).toContain(res.status)`
+- [ ] Validation error assertions are exact enough to prove the right failure (field-level key for `400`, generic body for `401`) — and use `[400, 422]` only where the endpoint can legitimately return either
 - [ ] Each test creates all required data **fresh inside the test** — missing reference data is seeded via a helper at test start, never skipped
-- [ ] One `test.step()` per API call in the TC's flow (not just the final GET) — no bare `if (...) return` guard; use `test.skip(cond, reason)` inside the step instead
+- [ ] No bare `if (...) { assertion }` guard that lets a test pass without asserting — use `test.skip(cond, reason)` instead
+- [ ] Seed data is created through endpoints/paths the SRS actually allows (see SRS §7.2: User accounts are created by an ADMIN, no self-service registration)
 
 ### Playwright Code — E2E Tests
-- [ ] Selectors use **ID first** (`#id`), then text, then role
-- [ ] Custom dropdowns handled as: click trigger → `[role="option"]:has-text("Label")`
-- [ ] Filter panel not toggled manually — `#search-*` / `#btn-search` selectors used directly
+- [ ] Selectors use **ID first** (`#id`), then text, then role; IDs follow NC-04 ([aif-sdlc.md § UI Element ID Contract](aif-sdlc.md#step-4--implementation-step))
+- [ ] Custom dropdowns (once they exist) handled as: click trigger → `[role="option"]:has-text("Label")`
+- [ ] Filter panels (once they exist) are not toggled manually — `#search-*` / `#btn-search` selectors used directly
 - [ ] After API-creating an item: filter by name **before** clicking row action buttons (pagination)
 - [ ] Text locators scoped to the table container (`#table-x`) to avoid matching hidden/mobile duplicates
 - [ ] All required fields are filled before testing an invalid field (client-side validation runs first and would otherwise mask the case under test)
 - [ ] Error assertions check **content** (`toContainText("exact text")`), not just visibility
-- [ ] Access-denied messages use `waitFor({ state: 'visible' })` (RoleGuard shows inline, no redirect)
-- [ ] Steps/screenshots present for `speckit-test-report`: one `test.step('<action> — Expected: <result>', ...)` per action, one screenshot via `testInfo.attach()`, asserted field scrolled into view first
+- [ ] Access-denied messages (inline, no redirect) use `waitFor({ state: 'visible' })`
+- [ ] Each test's assertions match its TC's **Then** — e.g. "lands on the Dashboard" and "token is stored" are asserted if the TC says so, not just "URL changed"
+- [ ] Screenshots via `testInfo.attach()`, labelled `TC-XX [before/after/step N] — description`; none for integration TCs
 
 ### Playwright Code — General
-- [ ] All test-created records are prefixed: `TestQC-[entity]-${Date.now()}`
-- [ ] Existing helpers are **reused**, not duplicated
-- [ ] New Playwright tests are **appended** to the existing `.spec.ts` under `testing/[feature-id]-[slug]/` — existing tests are untouched, and no stray copy exists under `specs/` (planning artifacts only)
+- [ ] All test-created records are prefixed: `TestQC-[entity]-${Date.now()}`, and created in a way that can be cleaned up (or the leftover data is acknowledged in the report)
+- [ ] Existing helpers are **reused**, not duplicated; unused parameters/return values are not left behind
+- [ ] New Playwright tests are **appended** to the existing `.spec.ts` under `e2e/[feature-id]-[slug]/` — existing tests are untouched, and no stray copy exists under `specs/`
+- [ ] Spec file name follows the convention in [aif-sdlc.md](aif-sdlc.md) (`test_[abbr].spec.ts`) and comments in the file/config describe where it actually lives
 
 ---
 
 ## Step 4 — Implementation Step · SE Reviews
 
-**Artifacts:** `tasks.md`, code diff, pre- and post-`/speckit.analyze` reports
+**Artifacts:** `tasks.md`, code diff, pre- and post-`/speckit-analyze` reports
 
 ### Git
-- [ ] Branch is checked out: `feature/NNN-xx-us-NN-implementation-step` (ex: `feature/237-pp-us-01-implementation-step`)
+- [ ] Branch is checked out: `feature/[us-id-lowercase]-implementation-step` (ex: `feature/wm-us-01-implementation-step`)
 
-### Pre-implementation (`/speckit.analyze` report)
-- [ ] **All Critical and High findings resolved** before `/speckit.implement` was run
+### Pre-implementation (`/speckit-analyze` report)
+- [ ] **All Critical and High findings resolved** before `/speckit-implement` was run
 - [ ] `tasks.md` covers every AC in `spec.md` and every component in `plan.md`
+- [ ] `tasks.md` phase order reflects real dependencies (e.g. test tooling needed to verify a checkpoint is set up before the checkpoint, not appended after)
 
-### Code Diff — Layering & Boundaries
-- [ ] Business logic lives in `backend/app/services/` only — Routes (`backend/app/api/`) contain only HTTP binding, validation delegation, service call, response formatting ([constitution.md § Layer Architecture](constitution.md#layer-architecture))
-- [ ] Repositories (`backend/app/repositories/`) contain pure SQL via `AsyncSession`, one per owned table, no business logic
-- [ ] Services never accept/return DTOs — only domain value objects (`CreateX`/`UpdateX`) and read models
-- [ ] New wiring goes through `backend/app/dependencies.py` (`get_*_repo`, `get_*_service`) — Routes import services only, never repos directly
-- [ ] No Salesforce-specific logic or credentials in OBMS core code — all such access goes through DPS/MCP tool calls in `tools.py`
-- [ ] New API endpoints have a route in `api/routes.py`/`api/admin_routes.py`, Pydantic request/response models, and at least one integration test ([constitution.md § AI-First SDLC Workflow](constitution.md#aif-sdlc-workflow))
-- [ ] Any `observe.py` guardrail change is accompanied by a SRS §6.4 update **before** merge ([constitution.md § AI-First SDLC Workflow](constitution.md#aif-sdlc-workflow))
-- [ ] `plan_store`-style raw-psycopg2 access is not replicated for new tables — new tables use the standard Repository/`AsyncSession` pattern
+### Code Diff — Backend (Django / DRF)
+- [ ] Views are thin (AR-02); non-trivial logic lives in a service function (AR-01) wrapped in `transaction.atomic()` where it writes more than one model (AR-05); no hand-rolled Repository (AR-03)
+- [ ] Every View's `get_queryset()` filters by the authenticated User, and role-restricted endpoints use a DRF permission class — `401` unauthenticated, `403` wrong role, `404` not-owned (AC-02/AC-03)
+- [ ] Serializers list explicit `fields` / `read_only_fields`, validate required fields, uniqueness, referential ownership (VL-03), date ranges (VL-04) and positive amounts (VL-05)
+- [ ] State transitions are explicit action endpoints, not generic `PATCH` (API-05); list endpoints paginate (API-06, `page_size` capped if exposed)
+- [ ] Semantic business errors use catalogued SDS §6.6 codes (API-03)
+- [ ] Models/tables follow NC-01/NC-03 (`db_table` set, snake_case, PascalCase singular model name); migrations are new files — no edit of a merged migration; no hand-edited `db.sqlite3`
+- [ ] Log statements follow Logging & Audit: auth events and state-changing operations at `INFO`/`WARN`, `401`/`403` at `WARN` with User ID; **no** passwords, JWTs or raw financial data logged
+- [ ] No secrets hard-coded; no new route added to the public set without a documented reason (Technical Principle V)
 
-### Code Diff — Agentic Pipeline (if touched)
-- [ ] No ad-hoc async chain added outside LangGraph nodes ([constitution.md § Agentic Pipeline Integrity](constitution.md#agentic-pipeline-integrity))
-- [ ] HUMAN-actor steps are intercepted via `interrupt()` before the executor — the executor is never called directly for a HUMAN step
-- [ ] PEV/guardrail re-validation exists at **both** plan-evaluation and step-execution time — removing either is treated as a breaking change requiring a SRS §6.4 amendment
-- [ ] Business-rule values (discount caps, frequency caps, scarcity thresholds, min score) are fetched from Brand Config, not hardcoded
+### Code Diff — Frontend (Next.js / React / TypeScript)
+- [ ] TypeScript only, no `any` without a justifying comment, all props/state/API shapes typed (Technical Principle IV); API field names mirror DRF `snake_case`
+- [ ] Interactive elements carry the `id`s listed in `plan.md`'s Element IDs table (NC-04 / FE-01); role-gated elements keep their IDs
+- [ ] Forms use native HTML5 + React state (FE-02) and give inline validation feedback, a loading/disabled state while submitting, and a success/error confirmation (FE-06)
+- [ ] Navigation/actions reflect the User's role(s) (FE-03) — and the backend still enforces the restriction independently
+- [ ] Calls go directly to `NEXT_PUBLIC_API_URL` with the Bearer token (FE-08); unexpected failures (network, `5xx`) are not reported as a business error such as "Invalid credentials"
+- [ ] No new dependency (state, form, HTTP, icon, UI library) was added without justification
 
 ### Test Coverage
-- [ ] At least one integration test covers the happy path for every new endpoint
-- [ ] Integration tests exist for key error cases: invalid input, wrong role/actor, conflict, not found
-- [ ] `backend/tests/test_*.py` added/updated for new service or repository logic, following existing test file naming (`test_[feature].py`)
+- [ ] At least one `APITestCase` covers the happy path for every new endpoint (DOD-05), run against Django's real throwaway test database — no mocked models/querysets ([Integration Testing Over Mocking](constitution.md#integration-testing-over-mocking))
+- [ ] Tests exist for key error cases: invalid input, unauthenticated (`401`), wrong role / not-owner (`403`/`404`), conflict, not found — and for state transitions where applicable
+- [ ] Tests live in the app's own `tests.py` and name the TC they implement (e.g. `test_tc05_…`)
+- [ ] `python manage.py test`, `npm run lint` and `npm run build` pass
 
-### Post-implementation (`/speckit.analyze` report)
+### Post-implementation (`/speckit-analyze` report)
 - [ ] No new Critical or High findings introduced by the implementation
 
 ### Document Sync (Definition of Done)
-- [ ] SRS §7 ACs refined if the implementation revealed edge cases ([constitution.md § AI-First SDLC Workflow](constitution.md#aif-sdlc-workflow))
-- [ ] SDS §5 design notes finalized — no "TBD"/"to be added" placeholders remaining
+- [ ] SRS §7 ACs refined if the implementation revealed edge cases ([constitution.md § AIF-SDLC Workflow](constitution.md#aif-sdlc-workflow))
+- [ ] SDS §5 design notes finalized — no "TBD"/"to be added" placeholders remaining; decisions made during implementation are written back into `plan.md`
 - [ ] SDS §2.1 traceability table updated with actual class/table names
 - [ ] SDS §4.3.3 DB schema updated with final column definitions
+- [ ] SDS §6.2 DTO Registry, §6.3 API Index and §6.4 API Specification updated for every new/changed endpoint (DOD-02)
 - [ ] SRS §2 / SDS §2 sync dates updated if any domain entity changed
+- [ ] RUNBOOK.md updated if ports, env vars or setup steps changed
 
 ---
 
 ## Step 5 — Deployment Step · SE Reviews
 
-**Artifact:** Deployed Test Environment — **Classic** (`develop`, port `8091`, no LLM/agent pipeline) or **Agentic** (`agentic-ai`, port `8081`, full stack) depending on which track the US belongs to
+**Artifact:** The app running on the home-LAN host ([RUNBOOK.md](RUNBOOK.md)) — backend `:8000`, frontend `:3000`, no Docker, no remote Test Environment
 
 ### Pre-deployment
-- [ ] Correct track chosen: admin/brand/site/signal-config CRUD-only work targets **Classic**; anything touching the LangGraph/agent pipeline targets **Agentic**
-- [ ] Backend tests pass with **zero failures** before any deployment step
-- [ ] No existing Flyway/Alembic-equivalent migration file was edited — schema changes go in a new migration
-- [ ] Implementation Step PR is confirmed merged into the correct deploy target branch (`develop` for Classic) before deploying — not just into a feature branch
+- [ ] Implementation Step branch is confirmed merged into `develop` — not just into a feature branch
+- [ ] `cd backend && python manage.py test` passes with **zero failures**
+- [ ] `cd frontend && npm run lint && npm run build` pass
+- [ ] No migration file already merged was edited — schema changes are in a new migration, and `python manage.py migrate` has been run on the host
 
 ### Deployment Health
-- [ ] Backend health endpoint returns 200 on the target environment's port (`8091` Classic / `8081` Agentic)
-- [ ] Frontend/SPA is reachable on the target environment
-- [ ] SDK hosting (`sdk/javascript/`) and Ecom Test Site containers are only checked/redeployed if those folders actually changed since the last deploy — they don't gate the main deploy otherwise
+- [ ] Both servers are (re)started bound to the LAN per RUNBOOK §6 (`runserver 0.0.0.0:8000`, `npm run dev -- -H 0.0.0.0`)
+- [ ] `GET http://<HOST_IP>:8000/health/` returns `200`
+- [ ] Frontend is reachable at `http://<HOST_IP>:3000` and backend at `http://<HOST_IP>:8000/api/v1/`
+- [ ] `ALLOWED_HOSTS` / `CORS_ALLOWED_ORIGINS` / `NEXT_PUBLIC_API_URL` cover the host's LAN IP (RUNBOOK §4–5)
 
 ### Handoff
-- [ ] Deployment Step task ticket is transitioned to **Done** in Jira
-- [ ] Test Env URL is confirmed and communicated to QC so they can begin Step 6
+- [ ] SE's report states deployment status, any failed tests, and the confirmed App URL so QC can begin Step 6 (a verification run against `localhost` instead of the LAN host is noted as a deviation, not silently accepted)
 
 ---
 
 ## Step 6 — Verification Step · QC Reviews
 
-**Artifact:** `test_report.md` + Playwright HTML report (via the `speckit-test-report` skill, not Playwright's built-in `--reporter=html`)
+**Artifact:** Verification report (e.g. `verification-report.md`) + Playwright HTML report, in `e2e/[feature-id]-[slug]/[xx-us-nn-keyword]/` (ex: `e2e/001-system-security/ss-us-01-login/`)
 
 ### Pre-flight
-- [ ] Deployment Step ticket is **Done** in Jira before starting
-- [ ] Jira Story transitioned to **In Review** — no separate verification ticket is created
-- [ ] Branch is checked out: `feature/obms-NNN-xx-us-NN-verification-step` (ex: `feature/obms-236-pp-us-01-verification-step`)
+- [ ] SE's Step 5 report shows deployment succeeded with no failing tests
+- [ ] Branch is checked out: `feature/[us-id-lowercase]-verification-step`
 
 ### Playwright Run
-- [ ] Test run targets the correct spec file (`testing/[feature-id]-[slug]/test_[feature-id]-[slug].spec.ts`) and filters to the correct US tag
+- [ ] Test run targets the correct spec file (`e2e/[feature-id]-[slug]/test_[abbr].spec.ts`) against the confirmed App URL (`BASE_URL`) and covers the correct US
 - [ ] Every **e2e test case** in `test_cases.md` for this US has a recorded result (PASS / FAIL / BLOCKED)
-- [ ] Every **integration test case** not covered by Playwright is manually verified and documented
+- [ ] Every **integration test case** not covered by Playwright is covered by an `APITestCase` run fresh, or manually verified and documented
+- [ ] Disposable `test-results/` output is removed after the run (it is git-ignored and regenerated each run)
 
 ### Verification Report
 - [ ] Report table includes every TC-NN with: Test Name, AC reference, Type, Result, Notes
-- [ ] HTML report is generated via the `speckit-test-report` skill and saved to `testing/[feature-id]-[slug]/[xx-us-nn-keyword]/index.html`
+- [ ] A PASS is only recorded for what the test actually proves — proxy-based or partially-asserted cases are noted in the Notes column, not reported as full coverage
+- [ ] The Playwright HTML report (with `testInfo.attach()` screenshots) is saved in the story's own `[xx-us-nn-keyword]/` folder — no intermediate `reports/` wrapper
 
 ### On Failure
-- [ ] A Bug ticket is raised with: summary `[BUG-DEV][US]: ...`, type=Bug, parent=Jira Epic, added to the active sprint
-- [ ] Bug ticket linked to the Jira Story so the Story shows "has bug(s)" (`inwardIssue: BUG_ID, outwardIssue: [Jira Story], linkType: "Bug"`)
-- [ ] A comment linking to the Bug ticket is added to the Jira Story
-- [ ] Jira Story remains **In Review** until the bug is fixed and re-verified
+- [ ] Each failure is listed with test case ID, AC reference, and observed vs expected behaviour
+- [ ] The US is **not** marked Done — it goes back to the Implementation Step, then Verification is re-run
 
 ### On Full Pass
 - [ ] All automated and manual checks are PASS
-- [ ] Jira Story stays **In Review** until every US in the Feature is verified — QC transitions to **Done** only then, not per-US
-
----
-
-## Presentation to PO
-
-- [ ] Recap the business flow from SRS before diving into details
-- [ ] State clearly what has been completed and where the project currently stands
-- [ ] Call out any open issues, risks, or blockers
-- [ ] Structure the presentation with 5W1H — What it is, why it was done, who the audience is, when it's used, where it's used, how it was implemented
+- [ ] The US meets the Definition of Done (DOD-01..05): SRS/SDS traceability, API contract documented, authorization verified, validation implemented, tests present
+- [ ] Spec `Status` and `plan.md`'s story status table are updated to reflect Done
 
 ---
 
@@ -252,31 +269,38 @@
 
 ### Spec Step (BA)
 
-1. **Two incompatible `spec.md` structural conventions coexist.**
-   - "Flat template" (shared `## User Scenarios & Testing` / `## Requirements` / `## Success Criteria` headers reused per story block, stories nested as `### User Story N`) and "per-story H2 block" (`## {ID}: Title` own H2 per story) are both in use across features, and some files (e.g. a trigger-point feature) mix both inside the same document via a stray mid-document H1.
-   - Check which convention the rest of the feature folder already uses before adding a new story block, and don't introduce a third shape.
+1. **`spec.md` can drift from the template while still looking complete.**
+   - Typical misses: banned vague words (e.g. "appropriate" slipped into an Independent Test), a `Status: Draft` left on a shipped story, and Edge Case categories dropped without an "N/A" note. Check these against `spec-template.md` rather than judging by eye.
 
 2. **AC/EC-only citation is blocked by upstream `spec.md` drift.**
-   - `.specify/templates/testcase-template.md` requires `**AC:**` to cite only `AC-NN`/`EC-NN`, but `spec.md` files may still use `FR-NNN`/`AS-N`/`SC-NNN`. If so, the root fix is migrating `spec.md` to the `AC-NN`/`EC-NN` shape first — don't ask QC to invent a citation format that doesn't exist yet in the spec.
+   - `.specify/templates/testcase-template.md` requires `**AC:**` to cite only `AC-NN`/`EC-NN`, but a `spec.md` may still use `FR-NNN`/`AS-N`/`SC-NNN`. If so, the root fix is migrating `spec.md` to the `AC-NN`/`EC-NN` shape first — don't ask QC to invent a citation format that doesn't exist yet in the spec.
 
-3. **Actor tag drift between SRS and spec/plan.**
-   - A story's actor list can drift out of sync between SRS §7 and its `spec.md`/`plan.md`/`test_cases.md` headings over time (e.g. a role rename applied in one document but not propagated). Verify the `(ACTOR)` suffix against [SRS §1.5 Roles and Actors](SRS.md#15-roles-and-actors) every time, not just on first authoring.
+3. **Actor tag and ToC drift between SRS and SDS/spec/plan.**
+   - A story's name or actor can drift out of sync between SRS §7, the SDS §5 ToC, and `spec.md`/`plan.md`/`test_cases.md` headings (e.g. a `[MVP]` suffix present in one ToC only). Verify the `(ACTOR)` suffix against [SRS §1.5](SRS.md#15-roles-and-actors) and both ToCs every time, not just on first authoring.
+
+### Design Step (SE)
+
+1. **Constitution Check tables list the principles that pass, not the ones that don't.**
+   - A plan can mark every row PASS while a constitution rule that the design never touched (e.g. Logging & Audit for the stock login view) is simply missing from the table. Scan the constitution's section list against the table instead of trusting the rows present.
+
+2. **Deferred decisions never get written back.**
+   - "An implementation-time detail" in `plan.md` (e.g. client-side token storage) is only safe if the implementation step records the outcome in the plan afterwards. Otherwise the shipped decision exists only in code.
 
 ### Quality Step (QC)
 
-1. **`(ACTOR)` heading suffix is the single most frequently missed rule.**
-   - A repo-wide audit found 29 US headings across 6 feature folders missing their SRS actor tag entirely. Check every `## [PREFIX]-US-NN: [Title] ([ACTOR])` heading against SRS §7 — don't assume it was carried over correctly from `spec.md`.
+1. **`test_cases.md` and the automation can go stale relative to a shipped code change.**
+   - Recurring pattern: a TC or its automation still asserts behaviour that was since changed. When reviewing a Coverage Matrix, check the TC's assertion against the **current** implementation, not just against `spec.md`'s wording — `spec.md` can itself be stale.
 
-2. **`test_cases.md`/`test_report.md` can go stale relative to a shipped code change.**
-   - Recurring pattern: a TC or its automation still asserts a behaviour, endpoint, or discount mechanism that was since renamed/retired by a same-week code change (e.g. a renamed intent-threshold endpoint, a retired discount mechanism, a superseded pixel threshold). When reviewing a Coverage Matrix, check the TC's assertion against the **current** implementation, not just against `spec.md`'s wording — `spec.md` can itself be stale.
+2. **A proxy test can look like coverage.**
+   - If a precondition cannot yet be represented (e.g. holding both ADMIN and USER roles before a `Role` entity exists), a test seeded with a stand-in may pass for every account. Require the TC and the Coverage Matrix to say so, and re-test properly once the entity exists.
 
-3. **A US ID can silently collide across features when SRS is restructured.**
-   - One feature's `test_cases.md` cited a US ID that SRS's own later restructure reassigned to a *different* story — the test artifacts were right and SRS was the stale side, but this is only caught by cross-checking the ID against the current SRS ToC, not by reading `test_cases.md` in isolation.
+3. **Coverage Matrix label errors and missing "e2e N/A" notes are easy to miss on a quick pass.**
+   - Confirm every `[BOTH]`/`[UI]` row actually has a non-empty, facet-matching E2E column.
 
-4. **Coverage Matrix label errors and missing "e2e N/A" notes are easy to miss on a quick pass.**
-   - Confirm every `[BOTH]`/`[UI]` row actually has a non-empty, facet-matching E2E column — an invalid label or a silently-blank E2E cell has shipped before without being caught until a dedicated audit.
+4. **Automation can assert less than its TC promises.**
+   - Compare each test's assertions line by line with the TC's **Then** (landing page, stored token, "no round trip") — a URL-changed check is not the same as "reaches the Dashboard".
 
 5. **Review AI-generated test cases against `spec.md`, not from memory.**
    - Compare every generated test case against `spec.md` directly; if a scenario is unclear, ask the AI to explain its interpretation before approving, and instruct it to remove both the test case and its automation code together when a case turns out redundant or out of scope.
 
-*Reference: [aif-sdlc.md](aif-sdlc.md) · [constitution.md](constitution.md) · [inconsistent-test-case-synthesis.md](inconsistent-test-case-synthesis.md)*
+*Reference: [aif-sdlc.md](aif-sdlc.md) · [constitution.md](constitution.md) · [RUNBOOK.md](RUNBOOK.md) · [aif-artifact-audit.md](aif-artifact-audit.md)*

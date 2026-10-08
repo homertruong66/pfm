@@ -1,20 +1,28 @@
-# Test Cases & Verification Template
+# Test Cases & Verification Report Template
 
 <!--
   ACTION REQUIRED: This is a reference template only — the title above is never copied into
   a real artifact. It documents the two QC-owned, SEPARATE files of the AIF-SDLC
   (aif-sdlc.md Step 3 — Quality Step, and Step 6 — Verification Step), each with its OWN
-  file header shown at the start of its Part below:
+  file header shown at the start of its Part below. Both live under the Test folder
+  e2e/[feature-id]-[slug]/ — NOT under specs/, which holds spec/plan/design artifacts only:
 
-    Part 1 — test_cases.md   lives in specs/[feature-id]-[slug]/, produced BEFORE Implementation.
-    Part 2 — test_report.md  lives in testing/[feature-id]-[slug]/, produced AFTER Deployment.
+    Part 1 — test_cases.md          e2e/[feature-id]-[slug]/test_cases.md
+             one file per Feature, produced BEFORE Implementation.
+    Part 2 — verification-report.md e2e/[feature-id]-[slug]/[xx-us-nn-keyword]/verification-report.md
+             one file per User Story (next to that US's Playwright index.html), produced AFTER
+             Deployment.
 
   Copy only the part relevant to the step you are running, starting from that part's own
-  "# Test Cases: ..." / "# Test Report: ..." header — never from this file's title, and
-  never merge the two into one document or one heading. Both parts accumulate over the
+  "# Test Cases: ..." / "# Verification Report: ..." header — never from this file's title,
+  and never merge the two into one document or one heading. Part 1 accumulates over the
   life of a Feature — every new User Story appends its own Coverage Matrix / Test Cases
-  block (Part 1) or metadata / Results / Summary block (Part 2); never renumber or remove a
-  previously written block for a different US.
+  block; never renumber or remove a previously written block for a different US. Part 2 is
+  a fresh file per US; a re-verification of the same US overwrites that US's report with the
+  latest run (state the date) rather than creating a second file.
+
+  PFM has no ticket tracker (aif-sdlc.md) — there are no Jira fields; git branches and the
+  SRS/SDS documents are the only source of truth for status.
 -->
 
 ---
@@ -23,9 +31,9 @@
 
 <!--
   ACTION REQUIRED: file header — copy verbatim as the top of test_cases.md, once per
-  feature (not once per US). [PREFIX] is the short feature code (e.g. DC, PM, BU).
-  Jira Epic is feature-level — fill it once here from the Quality Prompt's own [Jira Epic]
-  value, linked to its Jira issue URL. Never repeat it per US (see Jira Story below instead).
+  feature (not once per US). [PREFIX] is the short feature code (e.g. SS, WM, TM).
+  Spec/Plan links are relative to this file's own location (e2e/[feature-id]-[slug]/), so
+  they climb two levels into specs/[feature-id]-[slug]/.
   Created is written once, on first creation of this file, using today's date. Updated is
   overwritten every time this file changes (new US appended, or existing content revised) —
   today's date plus a one-line summary of what changed in this edit; it always reflects only
@@ -34,7 +42,7 @@
 
 # Test Cases: [FEATURE NAME] ([PREFIX])
 
-> **Spec:** [spec.md](spec.md) | **Plan:** [plan.md](plan.md)  
+> **Spec:** [spec.md](../../specs/[feature-id]-[slug]/spec.md) | **Plan:** [plan.md](../../specs/[feature-id]-[slug]/plan.md)  
 > **Created:** [YYYY-MM-DD] | **Updated:** [YYYY-MM-DD] — [one-line summary of the most recent change]
 
 <!--
@@ -48,14 +56,9 @@
 
 <!--
   ACTION REQUIRED: (ACTOR) must match the actor tag on this US's SRS §7 header verbatim —
-  a single actor (e.g. `(ADMIN)`, `(SYSTEM)`), a comma-separated list (e.g.
-  `(ADMIN, BRAND_ADMIN)`), or `(ALL)` per constitution.md's Access Control convention when
-  every RBAC role can perform it. SYSTEM/AI-actor stories are never `(ALL)`. Jira Story and
-  Jira Quality Task are both per-US — fill Jira Story from the Quality Prompt's own
-  [Jira Story] value for this US, and Jira Quality Task from the TASK_ID created/found for
-  this US's own Quality Step ticket (its summary is "OBMS-{us}: Quality Step" per
-  aif-sdlc.md Step 3) — both linked to their Jira issue URL. Do not reuse another US's
-  values here.
+  a single actor (e.g. `(USER)`) or a comma-separated list (e.g. `(ADMIN, USER)`), using
+  only the roles defined in SRS §1.5 (ADMIN, USER; one User may hold both). The heading is
+  per US — never omit it, and never reuse another US's heading.
 -->
 
 ### AC Classification *(optional — add when a label isn't self-evident)*
@@ -78,7 +81,7 @@
   ACTION REQUIRED — produce this table BEFORE finalising the test cases below it.
   AC-IDs restart at AC-01 for every User Story and are only unique within this US's own
   table — never globally unique across the file. When referencing an AC outside this
-  section (Jira comment, cross-US Note, PR description), prefix it with the US-ID, e.g.
+  section (cross-US Note, PR description, commit message), prefix it with the US-ID, e.g.
   `[PREFIX]-US-NN/AC-01`.
 
   Defect condition — resolve before proceeding, do not finalise with either open:
@@ -163,9 +166,13 @@
     needs its own e2e case, or an explicit "e2e N/A: [reason]" Note on the one covering
     it — one generic e2e per AC does not cover facets it doesn't itself demonstrate.
 
-  Playwright automation for e2e cases follows the Testing-Code-Rule in aif-sdlc.md
-  Step 3 (selector priority, seeding, step/screenshot conventions) — not duplicated here
-  since it governs the .spec.ts code, not this document's structure.
+  Playwright automation for e2e cases goes in e2e/[feature-id]-[slug]/test_[abbr].spec.ts
+  ([abbr] = the lowercase story prefix, e.g. test_ss.spec.ts) and follows the
+  Testing-Code-Rule in aif-sdlc.md Step 3 (selector priority, seeding, screenshot
+  conventions) — not duplicated here since it governs the .spec.ts code, not this
+  document's structure. Integration TCs are implemented as Django APITestCase tests in the
+  owning app's tests.py (constitution.md § Integration Testing Over Mocking), not in
+  Playwright.
 -->
 
 - [ ] Self-checked against [aif-review-checklist.md § `test_cases.md` — Structure](../../aif-review-checklist.md#test_casesmd--structure)
@@ -177,73 +184,54 @@
 
 ---
 
-## Part 2 — test_report.md (Verification Step)
+## Part 2 — verification-report.md (Verification Step)
 
 <!--
-  ACTION REQUIRED: file header — copy verbatim as the top of test_report.md, once per
-  feature (not once per US). Unlike Part 1, the parenthetical uses the feature-id
-  (e.g. 012-data-configuration), not the short [PREFIX] code.
+  ACTION REQUIRED: one file per User Story, saved next to that US's Playwright HTML report:
+  e2e/[feature-id]-[slug]/[xx-us-nn-keyword]/verification-report.md (e.g.
+  e2e/001-system-security/ss-us-01-login/verification-report.md). Produced after running the
+  Quality Step's Playwright automation (and the backend `python manage.py test`) against the
+  deployed app from aif-sdlc.md Step 5. Any TC marked Type: integration or e2e that
+  automation does NOT cover must be verified manually against the app, with the result
+  documented inline here.
 -->
 
-# Test Report: [FEATURE NAME] ([feature-id]-[slug])
+# Verification Report: [PREFIX]-US-NN [Story Title]
 
-> Verification results per User Story. Appended as each US is verified — do not modify or remove existing sections.
+**Date**: [YYYY-MM-DD]
+**App URL**: [http://<HOST_IP>:3000 — as confirmed by the Deployment Step; if the run used localhost instead, say so and why]
+**Playwright HTML report**: [index.html](index.html)
+
+## Results
+
+| TC-NN | Test Name | AC/EC | Type | Result | Notes |
+|-------|-----------|-------|------|--------|-------|
+| TC-01 | [short name] | AC-01 | integration | PASS / FAIL / BLOCKED | [only if not a plain PASS — e.g. a proxy-based test, a manual check, or a known gap; the column stays even when every row is blank] |
+
+[N/M in-scope test cases PASS. State FAIL / BLOCKED counts and cite which TC-NN each belongs to. List any AC/EC deliberately out of scope with the reason.]
+
+- [ ] Self-checked against [aif-review-checklist.md § Playwright Run](../../../aif-review-checklist.md#playwright-run)
+- [ ] Self-checked against [aif-review-checklist.md § Verification Report](../../../aif-review-checklist.md#verification-report)
+
+## Manual spot check *(optional — only for checks beyond automation)*
 
 <!--
-  ACTION REQUIRED: Produced after running the Quality Step's Playwright automation
-  against the deployed Test Environment for a given US. Any TC marked
-  Type: integration or e2e that automation does NOT cover must be verified manually
-  against the Test Environment, with the result documented inline here.
+  OPTIONAL: record anything exercised by hand against the live app (e.g. the real
+  db.sqlite3 rather than the throwaway test database), and what was restored afterwards.
 -->
 
-## [PREFIX]-US-NN: [Story Title] ([ACTOR])
-
-> **Suite:** `[Testing folder]/test_[feature-id]-[slug].spec.ts` ([describe-block name], N tests) | **HTML report:** `[Testing folder]/[xx-us-nn-keyword]/index.html`
+## Verdict
 
 <!--
-  ACTION REQUIRED: this metadata block is mandatory, not decorative — every verified US
-  carries it so a reader can re-run or re-locate the evidence without searching. Re-state
-  Test Env/Suite/HTML report even when they repeat the previous US's values in this file —
-  never write "same as above".
+  ACTION REQUIRED — per aif-sdlc.md Step 6:
+
+  If ALL automated and manual checks pass: state that the US is Done per constitution.md's
+  Definition of Done and walk DOD-01..05 one line each (DOD-03 may be N/A for a public
+  endpoint — say why). No ticket transition exists to perform.
+
+  If any AC/EC fails or is blocked: list each failure — TC-NN, AC/EC reference, observed vs
+  expected behaviour. Do NOT mark the US Done; hand the report back to the Implementation
+  Step (Step 4) and re-run this Verification Step.
 -->
 
-### Results
-
-| TC-NN | Test Name | AC | Type | Result | Notes |
-|-------|-----------|----|------|--------|-------|
-| TC-01 | [short name] | [PREFIX]-US-NN/AC-01 | e2e | PASS / FAIL / BLOCKED | [only if not a plain PASS — the column stays even when every row is blank] |
-
-- [ ] Self-checked against [aif-review-checklist.md § Playwright Run](../../aif-review-checklist.md#playwright-run)
-- [ ] Self-checked against [aif-review-checklist.md § Verification Report](../../aif-review-checklist.md#verification-report)
-
-### Summary
-
-<!--
-  ACTION REQUIRED: one short paragraph — pass/fail count, plus any context worth keeping
-  (an accepted known-bug FAIL with its bug ticket ID, a re-verification date, a coverage
-  caveat). This is the same substance as the Jira comment's one-liner in step 8 below —
-  write it once here and reuse it there, don't re-derive it from scratch twice.
--->
-
-[N/M PASS — one-line summary of scope and any accepted gaps, citing bug ticket IDs for accepted FAILs.]
-
-<!-- Append one such US block (metadata + Results + Summary) per User Story verified. Never modify or remove a previously appended block for a different US. -->
-
-<!--
-  ACTION REQUIRED — after producing the Results table for this US:
-
-  If ALL ACs for this US pass:
-  - Comment on the Jira Story: reuse the Summary paragraph above as the one-line pass-count
-    summary, plus a compact results table (short Test Name so it doesn't wrap in the Jira
-    comment pane), a link to this full report and the HTML report/screenshots, and any
-    accepted/known gaps (e.g. blocked checks) called out by TC ID with the reason.
-  - Leave the Jira Story In Review — QC transitions it to Done only once all
-    manual/e2e checks across every US in the Feature are complete.
-
-  If any AC fails or is blocked:
-  - List each failure: test case ID, AC reference, observed vs expected behaviour.
-  - Raise a Bug ticket linked to the Jira Story (type Bug, same Epic as parent,
-    description = Severity: [failing TC's Severity] / Pre-condition / Test data / Steps /
-    Expected Result / Actual Result).
-  - Comment the failure summary + Bug ticket link on the Jira Story.
--->
+[Verdict and DOD-01..05 summary.]

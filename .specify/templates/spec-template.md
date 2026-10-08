@@ -11,7 +11,7 @@ markdown previewers and silently disappears on render.
 
 METADATA (document level) — blockquote, in this order:
   Prefix, SRS, Created, Updated
-GRM section numbers: feature specs live in SRS §7 (Features and User Stories),
+SRS section numbers: feature specs live in SRS §7 (Features and User Stories),
 Business Flows in SRS §6. `N` is a placeholder for the subsection number — fill it in
 (e.g. `§7.5`, `§6.3`) and match the link anchor to it. Same for the `Feature group`
 value.
@@ -19,7 +19,7 @@ value.
 METADATA (per User Story) — blockquote, in this order:
   Feature group, and Enhancement to (sub-stories only)
 No `Actor` field — actor lives ONLY in the `As a` statement, written as inline code
-(`ADMIN`, `HR`, ...) so it stays grep-able. The statement is the single source of
+(`ADMIN`, `USER`, ...) so it stays grep-able. The statement is the single source of
 truth for actor — list every actor that triggers this behavior, never "etc." or
 "and others".
 
@@ -41,7 +41,7 @@ EDGE CASE DEFAULT LABELS: the 7 EC rows below the template's EC-01..EC-07 (empty
 boundary values, concurrency, access control, dependency timeout, multi-language/
 currency, AI error) are the MANDATORY categories to scan for every US — do not skip a
 category. The wording of each short desc IS adaptable to the feature's context (e.g.
-"Empty skill list" instead of "Empty/null state" reads better for Skill Management) as
+"Empty wallet list" instead of "Empty/null state" reads better for Wallet Management) as
 long as it still maps to that category. Don't feel locked into the literal default text.
 
 ACCEPTANCE CRITERIA / EDGE CASES
@@ -75,18 +75,18 @@ ACCEPTANCE CRITERIA / EDGE CASES
     Only the final line (ending in a period) skips the trailing spaces. Example
     with a multi-condition clause:
       - **AC-01 — Duplicate code with active dependents:**  
-        **Given** an existing skill `code` that is referenced by at least one employee record,  
-          **and** the skill status is `Active`,  
-        **When** an `ADMIN` attempts to delete the skill,  
+        **Given** an existing Wallet `name` that is referenced by at least one Transaction,  
+          **and** the Wallet status is `Active`,  
+        **When** a `USER` attempts to delete the Wallet,  
           **and** confirms the deletion warning,  
-        **Then** deletion is blocked and an error listing the reference count is shown,  
-          **and** the skill remains in the catalog unchanged.
+        **Then** deletion is blocked and an error listing the Transaction count is shown,  
+          **and** the Wallet remains in the list unchanged.
   - AC states WHAT only — no table names, column names, API paths, cache names,
     function names, or config enum names. Those belong in plan.md.
   - Banned vague words: fast, user-friendly, appropriate, relevant, seamless,
     optimal, as needed, if possible
   - No verify checkbox in spec.md — verification status lives in test_cases.md only
-  - Cross-references always use the full, zero-padded ID: `EM-US-01.1 AC-02`,
+  - Cross-references always use the full, zero-padded ID: `WM-US-01.1 AC-02`,
     never `US5` or `AC2`
 
 CRUD / LIFECYCLE

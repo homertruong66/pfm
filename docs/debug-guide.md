@@ -2,7 +2,7 @@
 
 A walkthrough for setting real breakpoints across the stack and watching one login request pause on both sides of the network boundary.
 
-Debug configs used below live in [.vscode/launch.json](.vscode/launch.json):
+Debug configs used below live in [.vscode/launch.json](../.vscode/launch.json):
 - **BE: Django (manage.py runserver)** — runs the backend under the debugger, `justMyCode: false` so breakpoints work inside installed library code too, not just this repo's own files.
 - **FE: Chrome against localhost:3000/login** — opens a debuggable Chrome window at the login page.
 - **Debug FE + BE together** — a compound that starts both at once.
