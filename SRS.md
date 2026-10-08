@@ -635,41 +635,13 @@ Ensures secure access to the System by allowing Users to log in and log out safe
 
 ### 7.2 User Management (UM)
 
+> Spec: [specs/002-user-management/spec.md](specs/002-user-management/spec.md)
+
 Provides User account provisioning and lifecycle oversight by the ADMIN, and profile management by the User. There is no self-service registration (§1.6 Out of Scope) — a User account can only be created by the ADMIN.
 
 #### 7.2.1 UM-US-01: Create a User (ADMIN)
 
 **As an** ADMIN, **I want to** create a new User account for a family member **so that** they can log in and use the PFM application.
-
-**Acceptance Criteria:**
-
-```gherkin
-Background:
-  Given the ADMIN is on the "Create User" screen
-
-Scenario: Create a User account successfully
-  When the ADMIN enters full name "Homer Truong"
-    And the ADMIN enters email "homer@example.com"
-    And the ADMIN enters an initial password
-    And the ADMIN taps "Create"
-  Then the System creates a new User account
-    And the System shows message "User account created"
-    And the new User can log in with the assigned email and initial password
-
-Scenario: Reject creation when required fields are missing
-  When the ADMIN taps "Create" without entering email
-  Then the System does not create a new User account
-    And the System shows validation error "Email is required"
-
-Scenario: Reject creation when account already exists
-  Given an existing User account with email "homer@example.com"
-  When the ADMIN enters full name "Homer Truong"
-    And the ADMIN enters email "homer@example.com"
-    And the ADMIN enters an initial password
-    And the ADMIN taps "Create"
-  Then the System does not create a new User account
-    And the System shows error "Account already exists"
-```
 
 #### 7.2.2 UM-US-02: Update a User Profile (USER)
 
