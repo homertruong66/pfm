@@ -169,17 +169,20 @@ The first time each server starts, Windows may prompt to allow the connection �
 
 ## 9. Creating family member accounts (ADMIN task)
 
-Each USER needs their own account so their Wallets, Transactions, Budgets, and Goals stay private (SRS §4.4.2). Options:
+Each USER needs their own account so their Wallets, Transactions, Budgets, and Goals stay private (SRS §4.4.2). There is no self-service sign-up (SRS §1.6) — only an ADMIN can create accounts (UM-US-01):
 
-- Have each family member self-register via the app's sign-up flow (`POST /api/v1/users/`), or
-- The ADMIN creates a Django superuser for backend administration only:
+1. Create the first ADMIN once, after `python manage.py migrate`. `createsuperuser` also grants the `ADMIN` role in PFM:
 
-  ```bash
-  cd backend
-  python manage.py createsuperuser
-  ```
+   ```bash
+   cd backend
+   python manage.py createsuperuser
+   ```
 
-  Then manage accounts via the Django admin panel at `http://<HOST_IP>:8000/admin`.
+2. Log in as that ADMIN, open `http://<HOST_IP>:3000/users/new`, and create each family member's account (full name, email, initial password). They log in with that email and password. (The ADMIN can also call `POST /api/v1/users/` with a Bearer token.)
+
+The Django admin panel at `http://<HOST_IP>:8000/admin` remains available to superusers only.
+
+**Running the e2e tests** (`cd e2e && npx playwright test`) needs an existing ADMIN account: set `E2E_ADMIN_EMAIL` and `E2E_ADMIN_PASSWORD` in the shell first. The suites create their own throwaway `TestQC-` users through that ADMIN.
 
 The ADMIN role is for app/account setup only — it does not grant visibility into other family members' financial data.
 

@@ -16,7 +16,7 @@ file — there is no separate `research.md`, `data-model.md`, `contracts/`, or `
 
 | Story | Status | Last updated |
 |---|---|---|
-| UM-US-01: Create a User (ADMIN) | Designed | 2026-10-08 |
+| UM-US-01: Create a User (ADMIN) | Designed & implemented | 2026-10-08 |
 | UM-US-02 .. UM-US-06 | Not yet designed | — |
 
 ---
@@ -216,14 +216,14 @@ sequenceDiagram
 
 | Element | ID | Status | File |
 |---------|----|--------|------|
-| Full name input | `user-full-name` | **Missing** | `frontend/src/app/users/new/page.tsx` |
-| Email input | `user-email` | **Missing** | `frontend/src/app/users/new/page.tsx` |
-| Initial password input | `user-password` | **Missing** | `frontend/src/app/users/new/page.tsx` |
-| Field error (per field) | `user-full-name-error`, `user-email-error`, `user-password-error` | **Missing** | `frontend/src/app/users/new/page.tsx` |
-| Create button | `btn-submit-user` | **Missing** | `frontend/src/app/users/new/page.tsx` |
-| Success message | `message-success` | **Missing** | `frontend/src/app/users/new/page.tsx` |
-| Error message | `message-error` | **Missing** | `frontend/src/app/users/new/page.tsx` |
-| Access-denied message | `message-access-denied` | **Missing** | `frontend/src/app/users/new/page.tsx` |
+| Full name input | `user-full-name` | Done | `frontend/src/app/users/new/page.tsx` |
+| Email input | `user-email` | Done | `frontend/src/app/users/new/page.tsx` |
+| Initial password input | `user-password` | Done | `frontend/src/app/users/new/page.tsx` |
+| Field error (per field) | `user-full-name-error`, `user-email-error`, `user-password-error` | Done | `frontend/src/app/users/new/page.tsx` |
+| Create button | `btn-submit-user` | Done | `frontend/src/app/users/new/page.tsx` |
+| Success message | `message-success` | Done | `frontend/src/app/users/new/page.tsx` |
+| Error message | `message-error` | Done | `frontend/src/app/users/new/page.tsx` |
+| Access-denied message | `message-access-denied` | Done | `frontend/src/app/users/new/page.tsx` |
 
 ---
 
@@ -260,7 +260,7 @@ sequenceDiagram
 | T4 | `UserAlreadyExists` (`409`, code `USER_ALREADY_EXISTS`) and `create_user(full_name, email, password)` — atomic, case-insensitive duplicate check, `IntegrityError` → same error, assigns `USER` role, `username` = email | `backend/users/exceptions.py`, `backend/users/services.py` |
 | T5 | `UserSerializer`: explicit `fields` (`id`, `full_name`, `email`, `is_active`, `created_at`, write-only `password`), required/invalid/length messages from spec, no `UniqueValidator`, `create()` delegates to the service | `backend/users/serializers.py` |
 | T6 | `UserListCreateView` → `UserCreateView` (`CreateAPIView`, `IsAdmin`); route name `user-create`; remove the public list; leave `UserDetailView` unchanged | `backend/users/views.py`, `backend/users/urls.py` |
-| T7 | Register `User`/`Role` in the Django admin (optional convenience for the ADMIN) — **skipped**, no AC needs it | — |
+| T7 | ~~Register `User`/`Role` in the Django admin~~ — skipped, no AC needs it | — |
 | T8 | `APITestCase`s TC-01..TC-17 for UM-US-01 plus role/superuser tests | `backend/users/tests.py`, `backend/roles/tests.py` |
 | T9 | Re-base SS-US-01 backend tests: create fixtures with `User.objects.create_user`, not the (now ADMIN-only) endpoint | `backend/users/tests.py` |
 | T10 | Create User page with the Element IDs above, role-agnostic, `401` → `/login`, `403` → `#message-access-denied` | `frontend/src/app/users/new/page.tsx` |
@@ -299,7 +299,7 @@ sequenceDiagram
 | AC-01/AC-02 Role access, backend enforces | PASS | `IsAdmin` (D4); `401` vs `403` |
 | AC-04 Field-level response filtering | PASS | `password` never in a response (AC-05) |
 | API-01/API-02/API-04 | PASS | `/api/v1/users/`, DRF-native shape, `201/400/401/403/409` |
-| API-03 Business errors use SDS §6.6 codes | OPEN → resolved in implementation | `USER_ALREADY_EXISTS` added to §6.6 |
+| API-03 Business errors use SDS §6.6 codes | PASS (resolved in implementation) | `USER_ALREADY_EXISTS` added to SDS §6.6 |
 | NC-01/NC-03 Model & DB naming | PASS | `Role` / `roles`, `db_table` explicit, snake_case |
 | NC-04/FE-01 Element IDs | PASS | see Element IDs |
 | NC-05 Enum casing | JUSTIFIED EXCEPTION | `Role.code` upper-case — D2, Complexity Tracking |
@@ -309,7 +309,7 @@ sequenceDiagram
 | Logging & Audit | PASS | `create_user` logs success at `INFO` and a rejected duplicate at `WARN` with the acting ADMIN's id, never the email's password or tokens; `401`/`403` come from DRF defaults (see T4) |
 | Security Requirements | PASS | no credentials in a migration (D3); password hashed by `create_user` |
 | III Migrations are the schema source | PASS | new migrations only; none edited |
-| DOD-02 API contract documented | OPEN → resolved in implementation | SDS §6.2–§6.6 (T12) |
+| DOD-02 API contract documented | PASS (resolved in implementation) | SDS §6.2–§6.6 updated (T12) |
 
 No unjustified violations.
 

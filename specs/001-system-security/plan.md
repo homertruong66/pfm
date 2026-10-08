@@ -135,7 +135,7 @@ sequenceDiagram
 
 #### Quickstart Validation
 
-**Prerequisites**: Backend running (`cd backend && .venv\Scripts\activate && python manage.py runserver`); at least one active User account exists (`python manage.py createsuperuser` or `POST /api/v1/users/`).
+**Prerequisites**: Backend running (`cd backend && .venv\Scripts\activate && python manage.py runserver`); at least one active User account exists (an ADMIN via `python manage.py createsuperuser`, then the account under test created by that ADMIN with `POST /api/v1/users/` — UM-US-01; the endpoint is no longer public).
 
 - **AC-01 — successful login issues credentials**:
   `curl -X POST http://localhost:8000/api/v1/auth/login/ -H "Content-Type: application/json" -d '{"email": "<existing-active-user-email>", "password": "<correct-password>"}'`
