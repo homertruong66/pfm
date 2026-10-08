@@ -938,9 +938,12 @@ Authenticates an ADMIN or USER by email and password and issues a JWT access/ref
 
 ### 5.2 User Management (UM)
 
+> Plan: [specs/002-user-management/plan.md](specs/002-user-management/plan.md)
+
 #### 5.2.1 UM-US-01: Create a User (ADMIN)
 
-*(Details to be defined)*
+**Purpose**
+Lets the ADMIN create the account of a family member with a full name, an email and an initial password, so that person can log in and use PFM as a USER. There is no self-service registration, so this is the only way a new account comes into existence. The account is created active and holds the USER role; a duplicate email (in any capitalization) is rejected as an existing account. Creation is a single all-or-nothing operation.
 
 #### 5.2.2 UM-US-02: Update a User Profile (USER)
 

@@ -69,7 +69,7 @@ User Management gives the household's `ADMIN` control over who can use the PFM a
     &nbsp;&nbsp;**and** the System shows "Full name is required" or "Password is required" for the empty field.
 - **EC-04 — Invalid email format:**  
   **Given** the `ADMIN` is on the Create User screen,  
-  **When** they enter an email that is not a valid email address and confirm the creation,  
+  **When** they enter an email that is not a valid email address, or is longer than 150 characters, and confirm the creation,  
   **Then** the System does not create a User account,  
     &nbsp;&nbsp;**and** the System shows the validation error "Enter a valid email address".
 - **EC-05 — Initial password too short:**  
