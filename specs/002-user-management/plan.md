@@ -36,7 +36,7 @@ Reviewed `spec.md` and the existing implementation (`backend/users/`, `backend/c
 | G5 | **Gap** | AC-04 | The story does not say which role the new account gets, yet SDS §4.3.3 requires every User to have at least one Role. | Always `USER`; granting `ADMIN` is declared out of scope in the spec. |
 | G6 | **Gap** | EC-04 | The `username` column is limited to 150 characters but `email` allows 254, so a long email could not be used as the `username`. | Cap the email at 150 characters and report "Enter a valid email address" (spec EC-04 wording amended in this step). |
 | G7 | **Gap** | — | SDS §2.3.2 (line ~416) says an `InvestmentPortfolio` is created when the ADMIN creates a User. That app is not scaffolded and no AC covers it. | Deferred — the `create_user` service function is the single place to add it when `investment_portfolios` exists. Not part of this story. |
-| G8 | **Gap** | EC-01, EC-02 | **Existing code contradicts the SRS.** `POST /api/v1/users/` is public (`AllowAny`, "registration is public"), `GET /api/v1/users/` lists every account publicly, and `users/<id>/` (`UserDetailView`) lets any authenticated caller read, update or delete any User. SRS §7.2 and §1.6 say there is no self-service registration. | This story makes `POST /api/v1/users/` `ADMIN`-only and removes the public `GET` list (UM-US-04 will re-add it as ADMIN-only). `UserDetailView` is left unchanged — it belongs to UM-US-02/03/05/06 — and is recorded as a known open risk. Constitution §V and CLAUDE.md drop `POST /api/v1/users/` from the public route list. |
+| G8 | **Gap** (resolved) | EC-01, EC-02 | **Existing code contradicts the SRS.** `POST /api/v1/users/` is public (`AllowAny`, "registration is public"), `GET /api/v1/users/` lists every account publicly, and `users/<id>/` (`UserDetailView`) lets any authenticated caller read, update or delete any User. SRS §7.2 and §1.6 say there is no self-service registration. | This story makes `POST /api/v1/users/` `ADMIN`-only and removes the public `GET` list (UM-US-04 will re-add it as ADMIN-only). `UserDetailView` was first left unchanged as belonging to UM-US-02/03/05/06 and recorded as a known open risk; **a live probe then showed any logged-in User could overwrite or delete any account (password stored unhashed), so the view and its `users/<id>/` route were removed (2026-10-08)** — each later UM story adds its own permission-checked endpoint. Regression test TC-20. Constitution §V and CLAUDE.md drop `POST /api/v1/users/` from the public route list. |
 | G9 | **Gap** | EC-02 | FE-03 wants the Create User entry hidden from non-ADMINs, but the screen cannot know the caller's role (login returns only tokens; no profile endpoint until UM-US-03). | Deferred (spec Out of Scope). The page is reachable at `/users/new`, is not linked from the Dashboard, and shows an access-denied message on `403`; the backend is authoritative (AC-02). |
 | A1 | Ambiguity | AC-01 | "the new User can log in" — no login screen is involved in this story. | Verified at the API level (SS-US-01 login endpoint) and e2e via the existing Login page. |
 | A2 | Ambiguity | AC-01..03 | Message text ("User account created", "Email is required", "Account already exists") — UI copy or API text? | Both: the API returns these strings (`email` field error / `409` `detail`); the page shows the API text and also checks required fields before submitting. |
@@ -119,7 +119,7 @@ Reviewed `spec.md` and the existing implementation (`backend/users/`, `backend/c
 | 409 | `{"detail": "Account already exists", "code": "USER_ALREADY_EXISTS"}` | AC-03, EC-07 |
 | 500 | unexpected failure — transaction rolled back, nothing persisted | EC-09 |
 
-`GET /api/v1/users/` (previously public) is removed by this story; UM-US-04 introduces the ADMIN-only list.
+`GET /api/v1/users/` (previously public) and `/api/v1/users/<id>/` (previously open to any logged-in caller) are removed; UM-US-04 introduces the ADMIN-only list and UM-US-02/03/05/06 the by-id endpoints.
 
 *API Design checklist*
 - [x] Endpoint is versioned under `/api/v1/`, plural lowercase (kebab-case if multi-word) resource name (API-01, NC-02)
@@ -259,7 +259,7 @@ sequenceDiagram
 | T3 | `IsAdmin` permission (authenticated + holds `ADMIN`) | `backend/config/permissions.py` |
 | T4 | `UserAlreadyExists` (`409`, code `USER_ALREADY_EXISTS`) and `create_user(full_name, email, password)` — atomic, case-insensitive duplicate check, `IntegrityError` → same error, assigns `USER` role, `username` = email | `backend/users/exceptions.py`, `backend/users/services.py` |
 | T5 | `UserSerializer`: explicit `fields` (`id`, `full_name`, `email`, `is_active`, `created_at`, write-only `password`), required/invalid/length messages from spec, no `UniqueValidator`, `create()` delegates to the service | `backend/users/serializers.py` |
-| T6 | `UserListCreateView` → `UserCreateView` (`CreateAPIView`, `IsAdmin`); route name `user-create`; remove the public list; leave `UserDetailView` unchanged | `backend/users/views.py`, `backend/users/urls.py` |
+| T6 | `UserListCreateView` → `UserCreateView` (`CreateAPIView`, `IsAdmin`); route name `user-create`; remove the public list **and `UserDetailView` / `users/<id>/`** | `backend/users/views.py`, `backend/users/urls.py` |
 | T7 | ~~Register `User`/`Role` in the Django admin~~ — skipped, no AC needs it | — |
 | T8 | `APITestCase`s TC-01..TC-17 for UM-US-01 plus role/superuser tests | `backend/users/tests.py`, `backend/roles/tests.py` |
 | T9 | Re-base SS-US-01 backend tests: create fixtures with `User.objects.create_user`, not the (now ADMIN-only) endpoint | `backend/users/tests.py` |
@@ -277,7 +277,7 @@ sequenceDiagram
 
 **Storage**: SQLite (MVP) — **migrations required**: `roles/0001` + `roles/0002` (seed), `users/0002` (`full_name`, `user_roles`)
 
-**Testing**: `python manage.py test` (DRF `APITestCase`, real throwaway test DB per Integration Testing Over Mocking); Playwright e2e under `e2e/002-user-management/` for the Create User screen
+**Testing**: `python manage.py test` (DRF `APITestCase`, real throwaway test DB per Integration Testing Over Mocking); Playwright e2e under `e2e/002-user-management/` for the Create User screen; test cases in `specs/002-user-management/test_cases.md`
 
 **Target Platform**: Single-machine home-LAN deployment (RUNBOOK.md) — backend :8000, frontend :3000
 
@@ -319,6 +319,7 @@ No unjustified violations.
 specs/002-user-management/
 ├── spec.md
 ├── plan.md              # this file
+├── test_cases.md        # Quality Step
 ├── checklists/requirements.md
 └── tasks.md             # produced by /speckit-tasks in the Implementation Step
 
@@ -346,8 +347,8 @@ frontend/src/app/users/new/
 └── page.tsx             # NEW: Create User form
 
 e2e/002-user-management/
-├── test_cases.md
-└── test_um.spec.ts
+├── test_um.spec.ts
+└── um-us-01-create-user/    # verification-report.md + Playwright HTML report
 ```
 
 **Structure Decision**: One new Django app, `roles` (new entity → new app, per Package-by-Feature); user creation extends the existing `users` app.

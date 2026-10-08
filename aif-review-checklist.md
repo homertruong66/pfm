@@ -114,7 +114,7 @@
 
 ## Step 3 — Quality Step · QC Reviews
 
-**Artifacts:** `test_cases.md` + `test_[abbr].spec.ts` in `e2e/[feature-id]-[slug]/` (ex: `e2e/002-wallet-management/`) — **not** under `specs/`, which holds planning artifacts only
+**Artifacts:** `test_cases.md` in `specs/[feature-id]-[slug]/` (next to `spec.md`/`plan.md`, ex: `specs/002-wallet-management/`) + `test_[abbr].spec.ts` in `e2e/[feature-id]-[slug]/`
 
 ### Git
 - [ ] Branch is checked out: `feature/[us-id-lowercase]-quality-step` (ex: `feature/wm-us-01-quality-step`)
@@ -135,7 +135,7 @@
 - [ ] New TCs are appended — existing TCs from prior USs are not modified or removed
 - [ ] AC-IDs in the Coverage Matrix restart at `AC-01` per User Story — only unique within that US's own table, not globally
 - [ ] `**AC:**` cites only `AC-NN`/`EC-NN` — if the linked `spec.md` still uses `FR-NNN`/`AS-N`/`SC-NNN`, that's a `spec.md` defect to flag upstream, not something to silently paper over in `test_cases.md`
-- [ ] Links back to `spec.md` use a relative path (`../../specs/[feature-id]-[slug]/spec.md`)
+- [ ] Links to `spec.md` and `plan.md` are relative, same-folder links
 
 ### Playwright Code — Integration Tests
 - [ ] Entity ID extracted from **POST response directly** (`const { id } = await res.json()`) — never from a GET list
@@ -159,7 +159,7 @@
 ### Playwright Code — General
 - [ ] All test-created records are prefixed: `TestQC-[entity]-${Date.now()}`, and created in a way that can be cleaned up (or the leftover data is acknowledged in the report)
 - [ ] Existing helpers are **reused**, not duplicated; unused parameters/return values are not left behind
-- [ ] New Playwright tests are **appended** to the existing `.spec.ts` under `e2e/[feature-id]-[slug]/` — existing tests are untouched, and no stray copy exists under `specs/`
+- [ ] New Playwright tests are **appended** to the existing `.spec.ts` under `e2e/[feature-id]-[slug]/` — existing tests are untouched, and no `.spec.ts` copy exists under `specs/`
 - [ ] Spec file name follows the convention in [aif-sdlc.md](aif-sdlc.md) (`test_[abbr].spec.ts`) and comments in the file/config describe where it actually lives
 
 ---

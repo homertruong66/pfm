@@ -4,11 +4,11 @@
   ACTION REQUIRED: This is a reference template only — the title above is never copied into
   a real artifact. It documents the two QC-owned, SEPARATE files of the AIF-SDLC
   (aif-sdlc.md Step 3 — Quality Step, and Step 6 — Verification Step), each with its OWN
-  file header shown at the start of its Part below. Both live under the Test folder
-  e2e/[feature-id]-[slug]/ — NOT under specs/, which holds spec/plan/design artifacts only:
+  file header shown at the start of its Part below:
 
-    Part 1 — test_cases.md          e2e/[feature-id]-[slug]/test_cases.md
-             one file per Feature, produced BEFORE Implementation.
+    Part 1 — test_cases.md          specs/[feature-id]-[slug]/test_cases.md
+             one file per Feature, next to spec.md / plan.md / tasks.md so the spec-kit commands
+             find spec, plan and test cases in one folder; produced BEFORE Implementation.
     Part 2 — verification-report.md e2e/[feature-id]-[slug]/[xx-us-nn-keyword]/verification-report.md
              one file per User Story (next to that US's Playwright index.html), produced AFTER
              Deployment.
@@ -32,8 +32,7 @@
 <!--
   ACTION REQUIRED: file header — copy verbatim as the top of test_cases.md, once per
   feature (not once per US). [PREFIX] is the short feature code (e.g. SS, WM, TM).
-  Spec/Plan links are relative to this file's own location (e2e/[feature-id]-[slug]/), so
-  they climb two levels into specs/[feature-id]-[slug]/.
+  Spec/Plan links are same-folder links (this file sits next to spec.md and plan.md).
   Created is written once, on first creation of this file, using today's date. Updated is
   overwritten every time this file changes (new US appended, or existing content revised) —
   today's date plus a one-line summary of what changed in this edit; it always reflects only
@@ -42,7 +41,7 @@
 
 # Test Cases: [FEATURE NAME] ([PREFIX])
 
-> **Spec:** [spec.md](../../specs/[feature-id]-[slug]/spec.md) | **Plan:** [plan.md](../../specs/[feature-id]-[slug]/plan.md)  
+> **Spec:** [spec.md](spec.md) | **Plan:** [plan.md](plan.md)  
 > **Created:** [YYYY-MM-DD] | **Updated:** [YYYY-MM-DD] — [one-line summary of the most recent change]
 
 <!--
@@ -166,7 +165,7 @@
     needs its own e2e case, or an explicit "e2e N/A: [reason]" Note on the one covering
     it — one generic e2e per AC does not cover facets it doesn't itself demonstrate.
 
-  Playwright automation for e2e cases goes in e2e/[feature-id]-[slug]/test_[abbr].spec.ts
+  Playwright automation for e2e cases goes in e2e/[feature-id]-[slug]/test_[abbr].spec.ts (not in this folder)
   ([abbr] = the lowercase story prefix, e.g. test_ss.spec.ts) and follows the
   Testing-Code-Rule in aif-sdlc.md Step 3 (selector priority, seeding, screenshot
   conventions) — not duplicated here since it governs the .spec.ts code, not this

@@ -63,8 +63,8 @@ pfm/
 │                              #   assets is its own app (system-level, ADMIN-only, SRS §7.9), not nested under investment_portfolios
 ├── ui/                   # Wireframe screenshots referenced from SDS §3.2
 ├── docs/                 # Supporting docs: debug-guide.md, ss-us-01-What-AI-produces-and-How.md
-├── specs/                # spec-kit feature folders: specs/[feature-id]-[slug]/spec.md, plan.md, ...
-├── e2e/                  # Quality Step artifacts, mirrors specs/: e2e/[feature-id]-[slug]/test_cases.md, test_[abbr].spec.ts
+├── specs/                # spec-kit feature folders: specs/[feature-id]-[slug]/spec.md, plan.md, test_cases.md, tasks.md
+├── e2e/                  # Quality/Verification Step code + evidence, mirrors specs/: e2e/[feature-id]-[slug]/test_[abbr].spec.ts, [xx-us-nn-keyword]/verification-report.md
 ├── aif-sdlc.md           # AI-First SDLC
 ├── SRS.md                # Software Requirements Specification
 ├── SDS.md                # Software Design Specification
@@ -72,7 +72,7 @@ pfm/
 ├── RUNBOOK.md            # Operational reference (home-LAN setup/deploy/troubleshoot)
 └── README.md
 ```
-`specs/` holds spec/plan/design artifacts (spec-kit); `e2e/` holds the parallel Quality Step artifacts (`test_cases.md`, Playwright `.spec.ts`) for the same `[feature-id]-[slug]` — kept separate so design docs and generated test code don't mix in the same folder.
+`specs/` holds every document the spec-kit commands read for a feature — `spec.md`, `plan.md`, `test_cases.md`, `tasks.md` — so `/speckit-tasks` and `/speckit-implement` find spec, plan and test cases in one folder; `e2e/` holds the Playwright code (`test_[abbr].spec.ts`, `[abbr]` = lowercase story prefix) and the per-story verification evidence (`[xx-us-nn-keyword]/verification-report.md` + HTML report) for the same `[feature-id]-[slug]` — kept separate so generated test code doesn't mix with design documents.
 
 ### Dev Commands
 

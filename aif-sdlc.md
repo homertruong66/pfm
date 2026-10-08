@@ -214,7 +214,7 @@ layer, not SQL statements or exact response payloads. Follow these rules:
 Quality Prompt
 
 Feature folder:  specs/[feature-id]-[slug]/
-Test folder:     e2e/[feature-id]-[slug]/   (mirrors Feature folder's [feature-id]-[slug]; created if missing)
+Test folder:     e2e/[feature-id]-[slug]/   (Playwright suite + verification reports; mirrors Feature folder's [feature-id]-[slug]; created if missing)
 US being tested: [XX-US-NN]
 
 --- Pre-flight ---
@@ -263,22 +263,28 @@ Write test cases
    Produce coverage matrix before finalising test_cases.md:
       | AC | Label | Integration TC(s) | E2E TC(s) | [BOTH] or [UI] AC with empty E2E column = defect, resolve before proceeding.
 
-Test artifacts (test_cases.md and test_[abbr].spec.ts) live under [Test folder],
-NOT under [Feature folder] — [Feature folder] (specs/...) holds spec/plan/design artifacts only.
+test_cases.md lives in [Feature folder] next to spec.md and plan.md — /speckit-tasks and
+/speckit-implement read spec, plan and test cases from that one folder. The Playwright suite
+(test_[abbr].spec.ts) and the verification reports live under [Test folder] (e2e/...).
+
+=== IF [Feature folder]/test_cases.md does NOT exist yet (first US of this Feature) ===
+
+3. Create [Feature folder]/test_cases.md with test cases for [US being tested]. Link to
+   spec.md and plan.md with relative paths in the same folder (spec.md, plan.md).
+
+=== IF [Feature folder]/test_cases.md already exists (2nd+ US of this Feature) ===
+
+3. Append new test cases for [US being tested] to the existing [Feature folder]/test_cases.md.
+   Number new cases continuing from the last TC-NN in the file.
 
 === IF [Test folder] does NOT exist yet (first US of this Feature) ===
 
-3. Create [Test folder] (mkdir e2e/[feature-id]-[slug]/) and, inside it, test_cases.md
-   with test cases for [US being tested]. Link back to [Feature folder]/spec.md with a
-   relative path (e.g. ../../specs/[feature-id]-[slug]/spec.md).
-4. Create [Test folder]/test_[abbr].spec.ts ([abbr] = lowercase story prefix, e.g.
-   test_ss.spec.ts) with Playwright automation for all
-   e2e test cases. Following Testing-Code-Rule
+4. Create [Test folder] (mkdir e2e/[feature-id]-[slug]/) and, inside it,
+   test_[abbr].spec.ts ([abbr] = lowercase story prefix, e.g. test_ss.spec.ts) with
+   Playwright automation for all e2e test cases. Following Testing-Code-Rule
 
 === IF [Test folder] already exists (2nd+ US of this Feature) ===
 
-3. Append new test cases for [US being tested] to the existing [Test folder]/test_cases.md.
-   Number new cases continuing from the last TC-NN in the file.
 4. Append new Playwright tests for [US being tested] e2e cases to the existing
    [Test folder]/test_[abbr].spec.ts. Do not modify or remove existing test cases.
 
@@ -352,7 +358,7 @@ US being implemented:  [XX-US-NN]
      [Feature folder]/spec.md
      [Feature folder]/plan.md
      [Feature folder]/tasks.md
-     [Test folder]/test_cases.md
+     [Feature folder]/test_cases.md
 
    Run /speckit-implement for this feature.
 

@@ -50,4 +50,6 @@ All automated and manual checks pass. Per constitution.md's Definition of Done:
 - DOD-04 (validation implemented): TC-03/12/14/15/16/17 — messages match the spec exactly
 - DOD-05 (test coverage): happy path, error cases and the rollback case covered
 
-**UM-US-01: Create a User is Done**, with these open points recorded rather than hidden: verification ran on localhost against a scratch database (no LAN deployment); the Create User screen is not linked from the navigation and is not hidden from non-ADMINs (FE-03 — plan G9, needs a role source such as UM-US-03); and `UserDetailView` (`users/<id>/`) is unchanged and still lets any authenticated caller read, update (including writing a plaintext password) or delete any account — to be fixed by UM-US-02/03/05/06 (plan G8).
+**UM-US-01: Create a User is Done**, with these open points recorded rather than hidden: verification ran on localhost against a scratch database (no LAN deployment); the Create User screen is not linked from the navigation and is not hidden from non-ADMINs (FE-03 — plan G9, needs a role source such as UM-US-03); and `UserDetailView` (`users/<id>/`) was, at verification time, unchanged and let any authenticated caller read, update (including writing a plaintext password) or delete any account.
+
+**Follow-up (2026-10-08, after this report):** that view and route were removed; TC-20 (backend regression test) passes, and the full backend suite is 24 tests OK. The UM-US-01 e2e suite was not re-run after the removal — it does not touch `users/<id>/`.

@@ -1,6 +1,6 @@
 # Tasks: System Security — SS-US-01 Login
 
-**Input**: Design documents from `specs/001-system-security/` (spec.md, plan.md — including its SS-US-01 Decisions & Rationale/Domain Objects/API Contracts/Quickstart Validation subsections) and `e2e/001-system-security/` (test_cases.md, test_ss.spec.ts)
+**Input**: Design documents from `specs/001-system-security/` (spec.md, plan.md — including its SS-US-01 Decisions & Rationale/Domain Objects/API Contracts/Quickstart Validation subsections — and test_cases.md) and `e2e/001-system-security/` (test_ss.spec.ts)
 
 **Tests**: Included — constitution.md DOD-05 requires at least one `APITestCase` per new/formalized endpoint; e2e Playwright automation for TC-02/TC-04/TC-08 already exists in `e2e/001-system-security/test_ss.spec.ts` from the Quality Step and is referenced, not duplicated.
 
@@ -28,7 +28,7 @@
 
 ### Tests for User Story 1
 
-> Characterization tests for already-existing backend behavior (`TokenObtainPairView` + Django's `ModelBackend`) — expected to PASS immediately once written, since no backend code changes. They exist to close constitution DOD-05's test-coverage requirement and to catch future regressions. Maps to `e2e/001-system-security/test_cases.md`.
+> Characterization tests for already-existing backend behavior (`TokenObtainPairView` + Django's `ModelBackend`) — expected to PASS immediately once written, since no backend code changes. They exist to close constitution DOD-05's test-coverage requirement and to catch future regressions. Maps to `specs/001-system-security/test_cases.md`.
 
 - [x] T002 [P] [US1] TC-01: `APITestCase` for successful login (active user, correct credentials → `200` with non-empty `access`/`refresh`) in `backend/users/tests.py`
 - [x] T003 [P] [US1] TC-03: `APITestCase` for wrong password (correct email, wrong password → `401`, single generic error body) in `backend/users/tests.py`

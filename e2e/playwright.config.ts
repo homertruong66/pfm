@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 // Runner for every feature: each e2e/[feature-id]-[slug]/ folder (relative to this file) holds its
-// test_cases.md and test_[abbr].spec.ts, per aif-sdlc.md's convention.
+// test_[abbr].spec.ts and per-story verification evidence; test_cases.md lives in specs/[feature-id]-[slug]/.
 export default defineConfig({
   testDir: ".",
   testMatch: "**/*.spec.ts",

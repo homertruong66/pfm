@@ -11,18 +11,18 @@ banned words, WHAT-only content — is governed by spec-template.md and the
 constitution unchanged.
 
 SIBLING-FILE SET (this project): a spec-kit feature folder here produces spec.md and
-plan.md (both under specs/[feature-id]-[slug]/), then tasks.md once /speckit-tasks
-runs. The parallel Quality Step artifact, test_cases.md, is NOT a sibling file in the
-same folder — it lives under e2e/[feature-id]-[slug]/ instead (CLAUDE.md's
-specs/ vs. e2e/ split), alongside the Playwright test_[abbr].spec.ts. Unlike a
-more generic spec-kit scaffold, this project's template set does not generate
-research.md, data-model.md, contracts/, or quickstart.md as separate files — those
-concerns (technical decisions, domain objects, API contracts, a runnable validation
-guide) are folded directly into each plan.md's "## [CODE]-US-NN" section instead, as
-its Decisions & Rationale / Domain Objects / API Contracts / Quickstart Validation
-subsections (see plan-template.md's "No sibling design files" note). This project DOES
-use a .specify/feature.json pointer file to track the active feature directory for
-speckit commands — it is not tracked by branch-name convention alone.
+plan.md, then test_cases.md (Quality Step) and tasks.md (/speckit-tasks) — all four live in
+specs/[feature-id]-[slug]/ so the spec-kit commands read spec, plan and test cases from one
+folder. The Playwright code, test_[abbr].spec.ts, and the verification reports live under
+e2e/[feature-id]-[slug]/ (CLAUDE.md's specs/ vs. e2e/ split). Unlike a more generic
+spec-kit scaffold, this project's template set does not generate research.md,
+data-model.md, contracts/, or quickstart.md as separate files — those concerns (technical
+decisions, domain objects, API contracts, a runnable validation guide) are folded directly
+into each plan.md's "## [CODE]-US-NN" section instead, as its Decisions & Rationale /
+Domain Objects / API Contracts / Quickstart Validation subsections (see plan-template.md's
+"No sibling design files" note). This project DOES use a .specify/feature.json pointer
+file to track the active feature directory for speckit commands — it is not tracked by
+branch-name convention alone.
 
 AC GROUP ORDER (fixed per verb, always in this sequence — omit a group entirely if
 genuinely empty for the US, never leave an empty header):

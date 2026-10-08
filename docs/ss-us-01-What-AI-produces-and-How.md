@@ -84,7 +84,7 @@ Deployment (Step 5) produced no new files — it only ran the existing test suit
 
 ## Step 3 — Quality Step
 
-### [e2e/001-system-security/test_cases.md](../e2e/001-system-security/test_cases.md)
+### [specs/001-system-security/test_cases.md](../specs/001-system-security/test_cases.md)
 
 | Aspect | Detail |
 |---|---|
@@ -260,7 +260,7 @@ The tables above list *outputs*. This section lists the *inputs* — every docum
 
 | Document | When Read | What's Used |
 |---|---|---|
-| [e2e/001-system-security/test_cases.md](../e2e/001-system-security/test_cases.md) | Derived from `spec.md`'s `AC-NN`/`EC-NN` list — no new source document beyond what Step 1/2 already produced. Then, once written, it becomes an input in its own right: read at the start of Step 4 while writing test code. | Each `TC-NN`'s Given/When/Then, its `Type` (`integration` vs. `e2e`), and its cited `AC-NN`/`EC-NN`, so `backend/users/tests.py` and `test_ss.spec.ts` each implement exactly the cases assigned to them without duplicating the other's coverage. |
+| [specs/001-system-security/test_cases.md](../specs/001-system-security/test_cases.md) | Derived from `spec.md`'s `AC-NN`/`EC-NN` list — no new source document beyond what Step 1/2 already produced. Then, once written, it becomes an input in its own right: read at the start of Step 4 while writing test code. | Each `TC-NN`'s Given/When/Then, its `Type` (`integration` vs. `e2e`), and its cited `AC-NN`/`EC-NN`, so `backend/users/tests.py` and `test_ss.spec.ts` each implement exactly the cases assigned to them without duplicating the other's coverage. |
 
 ### Step 4 — Implementation Step
 

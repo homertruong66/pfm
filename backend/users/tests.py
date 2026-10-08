@@ -8,7 +8,7 @@ from .models import User
 
 
 class LoginTests(APITestCase):
-    """SS-US-01: Login (ADMIN, USER). See e2e/001-system-security/test_cases.md."""
+    """SS-US-01: Login (ADMIN, USER). See specs/001-system-security/test_cases.md."""
 
     def _register(self, **overrides):
         # Accounts are created with the ORM: POST /api/v1/users/ is ADMIN-only since UM-US-01
@@ -106,7 +106,7 @@ class LoginTests(APITestCase):
 
 
 class CreateUserTests(APITestCase):
-    """UM-US-01: Create a User (ADMIN). See e2e/002-user-management/test_cases.md."""
+    """UM-US-01: Create a User (ADMIN). See specs/002-user-management/test_cases.md."""
 
     PASSWORD = 'TestQC-Passw0rd!'
 
@@ -244,6 +244,25 @@ class CreateUserTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['full_name'], 'Trương Văn Hòa')
         self.assertEqual(User.objects.get(email='homer@example.com').full_name, 'Trương Văn Hòa')
+
+    def test_tc20_no_endpoint_exists_to_read_change_or_delete_an_account_by_id(self):
+        # Regression for the pre-UM-US-01 `users/<id>/` view, which let any authenticated caller
+        # overwrite (with an unhashed password) or delete any account, including the ADMIN's.
+        victim = User.objects.create_user(
+            username='victim@example.com', email='victim@example.com', password='Victim-Passw0rd!')
+        url = f'/api/v1/users/{victim.id}/'
+        plain_user = User.objects.create_user(
+            username='plain@example.com', email='plain@example.com', password='Plain-Passw0rd!')
+        plain_user.roles.add(Role.objects.get(code=Role.Code.USER))
+
+        for caller in (plain_user, self.admin):
+            self.client.force_authenticate(caller)
+            for method in (self.client.get, self.client.put, self.client.patch, self.client.delete):
+                self.assertEqual(method(url).status_code, status.HTTP_404_NOT_FOUND)
+
+        victim.refresh_from_db()
+        self.assertTrue(victim.check_password('Victim-Passw0rd!'))
+        self.assertTrue(User.objects.filter(pk=victim.pk).exists())
 
     def test_tc19_failure_part_way_leaves_no_account_behind(self):
         # The failure is induced inside the real test database (no mocking): without the seeded

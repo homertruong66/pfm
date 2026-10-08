@@ -1,7 +1,7 @@
 # Test Cases: User Management (UM)
 
-> **Spec:** [spec.md](../../specs/002-user-management/spec.md) | **Plan:** [plan.md](../../specs/002-user-management/plan.md)  
-> **Created:** 2026-10-08 | **Updated:** 2026-10-08 — added UM-US-01 (TC-01..TC-19)
+> **Spec:** [spec.md](spec.md) | **Plan:** [plan.md](plan.md)  
+> **Created:** 2026-10-08 | **Updated:** 2026-10-08 — added TC-20 (no account-by-id endpoint) after the UM-US-01 security fix
 
 ## UM-US-01: Create a User (ADMIN)
 
@@ -29,7 +29,7 @@
 | AC-04 — New account is a USER only | API | TC-07 | — *(auth/role outcome, no UI to exercise)* |
 | AC-05 — Initial password never shown | API | TC-08 | — *(response property, no UI to exercise)* |
 | EC-01 — Not logged in | API | TC-09 | — *(pure auth rejection)* |
-| EC-02 — Caller is a USER, not an ADMIN | BOTH | TC-10 | TC-11 |
+| EC-02 — Caller is a USER, not an ADMIN | BOTH | TC-10, TC-20 | TC-11 |
 | EC-03 — Full name or password missing | BOTH | TC-12 | TC-13 |
 | EC-04 — Invalid email format | API | TC-14 | — *(same inline path as TC-04)* |
 | EC-05 — Initial password too short | API | TC-15 | — *(same inline path as TC-04)* |
@@ -43,7 +43,7 @@
 ### Negative-scenario applicability
 
 - **Authentication (401):** covered by TC-09.
-- **Authorization (403):** covered by TC-10 and TC-11 (USER-only caller) and TC-07 (the new User cannot create accounts).
+- **Authorization (403):** covered by TC-10 and TC-11 (USER-only caller) and TC-07 (the new User cannot create accounts); TC-20 covers that no one can read, change or delete another account through this feature.
 - **Not found:** N/A — creating a User references no existing record.
 - **Business rule conflicts (409):** covered by TC-05, TC-17.
 - **Invalid / missing / malformed / boundary input:** TC-03, TC-12, TC-14, TC-15, TC-16.
@@ -242,6 +242,17 @@
 - **Type:** integration
 - **Severity:** Major
 - **Note:** the failure is induced by removing the seeded `USER` role inside the test database — no model or queryset is mocked.
+
+### TC-20: No endpoint exists to read, change or delete an account by id
+- **US:** UM-US-01
+- **Given:** an account `victim@example.com` exists, and the caller is either a `USER`-only account or an `ADMIN`
+- **When:** the caller sends `GET`, `PUT`, `PATCH` and `DELETE` to `/api/v1/users/{victim id}/`
+- **Then:** every request returns `404`
+  - **And** the victim account still exists and its password still verifies unchanged
+- **AC:** EC-02
+- **Type:** integration
+- **Severity:** Critical
+- **Note:** regression for the security fix made after the UM-US-01 audit: a pre-existing `users/<id>/` endpoint let any logged-in User overwrite (with an unhashed password) or delete any account, including the ADMIN's. Reading, updating, deactivating and deleting accounts arrive with UM-US-02..06, each with its own permission checks; this case then changes with them.
 
 - [x] Self-checked against [aif-review-checklist.md § `test_cases.md` — Structure](../../aif-review-checklist.md#test_casesmd--structure)
 - [x] Self-checked against [aif-review-checklist.md § Playwright Code — Integration Tests](../../aif-review-checklist.md#playwright-code--integration-tests)

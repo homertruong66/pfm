@@ -1,6 +1,6 @@
 # Tasks: User Management — UM-US-01 Create a User
 
-**Input**: Design documents from `specs/002-user-management/` (spec.md, plan.md — including its UM-US-01 Open tasks T1–T12) and `e2e/002-user-management/` (test_cases.md, test_um.spec.ts)
+**Input**: Design documents from `specs/002-user-management/` (spec.md, plan.md — including its UM-US-01 Open tasks T1–T12 — and test_cases.md) and `e2e/002-user-management/` (test_um.spec.ts)
 
 **Tests**: Included — constitution.md DOD-05 requires at least one `APITestCase` for the happy path plus key error cases. The Playwright suite for TC-02/04/06/11/13 already exists from the Quality Step and is referenced, not duplicated.
 
@@ -32,7 +32,7 @@
 
 ### Tests for User Story 1
 
-> Written against `e2e/002-user-management/test_cases.md` (TC-01, 03, 05, 07, 08, 09, 10, 12, 14..19 are integration cases). Expected to FAIL until T008–T010 land.
+> Written against `specs/002-user-management/test_cases.md` (TC-01, 03, 05, 07, 08, 09, 10, 12, 14..19 are integration cases). Expected to FAIL until T008–T010 land.
 
 - [x] T005 [P] [US1] TC-01, TC-08, TC-18: success path — `201` body shape, no `password` key, new User can log in, non-English full name round-trips — in `backend/users/tests.py` (`CreateUserTests`)
 - [x] T006 [P] [US1] TC-03, TC-12, TC-14, TC-15, TC-16: validation — `400` with the spec's exact messages, boundary values accepted at 8-character password / 150-character name — in `backend/users/tests.py`
@@ -43,7 +43,7 @@
 - [x] T008 [US1] `UserAlreadyExists` (`409`, body `{"detail": "Account already exists", "code": "USER_ALREADY_EXISTS"}`) in `backend/users/exceptions.py`
 - [x] T009 [US1] `create_user(full_name, email, password)` in `backend/users/services.py`: `transaction.atomic()`, case-insensitive duplicate check, `IntegrityError` mapped to `UserAlreadyExists`, `username` = email, assigns the `USER` role, logs success at `INFO` and a rejected duplicate at `WARN` — never the password — depends on T003, T008
 - [x] T010 [US1] Rewrite `UserSerializer` in `backend/users/serializers.py`: explicit `fields` (`id`, `full_name`, `email`, `is_active`, `created_at`, write-only `password`), the spec's required/invalid/length messages, no `UniqueValidator`, `create()` delegates to the service — depends on T009
-- [x] T011 [US1] Replace `UserListCreateView` with `UserCreateView` (`CreateAPIView`, `permission_classes = [IsAdmin]`), route name `user-create`; keep `UserDetailView` unchanged — in `backend/users/views.py`, `backend/users/urls.py` — depends on T004, T010
+- [x] T011 [US1] Replace `UserListCreateView` with `UserCreateView` (`CreateAPIView`, `permission_classes = [IsAdmin]`), route name `user-create`; remove `UserDetailView` and the `users/<id>/` route — in `backend/users/views.py`, `backend/users/urls.py` — depends on T004, T010
 - [x] T012 [US1] Run `cd backend && python manage.py test` — T005–T007 pass (depends on T011)
 - [x] T013 [P] [US1] Create the Create User page `frontend/src/app/users/new/page.tsx` with the Element IDs from plan.md (`user-full-name`, `user-email`, `user-password`, `*-error`, `btn-submit-user`, `message-success`, `message-error`, `message-access-denied`): required-field checks before submit (AC-02, EC-03), Bearer fetch to `${NEXT_PUBLIC_API_URL}/api/v1/users/`, API field messages shown inline, `409` → `#message-error`, `403` → `#message-access-denied`, `401` → redirect to `/login`, loading state on the button (FE-06), no token → redirect to `/login`
 
@@ -78,5 +78,5 @@
 ## Notes
 
 - [P] tasks touch different files, or the same file with no ordering dependency between them
-- `UserDetailView` (`users/<id>/`) is intentionally left as it is — see plan.md G8; it is a known open risk for UM-US-02/03/05/06
+- `UserDetailView` (`users/<id>/`) was **removed** after a live probe showed it let any logged-in User overwrite/delete any account — see plan.md G8 and TC-20; UM-US-02/03/05/06 add their own endpoints
 - The plan's Constitution Check commits to logging in `create_user` (T009); verify it exists before closing the story

@@ -1,6 +1,6 @@
 # Test Cases: System Security
 
-Covers SS-US-01: Login (ADMIN, USER). Acceptance Criteria / Edge Cases refer to [../../specs/001-system-security/spec.md](../../specs/001-system-security/spec.md).
+Covers SS-US-01: Login (ADMIN, USER). Acceptance Criteria / Edge Cases refer to [spec.md](spec.md).
 
 ## AC/EC Classification
 
