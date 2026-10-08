@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     # PFM apps
+    'roles',
     'users',
     'wallets',
     'categories',
@@ -111,3 +112,18 @@ SIMPLE_JWT = {
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
 ]
+
+# Logging (constitution § Logging & Audit): application loggers write INFO and above to the console.
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {'format': '%(asctime)s %(levelname)s %(name)s %(message)s'},
+    },
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler', 'formatter': 'simple'},
+    },
+    'loggers': {
+        'users': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
+    },
+}

@@ -139,6 +139,7 @@
     - [6.4.6 POST /transactions](#646-post-transactions)
     - [6.4.7 POST /auth/login/](#647-post-authlogin)
     - [6.4.8 POST /auth/refresh/](#648-post-authrefresh)
+    - [6.4.9 POST /users/](#649-post-users)
   - [6.5 API → User Story Traceability](#65-api--user-story-traceability)
   - [6.6 Error Response Catalog](#66-error-response-catalog)
 - [7. Security Design](#7-security-design)
@@ -225,7 +226,7 @@ Within this course, learners will implement an MVP subset of this design for lea
 > Domain Object describe the in-memory shape; the Physical Schema describes storage.
 >
 > **Sync obligation:** when SRS §2 is amended, this section MUST be updated in the same PR.
-> **Last synced with SRS §2:** 20-Jul-2026
+> **Last synced with SRS §2:** 08-Oct-2026
 
 This section describes the core business concepts of the PFM domain and their relationships, independent of technical implementation.
 
@@ -237,7 +238,7 @@ This section describes the core business concepts of the PFM domain and their re
 
 | SRS Domain Entity | SDS Domain Object | SDS §4.3.3 Database Entity | Notes |
 |-----------------|------------------------|----------------------------------|-------|
-| User | `User` | `users` | Aggregate Root |
+| User | `User` | `users` | Aggregate Root; implemented as `users.User` (adds `full_name` and the `roles` many-to-many) |
 | Wallet | `Wallet` | `wallets` | Aggregate Root; FK → `users` |
 | Transaction | `Transaction` | `transactions` | FK → `wallets`, optional FK → `categories`, optional FK → `financial_goals` |
 | Category | `Category` | `categories` | Aggregate Root; nullable self-referencing FK → `categories.id` (parent) |
@@ -247,9 +248,9 @@ This section describes the core business concepts of the PFM domain and their re
 | Holding | `Holding` | `holdings` | FK → `investment_portfolios`, FK → `assets` |
 | Asset | `Asset` | `assets` | Shared reference; no FK to user-owned entities |
 | Notification | `Notification` | `notifications` | FK → `users` |
-| — (SRS §1.5 Roles and Actors) | `Role` | `roles` | Shared reference/lookup; no SRS §2.2 Domain Entity counterpart — added to model ADMIN/USER as data (§2.2.11) |
+| — (SRS §1.5 Roles and Actors) | `Role` | `roles` | Shared reference/lookup; no SRS §2.2 Domain Entity counterpart — added to model ADMIN/USER as data (§2.2.11); implemented as `roles.Role`, seeded by migration |
 | — | — | `budget_categories` | Technical-only join table for Budget ↔ Category many-to-many (SRS §2.3) |
-| — | — | `user_roles` | Technical-only join table for User ↔ Role many-to-many (§2.3.14) |
+| — | — | `user_roles` | Technical-only join table for User ↔ Role many-to-many (§2.3.14); implemented as `users.User.roles` with `db_table = 'user_roles'` |
 
 ### 2.2 Domain Object
 
@@ -820,7 +821,7 @@ This section defines business rules and constraints derived from the domain mode
 | *(no SRS BR yet)* | `categories.user_id`, `investment_portfolios.user_id`, and `notifications.user_id` are all `NOT NULL` FK → `users.id` ON DELETE CASCADE (mirrors BR-01/BR-09's treatment of `wallets`/`financial_goals`) — recommend adding a matching BR to SRS §2.4 if this becomes load-bearing beyond BR-17 |
 | BR-18 | `holdings.asset_id` is `NOT NULL` FK → `assets.id` with no `ON DELETE` clause (defaults to `RESTRICT`/`NO ACTION`) — the DB rejects deleting a referenced Asset; `AssetService.delete_asset` (AM-US-05) checks for referencing Holdings first and raises a clear business error rather than surfacing the raw FK violation |
 | *(no SRS BR yet)* | Partial unique index on `wallets (user_id) WHERE is_default = true` — at most one default Wallet per User; recommend adding a matching BR to SRS §2.4 if this becomes load-bearing |
-| *(no SRS BR yet)* | `user_roles` composite PK `(user_id, role_id)` prevents duplicate Role assignment; every User row MUST have at least one linked Role, enforced in `UserService` at account creation (UM-US-01) |
+| *(no SRS BR yet)* | `user_roles` composite PK `(user_id, role_id)` prevents duplicate Role assignment; every User row MUST have at least one linked Role, enforced in `users.services.create_user` at account creation (UM-US-01) |
 
 **Database Design**
 
@@ -832,9 +833,9 @@ This section maps the Domain Model to the physical Database Structure.
 
 | Table / Collection | Domain Object (§2.1) | Key columns / fields | Notes |
 |-------------------|----------------------|---------------------|-------|
-| `users` | `User` | `id UUID PK`, `full_name VARCHAR(150) NOT NULL`, `email VARCHAR(254) NOT NULL UNIQUE`, `password_hash VARCHAR(255) NOT NULL`, `created_at TIMESTAMP NOT NULL DEFAULT now()`, `is_active BOOLEAN NOT NULL DEFAULT true` | `password_hash` is physical-only (§7 Security Design) — no §2.2 Domain Object counterpart; `is_active` backs UM-US-05/BR-16 |
-| `roles` | `Role` | `id UUID PK`, `code VARCHAR(20) NOT NULL UNIQUE CHECK (code IN ('ADMIN','USER'))` | Seeded once via migration (see Migration Strategy) |
-| `user_roles` | — (technical-only, §2.1) | `user_id UUID FK → users.id`, `role_id UUID FK → roles.id`, `PRIMARY KEY (user_id, role_id)` | Join table for `User ↔ Role` many-to-many (§2.3.14) |
+| `users` | `User` | `id UUID PK`, `full_name VARCHAR(150) NOT NULL`, `email VARCHAR(254) NOT NULL UNIQUE`, `password_hash VARCHAR(255) NOT NULL`, `created_at TIMESTAMP NOT NULL DEFAULT now()`, `is_active BOOLEAN NOT NULL DEFAULT true` | `password_hash` is physical-only (§7 Security Design) — no §2.2 Domain Object counterpart; `is_active` backs UM-US-05/BR-16. **Implemented (UM-US-01):** `id` integer PK (known open drift), `username` (Django `AbstractUser`, always set to the email), `email VARCHAR(254) UNIQUE` (API caps input at 150), `full_name VARCHAR(150) NOT NULL DEFAULT ''`, `password VARCHAR(128)` holding the hash, `is_active`, `date_joined` (serialized as `created_at`) |
+| `roles` | `Role` | `id UUID PK`, `code VARCHAR(20) NOT NULL UNIQUE CHECK (code IN ('ADMIN','USER'))` | Seeded once via migration (see Migration Strategy). **Implemented:** `id` integer PK, `code VARCHAR(20) UNIQUE` (ADMIN/USER enforced by model choices) |
+| `user_roles` | — (technical-only, §2.1) | `user_id UUID FK → users.id`, `role_id UUID FK → roles.id`, `PRIMARY KEY (user_id, role_id)` | Join table for `User ↔ Role` many-to-many (§2.3.14). **Implemented:** Django adds its own integer `id`; the `(user_id, role_id)` pair is unique |
 | `wallets` | `Wallet` | `id UUID PK`, `user_id UUID FK → users.id NOT NULL`, `name VARCHAR(100) NOT NULL`, `type VARCHAR(20) NOT NULL CHECK (type IN ('CASH','BANK','E_WALLET'))`, `currency CHAR(3) NOT NULL`, `current_balance DECIMAL(14,2) NOT NULL DEFAULT 0`, `is_default BOOLEAN NOT NULL DEFAULT false` | Index on `user_id`; partial unique index on `(user_id) WHERE is_default` |
 | `categories` | `Category` | `id UUID PK`, `user_id UUID FK → users.id NOT NULL`, `parent_id UUID FK → categories.id NULL`, `name VARCHAR(100) NOT NULL`, `applicable_type VARCHAR(10) NOT NULL CHECK (applicable_type IN ('INCOME','EXPENSE','BOTH'))` | Index on `user_id`; self-referencing FK for parent (BR-06) |
 | `budgets` | `Budget` | `id UUID PK`, `wallet_id UUID FK → wallets.id NOT NULL`, `period VARCHAR(10) NOT NULL DEFAULT 'MONTHLY'`, `limit_amount DECIMAL(14,2) NOT NULL CHECK (limit_amount > 0)` | `total_spent`/`remaining_amount` (§2.2.4) are computed, not stored (BR-08) |
@@ -849,7 +850,7 @@ This section maps the Domain Model to the physical Database Structure.
 ##### Migration Strategy
 
 - **MVP:** Django ORM migrations (auto-generated, reviewed before merge); SQLite as the target database (§4.3.2).
-- **Seed migration:** inserts the two fixed `roles` rows (`ADMIN`, `USER`) and bootstraps the first ADMIN `user`/`user_roles` row per RUNBOOK §9, so there is always at least one account able to run UM-US-01 on a fresh deployment.
+- **Seed migration:** inserts the two fixed `roles` rows (`ADMIN`, `USER`) only — it holds no credentials. The first ADMIN is created with `python manage.py createsuperuser` (RUNBOOK §9), which also grants the `ADMIN` role, so there is at least one account able to run UM-US-01 on a fresh deployment.
 - **Change policy:** prefer additive, backward-compatible migrations (new nullable columns/tables) over destructive ones (column drops/renames) once data exists; a rename is modeled as add-column → backfill → drop-old-column across separate migrations.
 - **Later Releases:** the same migration history replays against PostgreSQL when the store changes (§4.3.2); no hand-written SQL divergence between environments.
 
@@ -1322,6 +1323,8 @@ Lets the ADMIN create the account of a family member with a full name, an email 
 
 | DTO Name | Direction | Source Domain Object(s) | Structural Pattern | Breaking Change Risk |
 |----------|-----------|-------------------------|--------------------|----------------------|
+| `UserSerializer` (request) | In (Client → API) | `User` | Subset — `full_name`, `email`, `password` | Medium |
+| `UserSerializer` (response) | Out (API → Client) | `User` | Projected Subset — `id`, `full_name`, `email`, `is_active`, `created_at`; never `password` | Medium |
 | `{Resource}Response` | Out (API → Client) | `{DomainObject}` | Direct Map \| Projected Subset \| Flattened Join \| Composed | Low \| Medium \| High |
 | `{Resource}Request` | In (Client → API) | `{DomainObject}` | Direct Map \| Subset | Low \| Medium \| High |
 
@@ -1337,6 +1340,7 @@ Lets the ADMIN create the account of a family member with a full name, an email 
 |--------|--------|------|---------|-------------|
 | API-SS-01 | `POST` | `/auth/login/` | System Security | ✗ |
 | API-SS-02 | `POST` | `/auth/refresh/` | System Security | ✗ |
+| API-UM-01 | `POST` | `/users/` | User Management | ✗ |
 | API-WAL-01 | `POST` | `/wallets` | Wallet Management | ✗ |
 | API-WAL-02 | `GET` | `/wallets` | Wallet Management | ✓ |
 | API-WAL-03 | `GET` | `/wallets/{id}` | Wallet Management | ✓ |
@@ -1415,6 +1419,25 @@ Stock `TokenObtainPairView`'s companion `TokenRefreshView` — exchanges a valid
 **Error Responses**
 - `401` — `refresh` token missing, invalid, or expired
 
+#### 6.4.9 POST /users/
+
+Creates a User account. ADMIN only (UM-US-01); there is no self-service registration (SRS §1.6).
+
+**Main Flow**
+1. Client submits `full_name`, `email` and `password` with a Bearer access token.
+2. The `IsAdmin` permission rejects the request unless the caller holds the `ADMIN` role.
+3. The serializer validates the three fields.
+4. `users.services.create_user` — in one transaction — rejects an existing email (case-insensitive), creates the active User with a hashed password and links the `USER` role.
+
+**Success Response** — `201`
+- `id`, `full_name`, `email`, `is_active`, `created_at` (never `password`)
+
+**Error Responses**
+- `400` — DRF default `{field: [messages]}`: `Email is required`, `Full name is required`, `Password is required`, `Enter a valid email address`, `Password must be at least 8 characters`, `Full name must be at most 150 characters`
+- `401` — missing/invalid/expired token
+- `403` — caller does not hold the `ADMIN` role
+- `409` `USER_ALREADY_EXISTS` — `{"detail": "Account already exists", "code": "USER_ALREADY_EXISTS"}`
+
 ### 6.5 API → User Story Traceability
 
 > Ensures every endpoint exists to fulfill a specific requirement from the SRS.
@@ -1422,6 +1445,7 @@ Stock `TokenObtainPairView`'s companion `TokenRefreshView` — exchanges a valid
 | API | Endpoint | Feature | User Story |
 |-----|----------|---------|------------|
 | API-SS-01 | `POST /auth/login/` | System Security | SS-US-01 |
+| API-UM-01 | `POST /users/` | User Management | UM-US-01 |
 | API-WAL-01 | `POST /wallets` | Wallet Management | WM-US-01 |
 | API-TRX-01 | `POST /transactions` | Transaction Management | TM-US-01 |
 
@@ -1434,6 +1458,7 @@ Stock `TokenObtainPairView`'s companion `TokenRefreshView` — exchanges a valid
 | 400 | `INVALID_INPUT` | Request payload fails validation | Check required fields and formats. |
 | 403 | `WALLET_ACCESS_DENIED` | User does not own the referenced Wallet | Verify wallet ownership. |
 | 404 | `WALLET_NOT_FOUND` | Provided wallet ID does not exist | Verify ID and retry. |
+| 409 | `USER_ALREADY_EXISTS` | A User account with this email (compared case-insensitively) already exists (UM-US-01) | Use a different email. |
 
 ---
 

@@ -1,31 +1,17 @@
-import { test, expect, APIRequestContext } from '@playwright/test';
+import { test, expect } from '@playwright/test';
+import { createUserAsAdmin } from '../support/api';
 
 // SS-US-01: Login — e2e automation for test_cases.md's [BOTH]/[UI] test cases (TC-02, TC-04, TC-08).
 // Requires: frontend dev server serving /login (see plan.md's Structure Decision) and the
 // backend reachable at API_BASE_URL. Element IDs below are the NC-04 contract this suite
 // pins for the Implementation Step: #login-email, #login-password, #btn-submit-login, #message-error.
 
-const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8000/api/v1';
-
-async function createTestUser(
-  request: APIRequestContext,
-  overrides: Partial<{ username: string; email: string; password: string; is_active: boolean }> = {}
-) {
-  const stamp = Date.now();
-  const payload = {
-    username: overrides.username ?? `TestQC-user-${stamp}`,
-    email: overrides.email ?? `testqc-user-${stamp}@example.com`,
-    password: overrides.password ?? 'TestQC-Passw0rd!',
-  };
-  const res = await request.post(`${API_BASE_URL}/users/`, { data: payload });
-  expect(res.ok(), `seed user creation failed: ${res.status()} ${await res.text()}`).toBeTruthy();
-  const body = await res.json();
-  return { ...payload, id: body.id };
-}
+// Accounts are created through the ADMIN-only POST /api/v1/users/ (UM-US-01) by the shared helper —
+// it needs E2E_ADMIN_EMAIL / E2E_ADMIN_PASSWORD (an existing ADMIN account).
 
 test.describe('SS-US-01: Login', () => {
   test('TC-02: valid credentials log the User in and reach the Dashboard', async ({ page, request }, testInfo) => {
-    const user = await createTestUser(request);
+    const user = await createUserAsAdmin(request);
 
     await page.goto('/login');
     await testInfo.attach('TC-02 before — login form', { body: await page.screenshot(), contentType: 'image/png' });
@@ -39,7 +25,7 @@ test.describe('SS-US-01: Login', () => {
   });
 
   test('TC-04: invalid credentials show the generic inline error', async ({ page, request }, testInfo) => {
-    const user = await createTestUser(request);
+    const user = await createUserAsAdmin(request);
 
     await page.goto('/login');
     await page.locator('#login-email').fill(user.email);

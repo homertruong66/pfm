@@ -242,7 +242,7 @@ The following are explicitly excluded from this specification:
 > **Sync obligation:** whenever a user story in §7 introduces, renames, or removes a domain
 > concept, this section MUST be updated in the same PR. Record the last review below.
 >
-> **Last synced with §7 User Stories:** 20-Jul-2026
+> **Last synced with §7 User Stories:** 08-Oct-2026
 
 ### 2.1 Domain Diagram
 

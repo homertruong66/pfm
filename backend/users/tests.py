@@ -1,6 +1,8 @@
 from rest_framework import status
-from rest_framework.test import APITestCase
+from rest_framework.test import APIClient, APITestCase
 from rest_framework.reverse import reverse
+
+from roles.models import Role
 
 from .models import User
 
@@ -9,13 +11,14 @@ class LoginTests(APITestCase):
     """SS-US-01: Login (ADMIN, USER). See e2e/001-system-security/test_cases.md."""
 
     def _register(self, **overrides):
+        # Accounts are created with the ORM: POST /api/v1/users/ is ADMIN-only since UM-US-01
+        # (SRS: no self-service registration), so it is not available as an anonymous fixture.
         payload = {
             'username': overrides.get('username', 'testqc_user'),
             'email': overrides.get('email', 'testqc_user@example.com'),
             'password': overrides.get('password', 'TestQC-Passw0rd!'),
         }
-        response = self.client.post(reverse('user-list-create'), payload)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        User.objects.create_user(**payload)
         return payload
 
     def test_tc01_successful_login_returns_token_pair(self):
@@ -100,3 +103,155 @@ class LoginTests(APITestCase):
             'password': user['password'],
         })
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class CreateUserTests(APITestCase):
+    """UM-US-01: Create a User (ADMIN). See e2e/002-user-management/test_cases.md."""
+
+    PASSWORD = 'TestQC-Passw0rd!'
+
+    def setUp(self):
+        self.admin = User.objects.create_user(
+            username='admin@example.com', email='admin@example.com', password='Admin-Passw0rd!')
+        self.admin.roles.add(Role.objects.get(code=Role.Code.ADMIN))
+        self.url = reverse('user-create')
+        self.client.force_authenticate(self.admin)
+
+    def _payload(self, **overrides):
+        data = {'full_name': 'Homer Truong', 'email': 'homer@example.com', 'password': self.PASSWORD}
+        data.update(overrides)
+        return {k: v for k, v in data.items() if v is not None}
+
+    def _login(self, email, password):
+        return APIClient().post(reverse('token_obtain_pair'), {'email': email, 'password': password})
+
+    def test_tc01_admin_creates_user_and_new_user_can_log_in(self):
+        response = self.client.post(self.url, self._payload())
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertCountEqual(response.data.keys(), ['id', 'full_name', 'email', 'is_active', 'created_at'])
+        self.assertEqual(response.data['full_name'], 'Homer Truong')
+        self.assertEqual(response.data['email'], 'homer@example.com')
+        self.assertTrue(response.data['is_active'])
+        login = self._login('homer@example.com', self.PASSWORD)
+        self.assertEqual(login.status_code, status.HTTP_200_OK)
+        self.assertTrue(login.data.get('access'))
+        self.assertTrue(login.data.get('refresh'))
+
+    def test_tc03_missing_email_rejected(self):
+        response = self.client.post(self.url, self._payload(email=None))
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['email'], ['Email is required'])
+        self.assertFalse(User.objects.filter(full_name='Homer Truong').exists())
+
+    def test_tc05_existing_email_rejected_with_account_already_exists(self):
+        self.client.post(self.url, self._payload())
+
+        response = self.client.post(self.url, self._payload(full_name='Someone Else'))
+
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data, {'detail': 'Account already exists', 'code': 'USER_ALREADY_EXISTS'})
+        self.assertEqual(User.objects.filter(email='homer@example.com').count(), 1)
+
+    def test_tc07_new_account_is_user_only_and_cannot_create_accounts(self):
+        self.client.post(self.url, self._payload())
+        new_user = User.objects.get(email='homer@example.com')
+        token = self._login('homer@example.com', self.PASSWORD).data['access']
+
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+        response = client.post(self.url, self._payload(email='second@example.com'))
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(list(new_user.roles.values_list('code', flat=True)), ['USER'])
+        self.assertFalse(User.objects.filter(email='second@example.com').exists())
+
+    def test_tc08_response_never_contains_the_password(self):
+        response = self.client.post(self.url, self._payload())
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertNotIn('password', response.data)
+        self.assertNotIn(self.PASSWORD, response.content.decode())
+
+    def test_tc09_unauthenticated_caller_rejected(self):
+        self.client.force_authenticate(None)
+
+        response = self.client.post(self.url, self._payload())
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertFalse(User.objects.filter(email='homer@example.com').exists())
+
+    def test_tc10_user_only_caller_rejected(self):
+        plain_user = User.objects.create_user(
+            username='plain@example.com', email='plain@example.com', password='Plain-Passw0rd!')
+        plain_user.roles.add(Role.objects.get(code=Role.Code.USER))
+        self.client.force_authenticate(plain_user)
+
+        response = self.client.post(self.url, self._payload())
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertFalse(User.objects.filter(email='homer@example.com').exists())
+
+    def test_tc12_missing_full_name_or_password_rejected(self):
+        no_name = self.client.post(self.url, self._payload(full_name=None))
+        no_password = self.client.post(self.url, self._payload(password=None))
+
+        self.assertEqual(no_name.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(no_name.data['full_name'], ['Full name is required'])
+        self.assertEqual(no_password.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(no_password.data['password'], ['Password is required'])
+        self.assertFalse(User.objects.filter(email='homer@example.com').exists())
+
+    def test_tc14_invalid_or_overlong_email_rejected(self):
+        invalid = self.client.post(self.url, self._payload(email='not-an-email'))
+        too_long = self.client.post(self.url, self._payload(email='a' * 145 + '@example.com'))
+
+        for response in (invalid, too_long):
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            self.assertEqual(response.data['email'], ['Enter a valid email address'])
+        self.assertEqual(User.objects.count(), 1)  # only the setUp admin
+
+    def test_tc15_password_shorter_than_eight_characters_rejected(self):
+        short = self.client.post(self.url, self._payload(password='1234567'))
+        exact = self.client.post(self.url, self._payload(password='12345678'))
+
+        self.assertEqual(short.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(short.data['password'], ['Password must be at least 8 characters'])
+        self.assertEqual(exact.status_code, status.HTTP_201_CREATED)
+
+    def test_tc16_full_name_longer_than_150_characters_rejected(self):
+        too_long = self.client.post(self.url, self._payload(full_name='x' * 151, email='long@example.com'))
+        exact = self.client.post(self.url, self._payload(full_name='x' * 150, email='exact@example.com'))
+
+        self.assertEqual(too_long.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(too_long.data['full_name'], ['Full name must be at most 150 characters'])
+        self.assertFalse(User.objects.filter(email='long@example.com').exists())
+        self.assertEqual(exact.status_code, status.HTTP_201_CREATED)
+
+    def test_tc17_same_email_in_a_different_capitalization_is_a_duplicate(self):
+        self.client.post(self.url, self._payload())
+
+        response = self.client.post(self.url, self._payload(email='Homer@Example.com'))
+
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data['code'], 'USER_ALREADY_EXISTS')
+        self.assertEqual(User.objects.filter(email__iexact='homer@example.com').count(), 1)
+
+    def test_tc18_non_english_full_name_stored_exactly_as_entered(self):
+        response = self.client.post(self.url, self._payload(full_name='Trương Văn Hòa'))
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['full_name'], 'Trương Văn Hòa')
+        self.assertEqual(User.objects.get(email='homer@example.com').full_name, 'Trương Văn Hòa')
+
+    def test_tc19_failure_part_way_leaves_no_account_behind(self):
+        # The failure is induced inside the real test database (no mocking): without the seeded
+        # USER role the service fails after the User row was written, so the rollback must remove it.
+        Role.objects.filter(code=Role.Code.USER).delete()
+        self.client.raise_request_exception = False
+
+        response = self.client.post(self.url, self._payload())
+
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertFalse(User.objects.filter(email='homer@example.com').exists())

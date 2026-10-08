@@ -52,7 +52,8 @@ pfm/
 ├── frontend/            # Next.js 16 · React 19 · TypeScript · Tailwind CSS v4 (port 3000)
 ├── backend/              # Django 6 · DRF · SimpleJWT (JWT) · SQLite (port 8000)
 │   ├── config/            # settings.py, urls.py, api_router.py — all routes under /api/v1/
-│   ├── users/              # AUTH_USER_MODEL + registration
+│   ├── users/              # AUTH_USER_MODEL + ADMIN-only account creation (UM-US-01)
+│   ├── roles/               # Role (ADMIN | USER), seeded by migration; User ↔ Role via user_roles
 │   ├── wallets/             # one Django app per Aggregate Root / entity (SDS §2.1)
 │   ├── categories/
 │   ├── budgets/
@@ -94,7 +95,7 @@ cd e2e && npx playwright test                                        # e2e tests
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8000/api/v1/ · Health: http://localhost:8000/health/ · Admin: http://localhost:8000/admin/
 - Auth: JWT Bearer — `POST /api/v1/auth/login/` to obtain a token pair, `POST /api/v1/auth/refresh/` to refresh; send `Authorization: Bearer <access_token>`
-- No seeded default credentials — create the first ADMIN via `python manage.py createsuperuser` (RUNBOOK §9), or register a USER via `POST /api/v1/users/`
+- No seeded default credentials — create the first ADMIN via `python manage.py createsuperuser` (RUNBOOK §9); the ADMIN then creates family accounts with `POST /api/v1/users/` (ADMIN-only, UM-US-01)
 
 ### Key Conventions
 
