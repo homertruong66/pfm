@@ -1,0 +1,249 @@
+# Test Cases: User Management (UM)
+
+> **Spec:** [spec.md](../../specs/002-user-management/spec.md) | **Plan:** [plan.md](../../specs/002-user-management/plan.md)  
+> **Created:** 2026-10-08 | **Updated:** 2026-10-08 — added UM-US-01 (TC-01..TC-19)
+
+## UM-US-01: Create a User (ADMIN)
+
+### AC Classification
+
+| AC | Classification | Rationale |
+|----|-----------------|-----------|
+| AC-04 — New account is a USER only | API | Role/permission outcome; no UI is offered to a USER for this action (the page is not linked anywhere — plan G9) |
+| AC-05 — Initial password never shown | API | A property of the response body; the page never echoes the password field |
+| EC-01 — Not logged in | API | Pure auth rejection; the page redirects to the Login page, already covered by SS-US-01's flow |
+| EC-04 — Invalid email format | API | The page renders the API's field message through the same path TC-04 exercises for AC-02 — no new UI behavior |
+| EC-05 — Initial password too short | API | Same as EC-04 |
+| EC-06 — Full name too long | API | Same as EC-04 |
+| EC-07 — Same email, different capitalization | API | Same rejection path as AC-03; the capitalization rule lives in the API |
+| EC-08 — Non-English full name | API | Persistence/round-trip behavior of the API |
+| EC-09 — Creation fails part-way | API | Atomicity of the write; cannot be triggered from the browser |
+
+### Coverage Matrix
+
+| AC/EC | Label | Integration TC(s) | E2E TC(s) |
+|---|---|---|---|
+| AC-01 — Account created | BOTH | TC-01 | TC-02 |
+| AC-02 — Email required | BOTH | TC-03 | TC-04 |
+| AC-03 — Existing account rejected | BOTH | TC-05 | TC-06 |
+| AC-04 — New account is a USER only | API | TC-07 | — *(auth/role outcome, no UI to exercise)* |
+| AC-05 — Initial password never shown | API | TC-08 | — *(response property, no UI to exercise)* |
+| EC-01 — Not logged in | API | TC-09 | — *(pure auth rejection)* |
+| EC-02 — Caller is a USER, not an ADMIN | BOTH | TC-10 | TC-11 |
+| EC-03 — Full name or password missing | BOTH | TC-12 | TC-13 |
+| EC-04 — Invalid email format | API | TC-14 | — *(same inline path as TC-04)* |
+| EC-05 — Initial password too short | API | TC-15 | — *(same inline path as TC-04)* |
+| EC-06 — Full name too long | API | TC-16 | — *(same inline path as TC-04)* |
+| EC-07 — Same email, different capitalization | API | TC-17 | — *(same rejection path as TC-06)* |
+| EC-08 — Non-English full name | API | TC-18 | — *(API round-trip)* |
+| EC-09 — Creation fails part-way | API | TC-19 | — *(atomicity, not triggerable from the browser)* |
+
+- [x] Self-checked against [aif-review-checklist.md § `test_cases.md` — Coverage](../../aif-review-checklist.md#test_casesmd--coverage)
+
+### Negative-scenario applicability
+
+- **Authentication (401):** covered by TC-09.
+- **Authorization (403):** covered by TC-10 and TC-11 (USER-only caller) and TC-07 (the new User cannot create accounts).
+- **Not found:** N/A — creating a User references no existing record.
+- **Business rule conflicts (409):** covered by TC-05, TC-17.
+- **Invalid / missing / malformed / boundary input:** TC-03, TC-12, TC-14, TC-15, TC-16.
+
+### Test Cases
+
+### TC-01: ADMIN creates a User and the new User can log in
+- **US:** UM-US-01
+- **Given:** an `ADMIN` is logged in
+- **When:** the ADMIN submits `POST /api/v1/users/` with a full name, a new email and an initial password
+- **Then:** the response is `201` with the account's `id`, `full_name`, `email`, `is_active = true` and `created_at`
+  - **And** a login request (`POST /api/v1/auth/login/`) with that email and password returns `200` with an `access` and a `refresh` token
+- **AC:** AC-01
+- **Type:** integration
+- **Severity:** Critical
+
+### TC-02: ADMIN creates a User through the Create User screen
+- **US:** UM-US-01
+- **Given:** an `ADMIN` is logged in and on the Create User screen
+- **When:** the ADMIN fills in a full name, a new email and an initial password and clicks Create
+- **Then:** the page shows "User account created"
+  - **And** the new account can log in with that email and password
+- **AC:** AC-01
+- **Type:** e2e
+- **Severity:** Critical
+
+### TC-03: Missing email is rejected at the API
+- **US:** UM-US-01
+- **Given:** an `ADMIN` is logged in
+- **When:** `POST /api/v1/users/` is submitted with a full name and password but no `email`
+- **Then:** the response is `400` with the field error "Email is required" under `email`
+  - **And** no account is created
+- **AC:** AC-02
+- **Type:** integration
+- **Severity:** Major
+
+### TC-04: Missing email shows "Email is required" on the screen
+- **US:** UM-US-01
+- **Given:** an `ADMIN` is on the Create User screen
+- **When:** the ADMIN fills in only a full name and a password and clicks Create
+- **Then:** the page shows "Email is required" next to the email field
+  - **And** no success message appears
+- **AC:** AC-02
+- **Type:** e2e
+- **Severity:** Major
+
+### TC-05: An email already in use is rejected with "Account already exists"
+- **US:** UM-US-01
+- **Given:** an `ADMIN` is logged in and an account with a given email exists
+- **When:** `POST /api/v1/users/` is submitted with that same email
+- **Then:** the response is `409` with `detail` "Account already exists" and `code` `USER_ALREADY_EXISTS`
+  - **And** only one account with that email exists
+- **AC:** AC-03
+- **Type:** integration
+- **Severity:** Major
+
+### TC-06: An email already in use shows "Account already exists" on the screen
+- **US:** UM-US-01
+- **Given:** an `ADMIN` is on the Create User screen and an account with a given email exists
+- **When:** the ADMIN fills in a full name, that same email and a password and clicks Create
+- **Then:** the page shows "Account already exists"
+  - **And** no success message appears
+- **AC:** AC-03
+- **Type:** e2e
+- **Severity:** Major
+
+### TC-07: The new account is a USER and cannot create accounts
+- **US:** UM-US-01
+- **Given:** an `ADMIN` has created an account
+- **When:** the new User logs in and submits `POST /api/v1/users/` with a different new email
+- **Then:** the response is `403`
+  - **And** the new account holds the `USER` role and not the `ADMIN` role
+  - **And** no account was created for the different email
+- **AC:** AC-04
+- **Type:** integration
+- **Severity:** Critical
+
+### TC-08: The creation response never contains the password
+- **US:** UM-US-01
+- **Given:** an `ADMIN` is logged in
+- **When:** `POST /api/v1/users/` succeeds
+- **Then:** the response body has no `password` key and does not contain the submitted password text
+- **AC:** AC-05
+- **Type:** integration
+- **Severity:** Critical
+
+### TC-09: A caller who is not logged in is rejected
+- **US:** UM-US-01
+- **Given:** a request carries no credentials
+- **When:** `POST /api/v1/users/` is submitted with valid values
+- **Then:** the response is `401`
+  - **And** no account is created
+- **AC:** EC-01
+- **Type:** integration
+- **Severity:** Major
+
+### TC-10: A USER-only caller is rejected
+- **US:** UM-US-01
+- **Given:** a logged-in account that holds only the `USER` role
+- **When:** it submits `POST /api/v1/users/` with valid values
+- **Then:** the response is `403`
+  - **And** no account is created
+- **AC:** EC-02
+- **Type:** integration
+- **Severity:** Critical
+
+### TC-11: A USER opening the Create User screen is shown an access-denied message
+- **US:** UM-US-01
+- **Given:** a `USER`-only account is logged in and on the Create User screen
+- **When:** the User fills in valid values and clicks Create
+- **Then:** the page shows "You do not have permission to create User accounts."
+  - **And** no success message appears
+  - **And** the account is not created (a login with those values returns `401`)
+- **AC:** EC-02
+- **Type:** e2e
+- **Severity:** Critical
+
+### TC-12: Missing full name or password is rejected at the API
+- **US:** UM-US-01
+- **Given:** an `ADMIN` is logged in
+- **When:** `POST /api/v1/users/` is submitted once without `full_name` and once without `password`
+- **Then:** each response is `400` with "Full name is required" under `full_name`, or "Password is required" under `password`, respectively
+  - **And** no account is created
+- **AC:** EC-03
+- **Type:** integration
+- **Severity:** Major
+
+### TC-13: Missing full name and password show their messages on the screen
+- **US:** UM-US-01
+- **Given:** an `ADMIN` is on the Create User screen
+- **When:** the ADMIN fills in only the email and clicks Create
+- **Then:** the page shows "Full name is required" next to the full-name field and "Password is required" next to the password field
+- **AC:** EC-03
+- **Type:** e2e
+- **Severity:** Major
+
+### TC-14: An invalid or over-long email is rejected
+- **US:** UM-US-01
+- **Given:** an `ADMIN` is logged in
+- **When:** `POST /api/v1/users/` is submitted once with `email` "not-an-email" and once with an email longer than 150 characters
+- **Then:** each response is `400` with "Enter a valid email address" under `email`
+  - **And** no account is created
+- **AC:** EC-04
+- **Type:** integration
+- **Severity:** Minor
+
+### TC-15: A password shorter than 8 characters is rejected
+- **US:** UM-US-01
+- **Given:** an `ADMIN` is logged in
+- **When:** `POST /api/v1/users/` is submitted with a 7-character password
+- **Then:** the response is `400` with "Password must be at least 8 characters" under `password`
+  - **And** no account is created
+  - **And** an 8-character password is accepted (`201`)
+- **AC:** EC-05
+- **Type:** integration
+- **Severity:** Minor
+
+### TC-16: A full name longer than 150 characters is rejected
+- **US:** UM-US-01
+- **Given:** an `ADMIN` is logged in
+- **When:** `POST /api/v1/users/` is submitted with a 151-character `full_name`
+- **Then:** the response is `400` with "Full name must be at most 150 characters" under `full_name`
+  - **And** no account is created
+  - **And** a 150-character `full_name` is accepted (`201`)
+- **AC:** EC-06
+- **Type:** integration
+- **Severity:** Minor
+
+### TC-17: The same email in a different capitalization is a duplicate
+- **US:** UM-US-01
+- **Given:** an `ADMIN` is logged in and an account with the email "homer@example.com" exists
+- **When:** `POST /api/v1/users/` is submitted with the email "Homer@Example.com"
+- **Then:** the response is `409` with code `USER_ALREADY_EXISTS`
+  - **And** only one account exists for that email
+- **AC:** EC-07
+- **Type:** integration
+- **Severity:** Major
+
+### TC-18: A non-English full name is stored exactly as entered
+- **US:** UM-US-01
+- **Given:** an `ADMIN` is logged in
+- **When:** `POST /api/v1/users/` is submitted with `full_name` "Trương Văn Hòa"
+- **Then:** the response is `201` and its `full_name` equals "Trương Văn Hòa" exactly
+  - **And** the stored account has the same `full_name`
+- **AC:** EC-08
+- **Type:** integration
+- **Severity:** Minor
+
+### TC-19: A failure part-way through creation leaves no account behind
+- **US:** UM-US-01
+- **Given:** an `ADMIN` is logged in and the `USER` role row cannot be found (an unexpected storage-level failure part-way through creation)
+- **When:** `POST /api/v1/users/` is submitted with valid values
+- **Then:** the response is an error (`500`), not `201`
+  - **And** no account exists for that email afterwards
+- **AC:** EC-09
+- **Type:** integration
+- **Severity:** Major
+- **Note:** the failure is induced by removing the seeded `USER` role inside the test database — no model or queryset is mocked.
+
+- [x] Self-checked against [aif-review-checklist.md § `test_cases.md` — Structure](../../aif-review-checklist.md#test_casesmd--structure)
+- [x] Self-checked against [aif-review-checklist.md § Playwright Code — Integration Tests](../../aif-review-checklist.md#playwright-code--integration-tests)
+- [x] Self-checked against [aif-review-checklist.md § Playwright Code — E2E Tests](../../aif-review-checklist.md#playwright-code--e2e-tests)
+- [x] Self-checked against [aif-review-checklist.md § Playwright Code — General](../../aif-review-checklist.md#playwright-code--general)
