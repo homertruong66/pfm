@@ -27,8 +27,10 @@
 | TC-17 | Same email in a different capitalization is a duplicate | EC-07 | integration | PASS | `test_tc17…` |
 | TC-18 | Non-English full name stored exactly as entered | EC-08 | integration | PASS | `test_tc18…` |
 | TC-19 | Failure part-way leaves no account behind | EC-09 | integration | PASS | `test_tc19…`; failure induced by deleting the seeded `USER` role in the test database (no mocking) |
+| TC-20 | No endpoint exists to read, change or delete an account by id | EC-02 | integration | PASS | `test_tc20…`; added after the post-verification security fix (see Follow-up) |
+| TC-21 | A database-level collision is also reported as "Account already exists" | AC-03 | integration | PASS | `test_tc21…`; added 2026-10-08 — covers the `IntegrityError` branch |
 
-**19/19 test cases PASS** (14 integration via `python manage.py test`, 5 e2e via Playwright). 0 FAIL, 0 BLOCKED. Full backend suite: 23 tests OK (UM-US-01's 14 + SS-US-01's 6 + 3 role tests). `npm run lint` and `npm run build` pass.
+**21/21 test cases PASS** (16 integration via `python manage.py test`, 5 e2e via Playwright). 0 FAIL, 0 BLOCKED. Full backend suite: 28 tests OK (UM-US-01's 16 + SS-US-01's 8 + 4 role tests). The 5 e2e tests were **re-run on 2026-10-08 after the follow-ups below** (TC-02 now also logs the new User in through the Login page; TC-04/TC-13 assert no create request is sent) and the HTML report regenerated; the SS-US-01 e2e (3/3) passed on a fresh cold start of both servers with a freshly migrated scratch database. `npm run lint` and `npm run build` pass.
 
 **SS-US-01 regression (its e2e seeding was re-based on the ADMIN-only endpoint):** 3/3 pass. The *first* run on a cold dev server failed TC-02 and TC-04 (the failure message was not captured); immediately re-running TC-04 alone and then the whole suite passed 3/3. The cause was not investigated further and is most likely the Next dev server compiling `/login` on first use, but that is an inference, not a confirmed diagnosis.
 
@@ -52,4 +54,4 @@ All automated and manual checks pass. Per constitution.md's Definition of Done:
 
 **UM-US-01: Create a User is Done**, with these open points recorded rather than hidden: verification ran on localhost against a scratch database (no LAN deployment); the Create User screen is not linked from the navigation and is not hidden from non-ADMINs (FE-03 — plan G9, needs a role source such as UM-US-03); and `UserDetailView` (`users/<id>/`) was, at verification time, unchanged and let any authenticated caller read, update (including writing a plaintext password) or delete any account.
 
-**Follow-up (2026-10-08, after this report):** that view and route were removed; TC-20 (backend regression test) passes, and the full backend suite is 24 tests OK. The UM-US-01 e2e suite was not re-run after the removal — it does not touch `users/<id>/`.
+**Follow-up (2026-10-08, after this report):** that view and route were removed; TC-20 (backend regression test) passes, and the full backend suite is 24 tests OK. The e2e suite was re-run afterwards (see above).

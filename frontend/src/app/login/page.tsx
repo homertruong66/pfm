@@ -29,7 +29,13 @@ export default function LoginPage() {
       });
 
       if (!response.ok) {
-        setError("Invalid email or password.");
+        // 400 (missing field) and 401 (wrong credentials / deactivated account) are the credential
+        // errors SS-US-01 defines; anything else is not the User's mistake and must not look like it.
+        setError(
+          response.status === 400 || response.status === 401
+            ? "Invalid email or password."
+            : "Something went wrong. Please try again.",
+        );
         return;
       }
 
@@ -38,7 +44,7 @@ export default function LoginPage() {
       localStorage.setItem("pfm_refresh_token", data.refresh);
       router.push("/");
     } catch {
-      setError("Invalid email or password.");
+      setError("Could not reach the server. Please try again.");
     } finally {
       setLoading(false);
     }

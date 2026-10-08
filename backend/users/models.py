@@ -16,13 +16,13 @@ class UserManager(DjangoUserManager):
 
 class User(AbstractUser):
     email = models.EmailField(unique=True)
-    full_name = models.CharField(max_length=150, blank=True, default='')
+    full_name = models.CharField(max_length=150)
     roles = models.ManyToManyField('roles.Role', related_name='users', db_table='user_roles', blank=True)
 
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = ['username', 'full_name']
 
     class Meta:
         db_table = 'users'

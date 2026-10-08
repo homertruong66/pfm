@@ -506,6 +506,9 @@ App URL:          [http://<HOST_IP>:3000 — confirmed by SE in Step 5]
    (e.g. e2e/001-system-security/ss-us-01-login/) with result screenshots for e2e cases —
    the folder name alone should make clear it's this US's test report, no intermediate
    "reports/" wrapper needed.
+   Note: Playwright's HTML reporter empties its output folder when it writes, so generate the
+   HTML report first and write verification-report.md (step 6) afterwards — a re-run of the
+   suite deletes an existing verification-report.md in that folder (restore it from git).
 
 5.1. Clean up disposable Playwright run artifacts (traces/screenshots dumped to the
    default `test-results/` output directory at repo root — separate from the HTML

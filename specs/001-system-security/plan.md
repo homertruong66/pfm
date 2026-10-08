@@ -21,11 +21,29 @@
 
 **Summary**: Authenticate an ADMIN or USER by email + password and issue a JWT access/refresh credential pair, so the caller can reach the account and the actions permitted to their role(s) (AC-01). The backend side of this already exists as-is: `djangorestframework-simplejwt`'s stock `TokenObtainPairView` is wired at `POST /api/v1/auth/login/` (`backend/config/api_router.py`), and Django's default `ModelBackend` already refuses to authenticate a deactivated account (`is_active=False`), which is exactly BR-16/AC-03. No new backend service module is introduced — this is a case of AR-01's "straightforward CRUD/auth" threshold, not a multi-model side-effecting operation. What's actually missing is (1) a frontend login page — none exists yet under `frontend/src/app/` — and (2) test coverage + SDS documentation for the already-working endpoint.
 
+#### Pre-flight: Spec Review Findings
+
+*Recorded retroactively on 2026-10-08 — this plan predates the Pre-flight section of `plan-template.md`. Each finding is what was true when SS-US-01 was designed/built, with its current status.*
+
+| ID | Type | AC | Finding | Resolution |
+|----|------|----|---------|------------|
+| G1 | **Gap** | AC-04 | "Single login covers dual roles" cannot be demonstrated while no `Role` entity exists. | Deferred, then **resolved by UM-US-01**: `roles.Role` / `user_roles` exist; TC-06 now seeds a real dual-role account and asserts one token works for an ADMIN action and a USER action, with a USER-only account as the control. |
+| G2 | **Gap** | AC-01 | The spec does not say where the issued credentials are kept on the client. | the token-storage Decision below (recorded retroactively): `localStorage`. |
+| G3 | **Gap** | AC-01..03 | Constitution § Logging & Audit asks for login success/failure logging; the stock view logs nothing. | Resolved 2026-10-08: thin `LoginView`/`LoginSerializer` subclass logs success at `INFO`; failures are logged at `WARN` with the acting User id (none, for a login) by `config.exceptions.api_exception_handler`. Neither line contains the email or the password. |
+| A1 | Ambiguity | EC-03 | "Session/credential expiry" is listed as an Edge Case but defers its outcome. | Left out of scope (spec Out of Scope); to be revisited with SS-US-02 Logout. |
+| A2 | Ambiguity | AC-02, EC-01 | FE-06 asks for inline field-level feedback; the spec's copy ("Invalid email or password.", "Email and password are required.") is form-level by design — field-level text would reveal which field was wrong (AC-02). | The login form deliberately uses one form-level `#message-error`. |
+| A3 | Ambiguity | AC-02 | Should a network failure or a `5xx` look like a credential error? | No: only `400`/`401` show "Invalid email or password."; anything else shows a neutral error (fixed 2026-10-08, code and tasks.md T011). |
+
+*Pre-flight Gaps checklist*
+- [x] Zero spec gaps flagged — or flagged gaps were resolved before this `plan.md` was reviewed
+- [x] If significant gaps or ambiguity remain after review, the work goes back to the Spec step rather than being patched forward here
+- [x] Design scope matches the US being designed — no scope creep into unrelated stories
+
 #### Decisions & Rationale
 
 No `[NEEDS CLARIFICATION]` markers remained in Technical Context below, so this phase confirms existing decisions already fixed by the constitution rather than evaluating new alternatives.
 
-- **Decision**: Reuse `djangorestframework-simplejwt`'s stock `TokenObtainPairView`, no custom login view/serializer.
+- **Decision**: Reuse `djangorestframework-simplejwt`'s `TokenObtainPairView` and serializer unchanged except for one `INFO` log line on success — a ~10-line `users/auth.py` (`LoginView` / `LoginSerializer`), no custom authentication logic. *(Originally the unmodified stock view; the subclass was added 2026-10-08 to satisfy § Logging & Audit.)*
   **Rationale**: `POST /api/v1/auth/login/` is already wired to `TokenObtainPairView`. It authenticates via Django's `authenticate()`, which delegates to `ModelBackend.user_can_authenticate()` — this already rejects `is_active=False` accounts (AC-03/BR-16) and returns one generic error message for both wrong-credentials and deactivated-account cases (AC-02), with no per-field detail leaked. Constitution AR-01 reserves a dedicated service module for logic spanning more than one model or with side effects (e.g. budget recompute, notification fan-out) — login has neither, so introducing an `AuthenticationService` would violate Simplicity Over Premature Scale.
   **Alternatives considered**: A custom login `APIView` + service function — rejected: duplicates behavior the stock view already provides correctly. Session-based auth — rejected: constitution API-07 already fixes JWT Bearer as the auth mechanism project-wide.
 
@@ -35,7 +53,9 @@ No `[NEEDS CLARIFICATION]` markers remained in Technical Context below, so this 
 
 - **Decision**: Token storage is client-side, with no specific cookie/session mechanism mandated by this US.
   **Rationale**: No existing frontend auth pattern exists in this codebase yet to follow. The simplest mechanism consistent with FE-08 (direct fetch, `Authorization: Bearer <token>` header per API-07) is storing the returned `access`/`refresh` tokens in the browser and attaching `access` as a Bearer header on subsequent requests. The concrete choice (e.g. in-memory vs. persisted) is an implementation-time detail for `tasks.md`, not a spec-level or business-rule concern.
-  **Alternatives considered**: None evaluated at this phase — deferred to implementation, since no AC in spec.md constrains storage mechanism.
+  **Outcome (recorded 2026-10-08)**: implemented as `localStorage` under `pfm_access_token` / `pfm_refresh_token`; the Dashboard guard and the Create User page (UM-US-01) read the access token from there and redirect to `/login` when it is absent.
+  **Alternatives considered**: `HttpOnly` cookies set by the backend — not chosen: needs a cookie-issuing/CSRF design on the backend and contradicts FE-08/API-07's plain Bearer header for now. In-memory storage — rejected: the User would have to log in again on every reload.
+  **Known risk**: any script injected into the page (XSS) can read both tokens, including the 7-day refresh token. Accepted for the single-household home-LAN deployment; revisit (cookie-based storage, shorter refresh lifetime) when SS-US-02 Logout is designed, since logout must also clear this storage.
 
 - **Open items — resolved during Implementation**: SDS §6.3 API Index / §6.4 API Specification now list `POST /auth/login/` (API-SS-01) and `POST /auth/refresh/` (API-SS-02) — added in tasks.md T014. SDS §4.3.3's BR-16 row now references the actual Django `ModelBackend` mechanism instead of a nonexistent `AuthenticationService` — corrected in tasks.md T015.
 
@@ -151,6 +171,18 @@ sequenceDiagram
 
 *(Implementation-level task breakdown for SS-US-01 lives in `tasks.md`, not repeated here.)*
 
+#### Open tasks
+
+*Implementation-level breakdown lives in `tasks.md`; this table maps the design to it. All done.*
+
+| ID | Task | File |
+|----|------|------|
+| T1 | Confirm the login/refresh routes and `djangorestframework-simplejwt` wiring (`tasks.md` T001) | `backend/config/api_router.py` |
+| T2 | `APITestCase`s for AC-01..AC-04, EC-01, EC-02, the unregistered-email case and login logging (`tasks.md` T002–T008; TC-10/TC-11 added 2026-10-08) | `backend/users/tests.py` |
+| T3 | Login page with the Element IDs above (`tasks.md` T009–T013) | `frontend/src/app/login/page.tsx` |
+| T4 | Login success log line and 401/403 `WARN` logging | `backend/users/auth.py`, `backend/config/exceptions.py` |
+| T5 | SDS §6.3/§6.4 and §4.3.3 BR-16 doc sync; Playwright runner and e2e suite (`tasks.md` T014–T018) | `SDS.md`, `e2e/` |
+
 ### SS-US-02: Logout
 
 *(Not yet designed — add a `### SS-US-02: Logout` section here, following the same subsection structure as SS-US-01 above, when this US goes through the Design Step.)*
@@ -163,7 +195,7 @@ sequenceDiagram
 
 **Storage**: SQLite (MVP) — `users` table already exists (`AUTH_USER_MODEL = 'users.User'`), no schema change required for this US
 
-**Testing**: `python manage.py test` (DRF `APITestCase`, real throwaway test DB per constitution's Integration Testing Over Mocking) — no frontend test runner is set up yet, so the login page is verified manually per CLAUDE.md's "test in a browser" guidance
+**Testing**: `python manage.py test` (DRF `APITestCase`, real throwaway test DB per constitution's Integration Testing Over Mocking); Playwright e2e (`e2e/001-system-security/test_ss.spec.ts`, runner `e2e/playwright.config.ts`) for the login page
 
 **Target Platform**: Single-machine home-LAN deployment (RUNBOOK.md) — backend :8000, frontend :3000
 
@@ -191,6 +223,8 @@ sequenceDiagram
 | API-07 Authentication | ✅ PASS | Already the fixed mechanism this US formalizes |
 | Simplicity Over Premature Scale | ✅ PASS | Explicitly rejects adding an `AuthenticationService` module (see Decisions & Rationale) |
 | VL-01 Backend Is Source of Truth | ✅ PASS | Frontend HTML5 required-field checks are UX-only; DRF/SimpleJWT validation is authoritative |
+| Logging & Audit | ✅ PASS | Login success logged at `INFO` (`users.auth`); `401`/`403` logged at `WARN` with the acting User id by `config.exceptions.api_exception_handler`; no email, password or token in any line (TC-11) |
+| Security Requirements (no secrets in source, token handling) | ⚠ ACCEPTED RISK | Client-side token storage in `localStorage` — see the token-storage Decision's "Known risk" |
 | DOD-02 API Contract Documented | ✅ RESOLVED | `POST /auth/login/` (API-SS-01) and `POST /auth/refresh/` (API-SS-02) added to SDS §6.3 API Index and §6.4.7/§6.4.8 API Specification during the Implementation Step (tasks.md T014) |
 | Cross-Document Consistency (BR-16 mapping) | ✅ RESOLVED | SDS §4.3.3's BR-16 row corrected during the Implementation Step (tasks.md T015) to name Django's `ModelBackend.user_can_authenticate()`, invoked transparently by `TokenObtainPairSerializer.validate()`, instead of the nonexistent `AuthenticationService` |
 
@@ -205,7 +239,9 @@ specs/001-system-security/
 ├── plan.md              # This file — Decisions & Rationale, Domain Objects, API Contracts,
 │                         #   and Quickstart Validation live per-US inside this file (no sibling
 │                         #   research.md/data-model.md/contracts//quickstart.md)
-└── tasks.md              # Phase 2 output (/speckit-tasks — not created by this command)
+├── test_cases.md         # Quality Step (TC-01..TC-11)
+├── checklists/requirements.md
+└── tasks.md              # /speckit-tasks output
 ```
 
 ### Source Code (repository root)
@@ -215,17 +251,19 @@ specs/001-system-security/
 
 backend/
 ├── config/
-│   ├── api_router.py     # existing: POST /auth/login/ → TokenObtainPairView, POST /auth/refresh/ → TokenRefreshView
+│   ├── api_router.py     # POST /auth/login/ → users.auth.LoginView, POST /auth/refresh/ → TokenRefreshView
+│   ├── exceptions.py     # logs 401/403 at WARN with the acting User id
 │   └── settings.py       # existing: SIMPLE_JWT lifetimes, AUTH_USER_MODEL
 ├── users/
 │   ├── models.py         # existing: User(AbstractUser), USERNAME_FIELD='email', is_active
+│   ├── auth.py           # LoginView / LoginSerializer — stock login + success log line
 │   └── tests.py          # DONE (SS-US-01): APITestCase covering AC-01..AC-04, EC-01, EC-02
 
 frontend/
 └── src/app/
-    └── login/
-        └── page.tsx      # DONE (SS-US-01): login form (email, password), calls POST /api/v1/auth/login/,
-                           #                  stores access/refresh tokens, redirects off /login on success
+    ├── login/
+    │   └── page.tsx      # DONE (SS-US-01): login form (email, password), calls POST /api/v1/auth/login/,
+    │                      #                  stores access/refresh tokens, redirects off /login on success
     └── logout/           # SS-US-02, not yet designed
         └── ...
 ```

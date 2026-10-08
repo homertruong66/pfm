@@ -87,6 +87,7 @@ AUTH_USER_MODEL = 'users.User'
 
 # Django REST Framework
 REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'config.exceptions.api_exception_handler',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
@@ -125,5 +126,6 @@ LOGGING = {
     },
     'loggers': {
         'users': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
+        'config': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
     },
 }

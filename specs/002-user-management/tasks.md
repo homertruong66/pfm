@@ -6,6 +6,10 @@
 
 **Organization**: One user story (UM-US-01). Phase 1 sets up the new `roles` app, Phase 2 the shared pieces every later User Management/ADMIN story reuses, Phase 3 the story itself, Phase 4 re-bases the SS-US-01 tests and syncs the documents.
 
+**Plan ↔ task mapping**: plan.md's *Open tasks* T1–T12 correspond to these tasks as follows — T1 → T001–T002, T2 → T003, T3 → T004, T4 → T008–T009, T5 → T010, T6 → T011, T7 → *(skipped)*, T8 → T005–T007 + T012, T9 → T014, T10 → T013, T11 → T015, T12 → T016–T017.
+
+**Order note**: the tests below are listed before the implementation, but in practice the service, serializer and view were written first and the tests after, so there is no red-then-green record for T005–T007.
+
 ## Phase 1: Setup
 
 - [x] T001 [P] Create the `roles` app: `Role` model (`code` unique, `ADMIN`/`USER`, `db_table = 'roles'`) in `backend/roles/models.py`, `backend/roles/apps.py`, register `'roles'` in `INSTALLED_APPS` in `backend/config/settings.py` (plan T1)

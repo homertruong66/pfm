@@ -54,8 +54,8 @@
   - [4.7 Architecture Principles](#47-architecture-principles)
 - [5. Product Features and User Story Specification](#5-product-features-and-user-story-specification)
   - [5.1 System Security (SS)](#51-system-security-ss)
-    - [5.1.1 SS-US-01: Login (ADMIN, USER)](#511-ss-us-01-login-admin-user)
-    - [5.1.2 SS-US-02: Logout (ADMIN, USER)](#512-ss-us-02-logout-admin-user)
+    - [5.1.1 SS-US-01: Login (ADMIN, USER) [MVP]](#511-ss-us-01-login-admin-user-mvp)
+    - [5.1.2 SS-US-02: Logout (ADMIN, USER) [MVP]](#512-ss-us-02-logout-admin-user-mvp)
   - [5.2 User Management (UM)](#52-user-management-um)
     - [5.2.1 UM-US-01: Create a User (ADMIN)](#521-um-us-01-create-a-user-admin)
     - [5.2.2 UM-US-02: Update a User Profile (USER)](#522-um-us-02-update-a-user-profile-user)
@@ -64,33 +64,33 @@
     - [5.2.5 UM-US-05: Deactivate a User (ADMIN)](#525-um-us-05-deactivate-a-user-admin)
     - [5.2.6 UM-US-06: Delete a User (ADMIN)](#526-um-us-06-delete-a-user-admin)
   - [5.3 Wallet Management (WM)](#53-wallet-management-wm)
-    - [5.3.1 WM-US-01: Create a Wallet (USER)](#531-wm-us-01-create-a-wallet-user)
-    - [5.3.2 WM-US-02: List Wallets (USER)](#532-wm-us-02-list-wallets-user)
-    - [5.3.3 WM-US-03: View a Wallet (USER)](#533-wm-us-03-view-a-wallet-user)
+    - [5.3.1 WM-US-01: Create a Wallet (USER) [MVP]](#531-wm-us-01-create-a-wallet-user-mvp)
+    - [5.3.2 WM-US-02: List Wallets (USER) [MVP]](#532-wm-us-02-list-wallets-user-mvp)
+    - [5.3.3 WM-US-03: View a Wallet (USER) [MVP]](#533-wm-us-03-view-a-wallet-user-mvp)
     - [5.3.4 WM-US-04: Update a Wallet (USER)](#534-wm-us-04-update-a-wallet-user)
     - [5.3.5 WM-US-05: Set a Wallet as default (USER)](#535-wm-us-05-set-a-wallet-as-default-user)
     - [5.3.6 WM-US-06: Delete a Wallet (USER)](#536-wm-us-06-delete-a-wallet-user)
   - [5.4 Category Management (CM)](#54-category-management-cm)
-    - [5.4.1 CM-US-01: Create a Category (USER)](#541-cm-us-01-create-a-category-user)
-    - [5.4.2 CM-US-02: List Categories (USER)](#542-cm-us-02-list-categories-user)
+    - [5.4.1 CM-US-01: Create a Category (USER) [MVP]](#541-cm-us-01-create-a-category-user-mvp)
+    - [5.4.2 CM-US-02: List Categories (USER) [MVP]](#542-cm-us-02-list-categories-user-mvp)
     - [5.4.3 CM-US-03: View a Category (USER)](#543-cm-us-03-view-a-category-user)
     - [5.4.4 CM-US-04: Update a Category (USER)](#544-cm-us-04-update-a-category-user)
     - [5.4.5 CM-US-05: Delete a Category (USER)](#545-cm-us-05-delete-a-category-user)
   - [5.5 Budget Management (BM)](#55-budget-management-bm)
-    - [5.5.1 BM-US-01: Create a Budget for a Wallet (USER)](#551-bm-us-01-create-a-budget-for-a-wallet-user)
-    - [5.5.2 BM-US-02: List Budgets (USER)](#552-bm-us-02-list-budgets-user)
-    - [5.5.3 BM-US-03: View a Budget (USER)](#553-bm-us-03-view-a-budget-user)
+    - [5.5.1 BM-US-01: Create a Budget for a Wallet (USER) [MVP]](#551-bm-us-01-create-a-budget-for-a-wallet-user-mvp)
+    - [5.5.2 BM-US-02: List Budgets (USER) [MVP]](#552-bm-us-02-list-budgets-user-mvp)
+    - [5.5.3 BM-US-03: View a Budget (USER) [MVP]](#553-bm-us-03-view-a-budget-user-mvp)
     - [5.5.4 BM-US-04: Update a Budget (USER)](#554-bm-us-04-update-a-budget-user)
     - [5.5.5 BM-US-05: Delete a Budget (USER)](#555-bm-us-05-delete-a-budget-user)
   - [5.6 Transaction Management (TM)](#56-transaction-management-tm)
-    - [5.6.1 TM-US-01: Create a Transaction for a Wallet (USER)](#561-tm-us-01-create-a-transaction-for-a-wallet-user)
-    - [5.6.2 TM-US-02: List Transactions (USER)](#562-tm-us-02-list-transactions-user)
-    - [5.6.3 TM-US-03: View a Transaction (USER)](#563-tm-us-03-view-a-transaction-user)
+    - [5.6.1 TM-US-01: Create a Transaction for a Wallet (USER) [MVP]](#561-tm-us-01-create-a-transaction-for-a-wallet-user-mvp)
+    - [5.6.2 TM-US-02: List Transactions (USER) [MVP]](#562-tm-us-02-list-transactions-user-mvp)
+    - [5.6.3 TM-US-03: View a Transaction (USER) [MVP]](#563-tm-us-03-view-a-transaction-user-mvp)
     - [5.6.4 TM-US-04: Update a Transaction (USER)](#564-tm-us-04-update-a-transaction-user)
     - [5.6.5 TM-US-05: Delete a Transaction (USER)](#565-tm-us-05-delete-a-transaction-user)
     - [5.6.6 TM-US-06: Filter Transactions by Wallet, Category, Type, or Date Range (USER)](#566-tm-us-06-filter-transactions-by-wallet-category-type-or-date-range-user)
   - [5.7 Financial Reporting (RPT)](#57-financial-reporting-rpt)
-    - [5.7.1 RPT-US-01: View the Summary Report (USER)](#571-rpt-us-01-view-the-summary-report-user)
+    - [5.7.1 RPT-US-01: View the Summary Report (USER) [MVP]](#571-rpt-us-01-view-the-summary-report-user-mvp)
     - [5.7.2 RPT-US-02: View Income Report (USER)](#572-rpt-us-02-view-income-report-user)
     - [5.7.3 RPT-US-03: View Expense Report (USER)](#573-rpt-us-03-view-expense-report-user)
     - [5.7.4 RPT-US-04: Filter Reports by Date (USER)](#574-rpt-us-04-filter-reports-by-date-user)
@@ -115,8 +115,8 @@
     - [5.10.4 IP-US-04: Update a Holding (USER)](#5104-ip-us-04-update-a-holding-user)
     - [5.10.5 IP-US-05: Delete a Holding (USER)](#5105-ip-us-05-delete-a-holding-user)
   - [5.11 Notification Handling (NH)](#511-notification-handling-nh)
-    - [5.11.1 NH-US-01: View the list of Notifications (USER)](#5111-nh-us-01-view-the-list-of-notifications-user)
-    - [5.11.2 NH-US-02: View a Notification (USER)](#5112-nh-us-02-view-a-notification-user)
+    - [5.11.1 NH-US-01: View the list of Notifications (USER) [MVP]](#5111-nh-us-01-view-the-list-of-notifications-user-mvp)
+    - [5.11.2 NH-US-02: View a Notification (USER) [MVP]](#5112-nh-us-02-view-a-notification-user-mvp)
     - [5.11.3 NH-US-03: Mark a Notification as Read (USER)](#5113-nh-us-03-mark-a-notification-as-read-user)
     - [5.11.4 NH-US-04: Mark a Notification as Unread (USER)](#5114-nh-us-04-mark-a-notification-as-unread-user)
     - [5.11.5 NH-US-05: Dismiss a Notification (USER)](#5115-nh-us-05-dismiss-a-notification-user)
@@ -928,12 +928,12 @@ This chapter provides build-ready design details per Feature and User Story, ali
 
 > Plan: [specs/001-system-security/plan.md](specs/001-system-security/plan.md)
 
-#### 5.1.1 SS-US-01: Login (ADMIN, USER)
+#### 5.1.1 SS-US-01: Login (ADMIN, USER) [MVP]
 
 **Purpose**
-Authenticates an ADMIN or USER by email and password and issues a JWT access/refresh credential pair, giving the caller entry to their own account and the data/actions their role(s) permit — the prerequisite for every other protected action in the System. Reuses `djangorestframework-simplejwt`'s stock `TokenObtainPairView` as-is (already wired at `POST /api/v1/auth/login/`); Django's default authentication backend already rejects deactivated accounts (BR-16), so no custom service module is introduced.
+Authenticates an ADMIN or USER by email and password and issues a JWT access/refresh credential pair, giving the caller entry to their own account and the data/actions their role(s) permit — the prerequisite for every other protected action in the System. Reuses `djangorestframework-simplejwt`'s `TokenObtainPairView` (wired at `POST /api/v1/auth/login/` through a thin subclass that only adds a success log line); Django's default authentication backend already rejects deactivated accounts (BR-16), so no custom service module is introduced.
 
-#### 5.1.2 SS-US-02: Logout (ADMIN, USER)
+#### 5.1.2 SS-US-02: Logout (ADMIN, USER) [MVP]
 
 *(Details to be defined)*
 
@@ -984,15 +984,15 @@ Lets the ADMIN create the account of a family member with a full name, an email 
 
 ### 5.3 Wallet Management (WM)
 
-#### 5.3.1 WM-US-01: Create a Wallet (USER)
+#### 5.3.1 WM-US-01: Create a Wallet (USER) [MVP]
 
 *(Details to be defined)*
 
-#### 5.3.2 WM-US-02: List Wallets (USER)
+#### 5.3.2 WM-US-02: List Wallets (USER) [MVP]
 
 *(Details to be defined)*
 
-#### 5.3.3 WM-US-03: View a Wallet (USER)
+#### 5.3.3 WM-US-03: View a Wallet (USER) [MVP]
 
 *(Details to be defined)*
 
@@ -1016,11 +1016,11 @@ Lets the ADMIN create the account of a family member with a full name, an email 
 
 ### 5.4 Category Management (CM)
 
-#### 5.4.1 CM-US-01: Create a Category (USER)
+#### 5.4.1 CM-US-01: Create a Category (USER) [MVP]
 
 *(Details to be defined)*
 
-#### 5.4.2 CM-US-02: List Categories (USER)
+#### 5.4.2 CM-US-02: List Categories (USER) [MVP]
 
 *(Details to be defined)*
 
@@ -1038,15 +1038,15 @@ Lets the ADMIN create the account of a family member with a full name, an email 
 
 ### 5.5 Budget Management (BM)
 
-#### 5.5.1 BM-US-01: Create a Budget for a Wallet (USER)
+#### 5.5.1 BM-US-01: Create a Budget for a Wallet (USER) [MVP]
 
 *(Details to be defined)*
 
-#### 5.5.2 BM-US-02: List Budgets (USER)
+#### 5.5.2 BM-US-02: List Budgets (USER) [MVP]
 
 *(Details to be defined)*
 
-#### 5.5.3 BM-US-03: View a Budget (USER)
+#### 5.5.3 BM-US-03: View a Budget (USER) [MVP]
 
 *(Details to be defined)*
 
@@ -1060,7 +1060,7 @@ Lets the ADMIN create the account of a family member with a full name, an email 
 
 ### 5.6 Transaction Management (TM)
 
-#### 5.6.1 TM-US-01: Create a Transaction for a Wallet (USER)
+#### 5.6.1 TM-US-01: Create a Transaction for a Wallet (USER) [MVP]
 
 **Goal:** Allow an authenticated User to create an income or expense Transaction for a Wallet they own.
 
@@ -1097,11 +1097,11 @@ Lets the ADMIN create the account of a family member with a full name, an email 
 5. Optional: budget update and notification trigger.
 6. Controller returns a response.
 
-#### 5.6.2 TM-US-02: List Transactions (USER)
+#### 5.6.2 TM-US-02: List Transactions (USER) [MVP]
 
 *(Details to be defined)*
 
-#### 5.6.3 TM-US-03: View a Transaction (USER)
+#### 5.6.3 TM-US-03: View a Transaction (USER) [MVP]
 
 *(Details to be defined)*
 
@@ -1124,7 +1124,7 @@ Lets the ADMIN create the account of a family member with a full name, an email 
 
 ### 5.7 Financial Reporting (RPT)
 
-#### 5.7.1 RPT-US-01: View the Summary Report (USER)
+#### 5.7.1 RPT-US-01: View the Summary Report (USER) [MVP]
 
 *(Details to be defined)*
 
@@ -1241,11 +1241,11 @@ Lets the ADMIN create the account of a family member with a full name, an email 
 
 ### 5.11 Notification Handling (NH)
 
-#### 5.11.1 NH-US-01: View the list of Notifications (USER)
+#### 5.11.1 NH-US-01: View the list of Notifications (USER) [MVP]
 
 *(Details to be defined)*
 
-#### 5.11.2 NH-US-02: View a Notification (USER)
+#### 5.11.2 NH-US-02: View a Notification (USER) [MVP]
 
 *(Details to be defined)*
 
@@ -1394,7 +1394,7 @@ Lets the ADMIN create the account of a family member with a full name, an email 
 
 #### 6.4.7 POST /auth/login/
 
-Stock `djangorestframework-simplejwt` `TokenObtainPairView` — no custom view/serializer (constitution AR-01, Simplicity Over Premature Scale).
+`djangorestframework-simplejwt`'s `TokenObtainPairView`/serializer with one addition — `users.auth.LoginView`/`LoginSerializer` log a success line at `INFO` (constitution § Logging & Audit); no custom authentication logic (AR-01, Simplicity Over Premature Scale). Failures (`401`) are logged at `WARN` by the project's DRF exception handler. No log line carries the email, password or token.
 
 **Main Flow**
 1. Client submits `email` + `password`.

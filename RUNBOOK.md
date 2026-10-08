@@ -178,6 +178,8 @@ Each USER needs their own account so their Wallets, Transactions, Budgets, and G
    python manage.py createsuperuser
    ```
 
+   It asks for a username, email, **full name** and password. (Non-interactively: `--noinput --username … --email … --full_name …` with `DJANGO_SUPERUSER_PASSWORD` set.)
+
 2. Log in as that ADMIN, open `http://<HOST_IP>:3000/users/new`, and create each family member's account (full name, email, initial password). They log in with that email and password. (The ADMIN can also call `POST /api/v1/users/` with a Bearer token.)
 
 The Django admin panel at `http://<HOST_IP>:8000/admin` remains available to superusers only.

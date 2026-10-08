@@ -306,7 +306,7 @@ sequenceDiagram
 | FE-02/FE-06/FE-08 | PASS | native form, inline errors, loading state, direct fetch |
 | FE-03 Role-aware navigation | OPEN (deferred) | no role source on the client yet — G9, spec Out of Scope |
 | VL-01/VL-02/VL-03 Validation | PASS | serializer authoritative; uniqueness → clear `409` |
-| Logging & Audit | PASS | `create_user` logs success at `INFO` and a rejected duplicate at `WARN` with the acting ADMIN's id, never the email's password or tokens; `401`/`403` come from DRF defaults (see T4) |
+| Logging & Audit | PASS | `create_user` logs success at `INFO` and a rejected duplicate at `WARN` with the acting ADMIN's id, never a password or token; `401`/`403` are logged at `WARN` with the acting User id by `config.exceptions.api_exception_handler` (added 2026-10-08, asserted in TC-10) |
 | Security Requirements | PASS | no credentials in a migration (D3); password hashed by `create_user` |
 | III Migrations are the schema source | PASS | new migrations only; none edited |
 | DOD-02 API contract documented | PASS (resolved in implementation) | SDS §6.2–§6.6 updated (T12) |

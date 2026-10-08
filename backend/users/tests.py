@@ -127,6 +127,36 @@ class LoginTests(APITestCase):
         })
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_tc10_unregistered_email_rejected_with_the_same_generic_error(self):
+        known = self._register(email='tc10@example.com')
+
+        unknown = self.client.post(reverse('token_obtain_pair'), {
+            'email': 'nobody-registered@example.com',
+            'password': 'TestQC-Passw0rd!',
+        })
+        wrong_password = self.client.post(reverse('token_obtain_pair'), {
+            'email': known['email'],
+            'password': 'WrongPassword!123',
+        })
+
+        self.assertEqual(unknown.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(unknown.data, wrong_password.data)  # indistinguishable: email existence not revealed
+
+    def test_tc11_login_events_are_logged_without_credentials(self):
+        user = self._register(email='tc11@example.com')
+
+        with self.assertLogs('users.auth', level='INFO') as success_logs:
+            self.client.post(reverse('token_obtain_pair'), {'email': user['email'], 'password': user['password']})
+        with self.assertLogs('config.exceptions', level='WARNING') as failure_logs:
+            self.client.post(reverse('token_obtain_pair'), {'email': user['email'], 'password': 'WrongPassword!123'})
+
+        self.assertIn('login succeeded', success_logs.output[0])
+        self.assertIn('401', failure_logs.output[0])
+        for line in success_logs.output + failure_logs.output:
+            self.assertNotIn(user['email'], line)
+            self.assertNotIn(user['password'], line)
+            self.assertNotIn('WrongPassword!123', line)
+
 
 class CreateUserTests(APITestCase):
     """UM-US-01: Create a User (ADMIN). See specs/002-user-management/test_cases.md."""
@@ -187,6 +217,7 @@ class CreateUserTests(APITestCase):
         response = client.post(self.url, self._payload(email='second@example.com'))
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(client.get('/api/v1/wallets/').status_code, status.HTTP_200_OK)  # reaches its own data
         self.assertEqual(list(new_user.roles.values_list('code', flat=True)), ['USER'])
         self.assertFalse(User.objects.filter(email='second@example.com').exists())
 
@@ -211,9 +242,11 @@ class CreateUserTests(APITestCase):
         plain_user.roles.add(Role.objects.get(code=Role.Code.USER))
         self.client.force_authenticate(plain_user)
 
-        response = self.client.post(self.url, self._payload())
+        with self.assertLogs('config.exceptions', level='WARNING') as logs:
+            response = self.client.post(self.url, self._payload())
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertIn(f'user_id={plain_user.id}', logs.output[0])
         self.assertFalse(User.objects.filter(email='homer@example.com').exists())
 
     def test_tc12_missing_full_name_or_password_rejected(self):
@@ -260,6 +293,18 @@ class CreateUserTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.data['code'], 'USER_ALREADY_EXISTS')
         self.assertEqual(User.objects.filter(email__iexact='homer@example.com').count(), 1)
+
+    def test_tc21_database_level_collision_is_also_reported_as_account_already_exists(self):
+        # The pre-check compares emails only; an existing account whose *username* equals the new
+        # email slips past it and is stopped by the database's unique constraint instead
+        # (the same path a simultaneous duplicate submission takes). No mocking involved.
+        User.objects.create_user(username='homer@example.com', email='other@example.com', password='Other-Passw0rd!')
+
+        response = self.client.post(self.url, self._payload())
+
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.data['code'], 'USER_ALREADY_EXISTS')
+        self.assertFalse(User.objects.filter(email='homer@example.com').exists())
 
     def test_tc18_non_english_full_name_stored_exactly_as_entered(self):
         response = self.client.post(self.url, self._payload(full_name='Trương Văn Hòa'))

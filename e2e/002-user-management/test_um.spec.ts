@@ -18,7 +18,7 @@ import {
 const PASSWORD = 'TestQC-Passw0rd!';
 
 test.describe('UM-US-01: Create a User (ADMIN)', () => {
-  test('TC-02: ADMIN creates a User through the Create User screen', async ({ page, request }, testInfo) => {
+  test('TC-02: ADMIN creates a User through the Create User screen', async ({ page, request, browser }, testInfo) => {
     const email = uniqueEmail('um02');
     await loginInBrowser(page, await adminTokens(request));
 
@@ -35,12 +35,23 @@ test.describe('UM-US-01: Create a User (ADMIN)', () => {
     await expect(success).toContainText('User account created');
     await testInfo.attach('TC-02 after — success message', { body: await page.screenshot(), contentType: 'image/png' });
 
-    // The new User can log in with the assigned email and initial password.
-    const tokens = await login(request, { email, password: PASSWORD });
-    expect(tokens.access).toBeTruthy();
+    // The new User can log in with the assigned email and initial password — through the Login page.
+    const newUserContext = await browser.newContext();
+    const loginPage = await newUserContext.newPage();
+    await loginPage.goto('/login');
+    await loginPage.locator('#login-email').fill(email);
+    await loginPage.locator('#login-password').fill(PASSWORD);
+    await loginPage.locator('#btn-submit-login').click();
+    await loginPage.waitForURL((url) => url.pathname === '/');
+    await expect(loginPage.locator('#nav-dashboard')).toBeVisible();
+    await newUserContext.close();
   });
 
   test('TC-04: missing email shows "Email is required"', async ({ page, request }, testInfo) => {
+    const createRequests: string[] = [];
+    page.on('request', (req) => {
+      if (req.method() === 'POST' && req.url().includes('/api/v1/users/')) createRequests.push(req.url());
+    });
     await loginInBrowser(page, await adminTokens(request));
 
     await page.goto('/users/new');
@@ -52,6 +63,7 @@ test.describe('UM-US-01: Create a User (ADMIN)', () => {
     await error.waitFor({ state: 'visible' });
     await expect(error).toContainText('Email is required');
     await expect(page.locator('#message-success')).toHaveCount(0);
+    expect(createRequests, 'no create request may be sent while a required field is empty').toHaveLength(0);
     await testInfo.attach('TC-04 step 1 — email required message', { body: await page.screenshot(), contentType: 'image/png' });
   });
 
@@ -95,6 +107,10 @@ test.describe('UM-US-01: Create a User (ADMIN)', () => {
   });
 
   test('TC-13: missing full name and password show their messages', async ({ page, request }, testInfo) => {
+    const createRequests: string[] = [];
+    page.on('request', (req) => {
+      if (req.method() === 'POST' && req.url().includes('/api/v1/users/')) createRequests.push(req.url());
+    });
     await loginInBrowser(page, await adminTokens(request));
 
     await page.goto('/users/new');
@@ -107,6 +123,7 @@ test.describe('UM-US-01: Create a User (ADMIN)', () => {
     await passwordError.waitFor({ state: 'visible' });
     await expect(nameError).toContainText('Full name is required');
     await expect(passwordError).toContainText('Password is required');
+    expect(createRequests, 'no create request may be sent while a required field is empty').toHaveLength(0);
     await testInfo.attach('TC-13 step 1 — required field messages', { body: await page.screenshot(), contentType: 'image/png' });
   });
 });

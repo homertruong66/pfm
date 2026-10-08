@@ -1,7 +1,7 @@
 # Test Cases: User Management (UM)
 
 > **Spec:** [spec.md](spec.md) | **Plan:** [plan.md](plan.md)  
-> **Created:** 2026-10-08 | **Updated:** 2026-10-08 — added TC-20 (no account-by-id endpoint) after the UM-US-01 security fix
+> **Created:** 2026-10-08 | **Updated:** 2026-10-08 — added TC-20 (no account-by-id endpoint) and TC-21 (database-level duplicate); TC-07 now also asserts the new User reaches its own data; TC-10 asserts the 403 is logged
 
 ## UM-US-01: Create a User (ADMIN)
 
@@ -25,7 +25,7 @@
 |---|---|---|---|
 | AC-01 — Account created | BOTH | TC-01 | TC-02 |
 | AC-02 — Email required | BOTH | TC-03 | TC-04 |
-| AC-03 — Existing account rejected | BOTH | TC-05 | TC-06 |
+| AC-03 — Existing account rejected | BOTH | TC-05, TC-21 | TC-06 |
 | AC-04 — New account is a USER only | API | TC-07 | — *(auth/role outcome, no UI to exercise)* |
 | AC-05 — Initial password never shown | API | TC-08 | — *(response property, no UI to exercise)* |
 | EC-01 — Not logged in | API | TC-09 | — *(pure auth rejection)* |
@@ -115,6 +115,7 @@
 - **Given:** an `ADMIN` has created an account
 - **When:** the new User logs in and submits `POST /api/v1/users/` with a different new email
 - **Then:** the response is `403`
+  - **And** the new User can still reach its own data (listing its own Wallets returns `200`)
   - **And** the new account holds the `USER` role and not the `ADMIN` role
   - **And** no account was created for the different email
 - **AC:** AC-04
@@ -146,6 +147,7 @@
 - **When:** it submits `POST /api/v1/users/` with valid values
 - **Then:** the response is `403`
   - **And** no account is created
+  - **And** the rejection is logged at `WARN` with the caller's User id
 - **AC:** EC-02
 - **Type:** integration
 - **Severity:** Critical
@@ -253,6 +255,16 @@
 - **Type:** integration
 - **Severity:** Critical
 - **Note:** regression for the security fix made after the UM-US-01 audit: a pre-existing `users/<id>/` endpoint let any logged-in User overwrite (with an unhashed password) or delete any account, including the ADMIN's. Reading, updating, deactivating and deleting accounts arrive with UM-US-02..06, each with its own permission checks; this case then changes with them.
+
+### TC-21: A database-level collision is also reported as "Account already exists"
+- **US:** UM-US-01
+- **Given:** an `ADMIN` is logged in and an existing account has a *username* equal to the email about to be submitted (so the email pre-check finds no match, and only the database's uniqueness rule stops the creation — the same path a simultaneous duplicate submission takes)
+- **When:** `POST /api/v1/users/` is submitted with that email
+- **Then:** the response is `409` with code `USER_ALREADY_EXISTS`
+  - **And** no account was created for that email
+- **AC:** AC-03
+- **Type:** integration
+- **Severity:** Minor
 
 - [x] Self-checked against [aif-review-checklist.md § `test_cases.md` — Structure](../../aif-review-checklist.md#test_casesmd--structure)
 - [x] Self-checked against [aif-review-checklist.md § Playwright Code — Integration Tests](../../aif-review-checklist.md#playwright-code--integration-tests)

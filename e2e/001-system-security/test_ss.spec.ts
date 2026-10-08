@@ -20,7 +20,11 @@ test.describe('SS-US-01: Login', () => {
     await page.locator('#login-password').fill(user.password);
     await page.locator('#btn-submit-login').click();
 
-    await expect(page).not.toHaveURL(/\/login$/);
+    // Lands on the Dashboard (its sidebar entry is rendered) and the token pair is stored for later requests.
+    await page.waitForURL((url) => url.pathname === '/');
+    await expect(page.locator('#nav-dashboard')).toBeVisible();
+    expect(await page.evaluate(() => window.localStorage.getItem('pfm_access_token'))).toBeTruthy();
+    expect(await page.evaluate(() => window.localStorage.getItem('pfm_refresh_token'))).toBeTruthy();
     await testInfo.attach('TC-02 after — redirected off Login', { body: await page.screenshot(), contentType: 'image/png' });
   });
 
@@ -40,14 +44,20 @@ test.describe('SS-US-01: Login', () => {
   });
 
   test('TC-08: missing password is caught by inline validation before submit', async ({ page }, testInfo) => {
+    const loginRequests: string[] = [];
+    page.on('request', (req) => {
+      if (req.url().includes('/auth/login/')) loginRequests.push(req.url());
+    });
+
     await page.goto('/login');
-    // Fill every other required field first so only the field under test is empty.
+    // Only the field under test (password) is left empty; the email is filled.
     await page.locator('#login-email').fill('someone@example.com');
     await page.locator('#btn-submit-login').click();
 
     const error = page.locator('#message-error');
     await error.waitFor({ state: 'visible' });
     await expect(error).toContainText('Email and password are required.');
+    expect(loginRequests, 'validation must happen before any login request is sent').toHaveLength(0);
     await testInfo.attach('TC-08 step 1 — validation error for missing password', { body: await page.screenshot(), contentType: 'image/png' });
   });
 });

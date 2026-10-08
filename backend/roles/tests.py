@@ -1,3 +1,8 @@
+import os
+from unittest import mock
+
+from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.test import TestCase
 
 from users.models import User
@@ -17,6 +22,17 @@ class RoleTests(TestCase):
 
         self.assertTrue(admin.has_role('ADMIN'))
         self.assertFalse(admin.has_role('USER'))
+
+    def test_createsuperuser_command_requires_a_full_name_and_grants_admin(self):
+        with mock.patch.dict(os.environ, {'DJANGO_SUPERUSER_PASSWORD': 'Root-Passw0rd!'}):
+            with self.assertRaises(CommandError):
+                call_command('createsuperuser', interactive=False, username='a@example.com', email='a@example.com')
+            call_command('createsuperuser', interactive=False, username='a@example.com',
+                         email='a@example.com', full_name='Root Admin')
+
+        admin = User.objects.get(email='a@example.com')
+        self.assertEqual(admin.full_name, 'Root Admin')
+        self.assertTrue(admin.has_role('ADMIN'))
 
     def test_plain_user_holds_no_role_until_one_is_assigned(self):
         user = User.objects.create_user(
