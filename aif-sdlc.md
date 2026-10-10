@@ -94,7 +94,7 @@ Acceptance criteria (for spec only — NOT written into SRS):
    The spec link appears ONCE at the feature (§7.x) level — never under individual US entries.
 
 3. Add the US entry to SRS.md under the feature section. Format:
-   #### [§7.x.N] [Story number]: [Story Title] ([ACTOR])
+   #### [§7.x.N] [Story number]: [Story Title] ([ACTOR])  (+ ` [MVP]` for an MVP story)
    **As a/an** [actor], **I want to** [goal] **so that** [reason].
 
 4. Run /speckit-specify with the story statement and ACs above.
@@ -105,7 +105,7 @@ Acceptance criteria (for spec only — NOT written into SRS):
 2. The spec link already exists on the feature section header — do NOT add it again.
 
 3. Add the new US entry to SRS.md under the existing feature section. Format:
-   #### [§7.x.N] [Story number]: [Story Title] ([ACTOR])
+   #### [§7.x.N] [Story number]: [Story Title] ([ACTOR])  (+ ` [MVP]` for an MVP story)
    **As a/an** [actor], **I want to** [goal] **so that** [reason].
 
 4. Run /speckit-specify with the story statement and ACs above.
@@ -351,7 +351,9 @@ US being implemented:  [XX-US-NN]
 4. Pre-implementation alignment check:
    Run /speckit-analyze
    Review any consistency gaps flagged between spec.md, plan.md, and tasks.md.
-   Resolve all Critical and High findings before proceeding.
+   Resolve all Critical and High findings before proceeding. Save the report as
+   [Feature folder]/analysis-[us-id-lowercase]-pre.md (the post-implementation run in step 6
+   is saved as ...-post.md) so the gate can be audited later.
 
 5. Implement:
    Artifacts at:
@@ -494,7 +496,8 @@ App URL:          [http://<HOST_IP>:3000 — confirmed by SE in Step 5]
 --- Verification Step ---
 
 3. Run the Playwright automation tests for this US against the app:
-   BASE_URL=[App URL] npx playwright test \
+   (run from the testing/ folder, where playwright.config.ts lives)
+   cd testing && BASE_URL=[App URL] npx playwright test \
      [Test folder]/test_[abbr].spec.ts --project=chromium
    Filter to test cases tagged US: [US to verify].
 

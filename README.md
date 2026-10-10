@@ -25,8 +25,15 @@ A full-stack personal finance management app built with **Next.js** (frontend) a
 ```
 pfm/
 ├── frontend/   # Next.js · React · TypeScript · Tailwind CSS
-└── backend/    # Django · Django REST Framework · SQLite
+├── backend/    # Django · Django REST Framework · SQLite — one app per entity (users, roles, wallets, …)
+├── specs/      # per-feature spec.md, plan.md, test_cases.md, tasks.md, checklists/
+├── testing/    # Playwright UI (e2e) and API-level tests + per-story verification reports
+├── docs/       # supporting docs
+├── ui/         # wireframes
+└── .specify/   # spec-kit templates and the project constitution (memory/constitution.md)
 ```
+
+**How the project is built:** spec-driven, in six AIF-SDLC steps (Spec → Design → Quality → Implementation → Deployment → Verification) — see [aif-sdlc.md](aif-sdlc.md) and the `/sdlc-*` skills in `.claude/skills/`. The rules live in [`.specify/memory/constitution.md`](.specify/memory/constitution.md), the requirements in [SRS.md](SRS.md) and the design in [SDS.md](SDS.md); [CLAUDE.md](CLAUDE.md) tells Claude Code which to read when. [RUNBOOK.md](RUNBOOK.md) covers home-LAN setup and deployment.
 
 ---
 
@@ -114,10 +121,13 @@ Authorization: Bearer <access_token>
 ### Backend
 
 ```bash
-# Create a superuser for the Django admin panel
+# Create the first ADMIN (asks for username, email, full name, password; grants the ADMIN role)
 python manage.py createsuperuser
 
-# Open Django admin → http://localhost:8000/admin
+# Run the backend tests (real throwaway test database)
+python manage.py test
+
+# Open Django admin → http://localhost:8000/admin (superusers only)
 ```
 
 ### Frontend
@@ -128,4 +138,12 @@ npm run build
 
 # Lint
 npm run lint
+```
+
+### End-to-end tests (Playwright)
+
+```bash
+# needs both dev servers running and an existing ADMIN account
+cd testing && npm install && npx playwright install chromium
+E2E_ADMIN_EMAIL=<admin email> E2E_ADMIN_PASSWORD=<admin password> npx playwright test
 ```

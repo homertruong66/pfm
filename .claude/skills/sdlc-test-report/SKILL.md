@@ -68,7 +68,7 @@ already encode. Pull this from `specs/{feature}/test_cases.md` (Given/When/Then,
   reason Playwright can't express (e.g. missing test data, dependent environment down) — see
   Step 5 for the native Passed/Failed/Flaky/Skipped detection the script already does.
 - **The report MUST list every TC of the US, with its result — the same TC set as the US's Results
-  table in `test_report.md`.** A TC with no Playwright test (verified by backend pytest or manually,
+  table in `verification-report.md`.** A TC with no Playwright test (verified by backend pytest or manually,
   or BLOCKED by design) gets a `meta.json` entry with `status` (`"Passed"`/`"Failed"`/`"Blocked"`),
   `description`, `executedAt`, and `reason` (Blocked) or `actualResult` (Failed); for a Passed one,
   `descriptionLong` says how it was verified (e.g. the pytest name). The script adds these entries

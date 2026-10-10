@@ -166,7 +166,7 @@
 
 ## Step 4 — Implementation Step · SE Reviews
 
-**Artifacts:** `tasks.md`, code diff, pre- and post-`/speckit-analyze` reports
+**Artifacts:** `tasks.md`, code diff, pre- and post-`/speckit-analyze` reports (saved as `analysis-[us-id-lowercase]-pre.md` / `-post.md` in the feature folder)
 
 ### Git
 - [ ] Branch is checked out: `feature/[us-id-lowercase]-implementation-step` (ex: `feature/wm-us-01-implementation-step`)

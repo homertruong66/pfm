@@ -23,7 +23,7 @@ PFM has no ticket tracker (`aif-sdlc.md`): a step's state is read from the **art
    | Step | Done when (on `develop`) |
    |---|---|
    | 1 Spec | `SRS.md` has a `#### 7.x.N {US_ID}:` heading **and** `{feature_folder}/spec.md` has a `## {US_ID}:` section |
-   | 2 Design | `{feature_folder}/plan.md` has a `## {US_ID}:` section **and** `SDS.md` has a `#### 5.x.N {US_ID}:` heading |
+   | 2 Design | `{feature_folder}/plan.md` has a `## {US_ID}:` (or, in older plans, `### {US_ID}:`) section **and** `SDS.md` has a `#### 5.x.N {US_ID}:` heading |
    | 3 Quality | `{feature_folder}/test_cases.md` has a `## {US_ID}:` section |
    | 4 Implementation | `{feature_folder}/tasks.md` exists, mentions `{US_ID}`, and has no unchecked `- [ ]` task |
    | 5 Deployment | no artifact of its own — shown `–` until Verification exists, then `✓` (the verification report records the App URL it ran against) |

@@ -64,10 +64,11 @@ pfm/
 │                              #   are designed in SDS §2.2 but not yet scaffolded as apps —
 │                              #   assets is its own app (system-level, ADMIN-only, SRS §7.9), not nested under investment_portfolios
 ├── ui/                   # Wireframe screenshots referenced from SDS §3.2
-├── docs/                 # Supporting docs: debug-guide.md, ss-us-01-What-AI-produces-and-How.md
+├── docs/                 # Supporting docs (debug guide, SS-US-01 walkthrough, harness engineering, onboarding, …)
 ├── specs/                # spec-kit feature folders: specs/[feature-id]-[slug]/spec.md, plan.md, test_cases.md, tasks.md
 ├── testing/              # Playwright UI (e2e) + API-level test code and verification evidence, mirrors specs/: testing/[feature-id]-[slug]/test_[abbr].spec.ts, [xx-us-nn-keyword]/verification-report.md
-├── aif-sdlc.md           # AI-First SDLC
+├── .claude/skills/       # /sdlc-* step skills (init, spec, design, quality, implement, deploy, verify, status) + speckit-* skills
+├── aif-sdlc.md           # AI-First SDLC (+ aif-review-checklist.md, aif-artifact-audit.md)
 ├── SRS.md                # Software Requirements Specification
 ├── SDS.md                # Software Design Specification
 ├── .specify/             # spec-kit: memory/constitution.md (project constitution), templates/, scripts/, workflows/

@@ -133,7 +133,7 @@
   - [6.4 API Specification](#64-api-specification)
     - [6.4.1 POST /wallets](#641-post-wallets)
     - [6.4.2 GET /wallets](#642-get-wallets)
-    - [6.4.3 GET /wallets/{id}](#643-get-wallets-id)
+    - [6.4.3 GET /wallets/{id}](#643-get-walletsid)
     - [6.4.4 POST /categories](#644-post-categories)
     - [6.4.5 POST /budgets](#645-post-budgets)
     - [6.4.6 POST /transactions](#646-post-transactions)
