@@ -2,10 +2,12 @@
 name: sdlc-test-report
 description: Generate the custom single-file HTML Test Report (Globee-branded, GitHub Actions/Azure DevOps-style) for a User Story's Playwright suite — split test list + detail panel, per-step screenshots, status filters, offline single-file output. Use after running (or re-running) Playwright tests for a feature/US and the user asks to "generate the report", "update the test report", or during the Verification Step (aif-sdlc.md Step 6).
 metadata:
-  author: obms-project
+  author: pfm-project
 ---
 
 # Test Report Generator
+
+> **Optional in PFM.** The default Verification Step (`/sdlc-verify`) uses Playwright's built-in HTML reporter plus a hand-written `verification-report.md` (`aif-sdlc.md` § Step 6). Use this skill when a richer single-file report is wanted: it replaces the folder's `index.html` and must be rebuilt after every run. The Globee branding and the Asia/Saigon timestamps are deliberate defaults — change the template or `timezoneOffsetHours` if they do not suit.
 
 Produces a single offline HTML file with
 a sticky header + summary cards, a status/search filter bar, a scrollable test list (left), and a
@@ -33,9 +35,7 @@ colored status badges, no Bootstrap, CSS Grid/Flexbox, E2E/Integration type badg
 ### 1. Confirm scope with the user if ambiguous
 
 Which feature/US, which `.spec.ts` file, which `-g` grep pattern for the test titles, and where the
-report should be written (convention in this repo: `testing/{feature-id}-{slug}/{us-id-keyword}/index.html`,
-sibling to the feature's other reports — check existing folders under `testing/` for the naming
-pattern already in use).
+report should be written (convention in this repo: `testing/{feature-id}-{slug}/{us-id-keyword}/index.html`, next to that story's `verification-report.md` — e.g. `testing/002-user-management/um-us-01-create-user/`).
 
 ### 2. Run the suite with the JSON reporter
 
@@ -75,8 +75,8 @@ already encode. Pull this from `specs/{feature}/test_cases.md` (Given/When/Then,
   even though they're not in `run.json`. Before handing off, check the report's TC count equals the
   Results table's row count.
 
-Test titles in the `.spec.ts` file MUST start with `TC-NNN: ` for the script to match them against
-`meta.json` — this is already the convention across this repo's suites.
+Test titles in the `.spec.ts` file MUST start with `TC-NN: ` (any number of digits) for the script to match them against
+`meta.json` — this is already the convention across this repo's suites. Integration TCs run as Django tests (`backend/<app>/tests.py`), so they have no Playwright test: give them a `meta.json` entry with their pytest/Django test name, as described above.
 
 ### 4. Build the report
 
@@ -118,13 +118,9 @@ Read the resulting screenshot with the Read tool before telling the user it's do
 - Delete scratch `run.json` / verification scripts / screenshots you created for this task — they
   don't belong in the repo.
 - **Never `rm -rf` a generic folder name like `report` or `test-results` inside `testing/` without
-  checking `git status` first** — this repo has committed report folders from other User Stories'
-  Verification Steps living at paths like `testing/report/`; a same-named scratch folder can
-  collide and `rm -rf` will delete tracked files. If that happens: `git restore -- <path>`
+  checking `git status` first** — the committed per-story report folders (e.g. `testing/002-user-management/um-us-01-create-user/`) hold `verification-report.md` and `index.html`; a careless delete or a Playwright HTML-reporter run into the same folder removes tracked files. If that happens: `git restore -- <path>`
   immediately, don't try to regenerate the deleted content by hand.
-- If you seeded temporary test data in a shared Test Environment's database to exercise a hard-to-reach
-  scenario (e.g. legacy/invalid data states), confirm with the user that it has been cleaned up
-  before considering the report final.
+- If you seeded test data in the app's database to exercise a hard-to-reach scenario (e.g. legacy/invalid data states), confirm with the user that it has been cleaned up before considering the report final. (E2E runs leave `TestQC-` accounts behind until a delete-User story exists.)
 
 ## Known constraints (carried over from the design brief — do not add back)
 

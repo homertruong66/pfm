@@ -1,6 +1,6 @@
 ---
 name: "sdlc-status"
-description: "Show the SDLC step completion status for all User Stories in a feature (or all features)."
+description: "Show the AIF-SDLC step status of every User Story in a PFM feature (or all features), derived from the artifacts on develop — no tracker."
 argument-hint: "[feature_folder=specs/NNN-slug] — omit to show all features"
 user-invocable: true
 disable-model-invocation: false
@@ -14,66 +14,36 @@ $ARGUMENTS
 
 ## Outline
 
-1. **Determine scope:**
-   - If `$ARGUMENTS` provides `feature_folder=...`: read only that `sdlc.yaml`
-   - If `$ARGUMENTS` is a bare path like `specs/003-personalisation-plan`: read that `sdlc.yaml`
-   - If `$ARGUMENTS` is empty: find all `specs/*/sdlc.yaml` files
-   - Jira unavailable → STOP: "The status table is built from Jira; connect the Atlassian connector first."
+PFM has no ticket tracker (`aif-sdlc.md`): a step's state is read from the **artifacts**, and counts as done only when the artifact is on the latest `develop` (each step branch is merged back before the next one starts). This skill is read-only.
 
-2. **For each `sdlc.yaml` found, for each story in the `stories` map:**
+1. **Scope:** `feature_folder=…` or a bare path → that feature's `sdlc.yaml`; empty → every `specs/*/sdlc.yaml`. If a feature folder has no `sdlc.yaml`, say so and suggest `/sdlc-init`.
 
-   Each Story's step Tasks live under the Story's own parent Epic, which may differ from `jira_epic` in sdlc.yaml (Epics can be split per team phase). Use two queries per feature:
-   1. Stories and their Epics: `key in ({all non-empty jira_story keys})` with fields `["parent", "status"]` → `EPICS` = the distinct parent keys plus `jira_epic`. Stories with an empty `jira_story` are listed with `?` in every column and a note to add the key.
-   2. Step Tasks: `parent in ({EPICS}) AND issuetype = Task AND summary ~ "Step"`, then match each ticket to a story and step by its summary `{US_ID}: {Step} Step`. Page through all results (`nextPageToken`) — a large feature has 50+ Tasks.
-   Steps (in order): Spec, Design, Quality, Implementation, Deployment. Older tickets may carry an `OBMS-` prefix (`OBMS-CO-US-03: Spec Step`); match both forms.
+2. **For each story in `stories`**, evaluate the six steps with the rules below. `{us-lower}` = the US ID in lower case with `.` replaced by `-`. "On develop" means `git show develop:{path}` contains the marker (fall back to the working tree and mark `◐` if it exists only there).
 
-   Verification has no task ticket — it is tracked on the US Story itself (from query 1): Story `Done` → Verify `✓`; Story `Ready For Review` or `In Review` → Verify `◐`; Story `Rework` → `↺`; `Blocked` → `⊘`; `Dismissed` → `✗`; anything else → Verify `–`.
+   | Step | Done when (on `develop`) |
+   |---|---|
+   | 1 Spec | `SRS.md` has a `#### 7.x.N {US_ID}:` heading **and** `{feature_folder}/spec.md` has a `## {US_ID}:` section |
+   | 2 Design | `{feature_folder}/plan.md` has a `## {US_ID}:` section **and** `SDS.md` has a `#### 5.x.N {US_ID}:` heading |
+   | 3 Quality | `{feature_folder}/test_cases.md` has a `## {US_ID}:` section |
+   | 4 Implementation | `{feature_folder}/tasks.md` exists, mentions `{US_ID}`, and has no unchecked `- [ ]` task |
+   | 5 Deployment | no artifact of its own — shown `–` until Verification exists, then `✓` (the verification report records the App URL it ran against) |
+   | 6 Verification | `{testing_folder}/{us-lower}-*/verification-report.md` exists; its Verdict says the story **is Done** → `✓`; it lists failures → `✗` |
 
-   Map each Task status to a symbol (OBMS workflow: To Do → In Progress → Ready For Review → In Review → Done, with Rework, Blocked, Dismissed):
-   - `✓` = Done (reviewed and accepted)
-   - `◐` = Ready For Review or In Review — work done, waiting for the user to confirm the step's review (for Verify: waiting for QC to close the Story)
-   - `→` = In Progress
-   - `↺` = Rework — sent back by the reviewer
-   - `⊘` = Blocked
-   - `✗` = Dismissed
-   - `○` = To Do
-   - `–` = ticket not found (step not started)
+   Symbols: `✓` done on develop · `◐` artifact exists but is not on develop yet (branch not merged) · `→` the step branch `feature/{us-lower}-*-step` exists but no artifact yet · `✗` Verification failed · `–` not started.
 
-3. **Render the status table** for each feature:
+3. **Render** one table per feature:
 
    ```
-   Feature: 003-personalisation-plan  (OBMS-100)  deploy: develop
-   ─────────────────────────────────────────────────────────────────────────
-   Story       │ Spec  │ Design │ Quality │ Impl  │ Deploy │ Verify │ Story
-   ─────────────────────────────────────────────────────────────────────────
-   PP-US-01    │ ✓     │ ✓      │ ✓       │ ✓     │ ✓      │ ✓      │ Done
-   PP-US-02    │ ✓     │ ✓      │ ✓       │ ✓     │ ✓      │ ◐      │ Ready For Review
-   PP-US-03    │ ✓     │ ◐      │ –       │ –     │ –      │ –      │ In Progress
-   PP-US-04    │ ↺     │ –      │ –       │ –     │ –      │ –      │ In Progress
-   ─────────────────────────────────────────────────────────────────────────
-   Legend: ✓ Done  ◐ Ready For Review / In Review  → In Progress  ↺ Rework  ⊘ Blocked  ✗ Dismissed  ○ To Do  – Not created  ? no Jira key
+   Feature: 002-user-management  (SRS §7.2)   env: http://localhost:3000
+   ──────────────────────────────────────────────────────────────────────
+   Story       │ Spec │ Design │ Quality │ Impl │ Deploy │ Verify
+   ──────────────────────────────────────────────────────────────────────
+   UM-US-01    │ ✓    │ ✓      │ ✓       │ ✓    │ ✓      │ ✓
+   UM-US-02    │ –    │ –      │ –       │ –    │ –      │ –
+   ──────────────────────────────────────────────────────────────────────
+   Legend: ✓ done on develop  ◐ not merged yet  → in progress (branch exists)  ✗ failed  – not started
    ```
 
-   The rightmost column shows the Jira Story ticket status (not a task).
+4. **Next actions:** for each story, name the first step that is not `✓` and the command to run (`/sdlc-spec`, `/sdlc-design`, … or `/sdlc`). A `◐` step: "merge `feature/…` into `develop` first". A story with stories in `SRS.md` §7 but no `sdlc.yaml` entry: "add it with `/sdlc-init`".
 
-4. **For any story with an In Progress or Rework step:** print the `TASK_ID` and the skill to run, e.g.:
-   ```
-   PP-US-04 → Spec Step sent back for rework (OBMS-240). Run again: /sdlc-spec PP-US-04
-   ```
-
-5. **For any story waiting on someone else:** say who, e.g.:
-   ```
-   PP-US-03 → Design Step waiting for review confirmation (OBMS-236 is Ready For Review). Finish it: /sdlc-design PP-US-03
-   PP-US-02 → Verification done, waiting for QC to close OBMS-107.
-   PP-US-05 → Implementation Step Blocked (OBMS-250). Resolve it in Jira.
-   ```
-
-6. **For any story whose previous step is Done and next step is not started:** suggest the command to run:
-   ```
-   PP-US-01 next step: Design. Run: /sdlc-design PP-US-01
-   ```
-
-7. **Summary line:**
-   ```
-   3 features · 8 stories · 3 fully verified · 2 waiting for review · 2 in progress · 1 not started
-   ```
+5. **Summary line:** `2 features · 8 stories · 2 verified · 1 in progress · 5 not started`.

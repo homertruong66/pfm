@@ -1,7 +1,7 @@
 ---
 name: "sdlc-implement"
-description: "Run Step 4 (Implementation) of the AIF-SDLC: tasks, code via TDD, and a review gate. The user commits and opens the PR."
-argument-hint: "PP-US-01"
+description: "Run Step 4 (Implementation, SE) of the PFM AIF-SDLC: tasks, code via TDD against the test cases, analyze gates, document sync, and a review gate. The user commits and merges."
+argument-hint: "WM-US-01"
 user-invocable: true
 disable-model-invocation: false
 ---
@@ -14,40 +14,32 @@ $ARGUMENTS
 
 ## Outline
 
-This skill never commits, pushes, or opens the pull request — the user does.
+Overview: `aif-sdlc.md` § Step 4. This skill never commits, pushes or merges.
 
 1. **Parse args:** `US_ID` from `$ARGUMENTS`.
 
-2. **Load context:** search `specs/*/sdlc.yaml` for the file whose `stories` map contains `{US_ID}`. Read it. Extract: `EPIC`, `JIRA_STORY`, `FEATURE_FOLDER`, `FEATURE_ID`, `SLUG`, story `TITLE`.
-   - `EPIC` = the Jira Story's own parent Epic (`getJiraIssue(JIRA_STORY)` → `parent`). Epics may be split per team phase, so one feature can span several and the step Tasks live under the Story's Epic. Use `jira_epic` from sdlc.yaml only when the Story has no parent.
-   - No match → STOP: "Run `/sdlc-init` for this feature, or add `{US_ID}` to its `stories` map."
-   - `JIRA_STORY` empty → STOP: "Add the Jira Story key for `{US_ID}` to sdlc.yaml."
+2. **Load context:** find the `specs/*/sdlc.yaml` whose `stories` map has `US_ID`; extract `FEATURE_FOLDER`, `TESTING_FOLDER`, `FEATURE_ID`, `SLUG`, story `TITLE`. None → STOP: "Run `/sdlc-init` first."
 
-3. **Pre-flight:** verify all exist on the latest `develop`:
-   - `{feature_folder}/spec.md` containing `{US_ID}`
-   - `{feature_folder}/plan.md`
-   - `{feature_folder}/test_cases.md` containing `{US_ID}` (Quality Step output — TDD needs the test cases)
-   - Missing → STOP, name the step to run first, and remind the user to merge its branch into `develop`.
-   - The **Quality Step Task is Done** (reviewed and accepted): JQL `project = OBMS AND issuetype = Task AND summary ~ "{US_ID}: Quality Step"`. `Ready For Review` / `In Review` → STOP: "The Quality Step is still in review; finish it with `/sdlc-quality {US_ID}` (confirm its review gate)." Other status or not found → STOP: "Run `/sdlc-quality {US_ID}` first." If Jira is unavailable, warn and continue.
+3. **Pre-flight (all on the latest `develop`):** `{FEATURE_FOLDER}/spec.md` and `plan.md` contain `{US_ID}`, and `{FEATURE_FOLDER}/test_cases.md` contains a `## {US_ID}:` section (TDD needs the test cases). Missing → STOP, name the step to run first and remind the user to merge its branch into `develop`.
 
-4. **Jira & Git:** run `/sdlc-jira-task step="Implementation Step" us={US_ID} epic={EPIC} story={JIRA_STORY} branch_slug=implementation-step`. Capture `TASK_ID` (`unknown` if Jira is unavailable) and the branch name.
+4. **Branch:** uncommitted changes → STOP. `git checkout develop`, `git pull origin develop` (skip offline), `git checkout -b feature/{us-lower}-implementation-step` (switch if it exists).
 
-5. **Implementation work** (follow `aif-sdlc.md` §Step 4 rules):
-   - spec-kit's scripts reject branches not named `NNN-name`, and OBMS branches are `feature/…`. Prefix every `.specify/scripts/bash/*.sh` command the speckit skills run with `SPECIFY_FEATURE={feature_id}-{slug} SPECIFY_FEATURE_DIRECTORY={feature_folder}` (e.g. `SPECIFY_FEATURE=013-customer-offer SPECIFY_FEATURE_DIRECTORY=specs/013-customer-offer .specify/scripts/bash/check-prerequisites.sh --json …`). Both are needed: without `SPECIFY_FEATURE_DIRECTORY` the scripts follow the local `.specify/feature.json` left by the last Spec Step, which may point at another feature. Each shell call starts fresh, so prefix every call.
-   - The governing constitution is `.specify/memory/constitution.md` (not auto-loaded — read the sections relevant to this US first); tell `/speckit-analyze` and `/speckit-implement` to use it.
-   - Snapshot `{feature_folder}/tasks.md` (if it exists) to a scratch folder.
-   - Run `/speckit-tasks` for `{US_ID}` only, with this guidance: add a phase for `{US_ID}` to the existing `tasks.md` (create it if missing) and leave every existing task unchanged — the default skill would regenerate the whole file; TDD is requested, so generate the test tasks first (from `test_cases.md`); continue task numbering after the highest existing `T` ID.
-   - Verify against the snapshot that every earlier task line is unchanged and the new IDs do not collide; restore and redo otherwise.
-   - Run `/speckit-analyze` — resolve any CRITICAL gaps before proceeding
-   - Run `/speckit-implement` for the `{US_ID}` tasks only (TDD: tests first, then code)
-     - Pass this checklist-gate rule as guidance (the vendor skill is not edited): in `checklists/*.md`, `- [~]` means **Deferred** (gap acknowledged, fix postponed to the checklist backlog). Count it in the Total, report it in its own **Deferred** column, and never treat it as incomplete — only `- [ ]` is incomplete and blocks. The status table is `| Checklist | Total | Completed | Deferred | Incomplete | Status |`; PASS = 0 incomplete. If the gate stops on `- [ ]` items, ask the user as usual.
-   - Run `/speckit-analyze` again — verify final implementation aligns with documentation
+5. **Implementation work** (follow `aif-sdlc.md` § Step 4):
+   - Prefix every `.specify/scripts/bash/*.sh` command the speckit skills run with `SPECIFY_FEATURE={FEATURE_ID}-{SLUG} SPECIFY_FEATURE_DIRECTORY={FEATURE_FOLDER}` (PFM branches are `feature/…`, which spec-kit's branch check rejects; without the directory variable the scripts follow `.specify/feature.json`, which may point at another feature). Prefix every call.
+   - The governing constitution is `.specify/memory/constitution.md`; tell `/speckit-analyze` and `/speckit-implement` to use it.
+   - **Snapshot** `{FEATURE_FOLDER}/tasks.md` (if present) to the scratchpad.
+   - `/speckit-tasks` for `{US_ID}` only: add a phase for this story to the existing `tasks.md` (create it if missing), leave every existing task unchanged, generate the test tasks first (from `test_cases.md`; TDD), continue numbering after the highest `T` ID, and name the exact files (plan.md's Open tasks are the source). **Verify against the snapshot** that earlier task lines are unchanged and IDs do not collide; restore and redo otherwise.
+   - `/speckit-analyze` (pre-implementation) — resolve every Critical and High finding before coding, and **save the report** as `{FEATURE_FOLDER}/analysis-{us-lower}-pre.md` so the gate can be audited later (`aif-review-checklist.md` § Step 4).
+   - `/speckit-implement` for the `{US_ID}` tasks only — tests first, then code. Pass this checklist-gate rule: in `checklists/*.md`, `- [~]` means **Deferred** (counted, reported in its own column, never blocking); only `- [ ]` is incomplete.
+   - Code rules (constitution): Django app per entity; thin views, serializers as DTOs with explicit `fields`, service function only where AR-01 requires it, `transaction.atomic()` for multi-model writes; permission classes plus ownership-scoped `get_queryset()` (`401` / `403` / `404`); catalogued SDS §6.6 error codes; new migrations only (never edit a merged one, never touch `db.sqlite3`); frontend in TypeScript with native forms, NC-04 element IDs from `plan.md`, direct `fetch` with the Bearer token, no new dependency; logging per Logging & Audit (auth events and state changes, never passwords/JWTs/financial data).
+   - Tests: Django `APITestCase`s in the app's `tests.py` for the integration TCs (happy path, `401`/`403`/`404`, validation, state transitions) against the real test database — no mocking of models/querysets; name each test after its TC (`test_tc05_…`).
+   - `/speckit-analyze` again (post-implementation) — save `{FEATURE_FOLDER}/analysis-{us-lower}-post.md`; no new Critical/High findings.
+   - Run `cd backend && python manage.py test`, `cd frontend && npm run lint && npm run build`, and `python manage.py makemigrations --check --dry-run` (clean after the migration was generated).
+   - **Document sync (Definition of Done):** SRS §7 ACs refined if edge cases appeared; `plan.md` records every decision made while implementing; SDS §5.x.N finalised; SDS §2.1 traceability row(s) with the actual app/model/table; SDS §4.3.3 columns; SDS §6.2 DTO registry, §6.3 API index, §6.4 specification, §6.5 traceability, §6.6 error codes; "Last synced" dates; `RUNBOOK.md` / `CLAUDE.md` / `README.md` if ports, env vars, setup steps or the endpoint list changed. A story with stale documents is not done.
 
-6. **Review gate:** self-check against [`aif-review-checklist.md` §Step 4](../../../aif-review-checklist.md#step-4--implementation-step--se-reviews): go through every item and mark it pass, fail (with the fix applied or proposed) or N/A, fixing what you can first. Then show the checked list, a summary of the changes (backend, frontend, migrations, tests), both `/speckit-analyze` reports and the test results, and ask the user to review. Apply requested changes.
-   Before showing the review, run `/sdlc-jira-done {TASK_ID} to=ready` (Task → Ready For Review while you review; skip if `TASK_ID` is unknown).
+6. **Review gate:** go through [`aif-review-checklist.md` § Step 4](../../../aif-review-checklist.md#step-4--implementation-step--se-reviews) item by item. Show the checked list, a summary of changes (backend, frontend, migrations, tests, docs), both analyze reports and the test results, and ask the user to review. Apply changes and repeat.
 
-7. **Jira Done:** once the user confirms the review, run `/sdlc-jira-done {TASK_ID}` (Ready For Review → In Review → Done). If the user asks for changes, apply them and repeat the review; the Task stays in Ready For Review. Skip if `TASK_ID` is unknown.
-
-8. **Report:** `TASK_ID`, branch, files changed, and the next actions:
-   - Commit, push, and open a pull request into `develop`. Title: `feat({TASK_ID}): {US_ID} {TITLE}` (e.g. `feat(OBMS-652): CO-US-03 Dismiss a CustomerOffer`; use `JIRA_STORY` if `TASK_ID` is unknown). The PR description includes a summary of changes, the constitution compliance check (`constitution.md`), and links to `spec.md` and `plan.md`.
-   - After the PR is merged: `/sdlc-deploy {US_ID}`
+7. **Report:** the branch, files changed, and the next actions: commit the branch, merge it into `develop` (`git merge --no-ff`; a PR is optional — the repo has an `origin` remote), then:
+   ```
+   /sdlc-deploy {US_ID}
+   ```

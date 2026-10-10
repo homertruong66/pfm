@@ -1,0 +1,16 @@
+# PFM SDLC context — managed by /sdlc-init, read by the /sdlc-* skills
+feature_id: "002"
+slug: user-management
+feature_folder: specs/002-user-management
+testing_folder: testing/002-user-management
+srs_section: "7.2"
+story_prefix: UM
+test_abbr: um                      # testing/002-user-management/test_um.spec.ts
+test_env_url: http://localhost:3000   # or http://<HOST_IP>:3000 once deployed on the LAN
+api_url: http://localhost:8000
+host_ip: ""                        # LAN IP of the deployment host (RUNBOOK §2); "" = localhost
+
+stories:
+  UM-US-01:
+    title: "Create a User"
+    actor: "ADMIN"

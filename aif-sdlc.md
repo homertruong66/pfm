@@ -536,4 +536,4 @@ App URL:          [http://<HOST_IP>:3000 — confirmed by SE in Step 5]
 
 ---
 
-*Reference: [Development Workflow](constitution.md#development-workflow) · [PFM Constitution](constitution.md)*
+*Reference: [Development Workflow](.specify/memory/constitution.md#development-workflow) · [PFM Constitution](.specify/memory/constitution.md)*

@@ -1,0 +1,16 @@
+# PFM SDLC context — managed by /sdlc-init, read by the /sdlc-* skills
+feature_id: "001"
+slug: system-security
+feature_folder: specs/001-system-security
+testing_folder: testing/001-system-security
+srs_section: "7.1"
+story_prefix: SS
+test_abbr: ss                      # testing/001-system-security/test_ss.spec.ts
+test_env_url: http://localhost:3000   # or http://<HOST_IP>:3000 once deployed on the LAN
+api_url: http://localhost:8000
+host_ip: ""                        # LAN IP of the deployment host (RUNBOOK §2); "" = localhost
+
+stories:
+  SS-US-01:
+    title: "Login"
+    actor: "ADMIN, USER"

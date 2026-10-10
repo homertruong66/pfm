@@ -1,7 +1,7 @@
 ---
 name: "sdlc-init"
-description: "Initialise the SDLC context file (sdlc.yaml) for a feature. Run once per feature before using the /sdlc-* step skills."
-argument-hint: "feature_folder=specs/NNN-slug epic=OBMS-EEE prefix=PP [deploy_target=develop|agentic] [stories=XX-US-01:OBMS-101,XX-US-02:OBMS-107]"
+description: "Initialise the SDLC context file (specs/<feature>/sdlc.yaml) for a PFM feature. Run once per feature before using the /sdlc-* step skills."
+argument-hint: "feature_folder=specs/NNN-slug prefix=WM [srs_section=7.3] [stories=WM-US-01:Create a Wallet,WM-US-02:List Wallets] [host_ip=192.168.1.20]"
 user-invocable: true
 disable-model-invocation: false
 ---
@@ -14,62 +14,51 @@ $ARGUMENTS
 
 ## Outline
 
-Parse the following key=value fields from `$ARGUMENTS`:
+PFM is a solo, ticket-less project (`aif-sdlc.md`): git branches and the SRS/SDS documents are the source of truth, so `sdlc.yaml` holds only the *context the step skills need to find things* — no tracker keys, no remote hosts.
+
+Parse these key=value fields from `$ARGUMENTS`:
 
 | Field | Required | Default | Example |
 |---|---|---|---|
-| `feature_folder` | yes | — | `specs/003-personalisation-plan` |
-| `epic` | yes | — | `OBMS-100` — the feature's current Epic, used for new Stories; the step skills read each Story's own parent Epic from Jira |
-| `prefix` | yes | — | `PP` |
-| `deploy_target` | no | `develop` | `develop` (Classic) or `agentic` (Agentic) — an environment label, not a git branch; both deploy from `develop` |
-| `stories` | no | — | `PP-US-01:OBMS-101,PP-US-02:OBMS-107` |
-| `ssh_host` | no | `118.69.64.152` | — |
-| `ssh_port` | no | `2222` | — |
-| `ssh_user` | no | `""` | your server username |
-| `ssh_key` | no | `~/.ssh/obms_test_key` | — |
-| `qc_ssh_user` | no | `""` | QC's own username for the Verification Step's log checks |
-| `qc_ssh_key` | no | `~/.ssh/id_ed25519` | — |
+| `feature_folder` | yes | — | `specs/003-wallet-management` |
+| `prefix` | yes | — | `WM` — the feature's story prefix (`constitution.md` § User Story Conventions) |
+| `srs_section` | no | read from `SRS.md` | `7.3` — the feature's `### 7.x` number; if omitted, find the `### 7.x … ({prefix})` heading |
+| `stories` | no | — | `WM-US-01:Create a Wallet,WM-US-02:List Wallets` — `US_ID:Title` pairs separated by commas |
+| `host_ip` | no | `""` | the home-LAN IP of the deployment host (`RUNBOOK.md` §2); empty means `localhost` |
 
 1. **Derive fields:**
-   - `feature_id` — the `NNN` prefix of the folder name (e.g. `003`)
-   - `slug` — everything after `NNN-` (e.g. `personalisation-plan`)
-   - `testing_folder` — replace `specs/` prefix with `testing/`
-   - `test_env_url` — `http://118.69.64.152:8091` if `deploy_target=develop`, `http://118.69.64.152:8081` if `agentic`
+   - `feature_id` — the `NNN` prefix of the folder name; `slug` — everything after `NNN-`
+   - `testing_folder` — the folder name under `testing/` (e.g. `testing/003-wallet-management`)
+   - `test_abbr` — `prefix` in lower case (the Playwright file is `testing/<folder>/test_{test_abbr}.spec.ts`)
+   - `test_env_url` — `http://{host_ip}:3000` (or `http://localhost:3000`); `api_url` — same host, port `8000`
 
-2. **Parse stories** (if provided): split on `,`, then split each on `:` to get `{US_ID}: {jira_story}`. Build the stories map with empty title.
+2. **Stories:** for each `US_ID:Title`, add an entry with `title`; `actor` is read from the story's heading in `SRS.md` §7 if it already exists, otherwise left `""` (the Spec Step fills it).
 
-3. **Merge with existing** (if `{feature_folder}/sdlc.yaml` already exists): read it first, then overwrite only the explicitly-provided fields. Preserve existing stories entries — add new ones, do not delete.
+3. **Merge with an existing file:** if `{feature_folder}/sdlc.yaml` exists, read it first and overwrite only the explicitly provided fields. Keep existing `stories` entries — add new ones, never delete.
 
 4. **Write `{feature_folder}/sdlc.yaml`:**
 
 ```yaml
-# OBMS SDLC context — managed by /sdlc-init and /sdlc-* skills
-feature_id: "NNN"
-slug: some-slug
-feature_folder: specs/NNN-some-slug
-testing_folder: testing/NNN-some-slug
-jira_epic: OBMS-EEE
-story_prefix: PP
-deploy_target: develop          # develop | agentic — environment label; both deploy from the develop branch
-test_env_url: http://118.69.64.152:8091
-ssh_host: "118.69.64.152"
-ssh_port: 2222
-ssh_user: ""                   # used by SE for the Deployment Step
-ssh_key: "~/.ssh/obms_test_key"
-qc_ssh_user: ""                # used by QC for the Verification Step — separate account/key from SE
-qc_ssh_key: "~/.ssh/id_ed25519"
+# PFM SDLC context — managed by /sdlc-init, read by the /sdlc-* skills
+feature_id: "003"
+slug: wallet-management
+feature_folder: specs/003-wallet-management
+testing_folder: testing/003-wallet-management
+srs_section: "7.3"
+story_prefix: WM
+test_abbr: wm                      # testing/<folder>/test_wm.spec.ts
+test_env_url: http://localhost:3000   # or http://<HOST_IP>:3000 once deployed on the LAN
+api_url: http://localhost:8000
+host_ip: ""                        # LAN IP of the deployment host (RUNBOOK §2); "" = localhost
 
 stories:
-  PP-US-01:
-    jira_story: OBMS-101
-    title: ""
-  PP-US-02:
-    jira_story: OBMS-107
-    title: ""
+  WM-US-01:
+    title: "Create a Wallet"
+    actor: "USER"
 ```
 
-5. **Report:** path written, all field values, and the next command to run:
+5. **Report:** the path written, the field values, and the next command:
    ```
-   /sdlc-spec {prefix}-US-01 title="..." actor=ADMIN goal="..." reason="..." ac="AC1|AC2|AC3"
+   /sdlc-spec WM-US-01 title="Create a Wallet" actor=USER goal="..." reason="..." ac="AC 1|AC 2|AC 3"
    ```
-   If `ssh_user` or `qc_ssh_user` is still empty, remind the user to fill it in `sdlc.yaml` before running `/sdlc-deploy` or `/sdlc-verify` respectively.
+   If the feature has no folder yet, say that `/sdlc-spec` creates `spec.md` and `/speckit-specify` is not needed first.

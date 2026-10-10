@@ -23,13 +23,13 @@ Governing documents are too large to auto-load in full. Read only the relevant s
 <!-- PFM operational details: governing docs, file paths, ports, credentials, and common shortcuts -->
 
 <!-- Inlines the full project constitution into every session -->
-@constitution.md
+@.specify/memory/constitution.md
 
 ### Governing Documents
 
 <!-- Constitution/SRS/SDS are the ground truth for all decisions, in priority order -->
 Before any code or design decision, these documents take precedence in order:
-1. **[constitution.md](constitution.md)** — Non-negotiable Principles, Development Workflow, Tech Stack Constraints
+1. **[constitution.md](.specify/memory/constitution.md)** — Non-negotiable Principles, Development Workflow, Tech Stack Constraints
 2. **[SRS.md](SRS.md)** — what the system does and why (CDM, Business Flows, Features/User Stories...)
 3. **[SDS.md](SDS.md)** — how the system is designed (TDM, Architecture, ADRs, API Specs...)
 
@@ -42,7 +42,7 @@ Before any code or design decision, these documents take precedence in order:
 | API design, sequence diagrams, or architecture decisions | [SDS.md](SDS.md) (relevant section) |
 | New routes, DTOs, or serializer changes | [SDS.md](SDS.md) §6 (API Design) |
 | Domain object / DB schema changes | [SDS.md](SDS.md) §2, §4.3.3 |
-| Tech stack constraints | [constitution.md](constitution.md) (already loaded) |
+| Tech stack constraints | [constitution.md](.specify/memory/constitution.md) (already loaded) |
 
 ### Project Structure
 
@@ -68,7 +68,7 @@ pfm/
 ├── aif-sdlc.md           # AI-First SDLC
 ├── SRS.md                # Software Requirements Specification
 ├── SDS.md                # Software Design Specification
-├── constitution.md       # Project constitution (principles, patterns)
+├── .specify/             # spec-kit: memory/constitution.md (project constitution), templates/, scripts/, workflows/
 ├── RUNBOOK.md            # Operational reference (home-LAN setup/deploy/troubleshoot)
 └── README.md
 ```
@@ -103,3 +103,4 @@ cd testing && npx playwright test                                        # e2e t
 - One Django app per domain entity under `backend/` (SDS §2.1) — a new entity gets a new app, not a new module inside an existing one
 - Feature/User Story IDs use the `{ABBR}-US-{NN}` convention (e.g. `WM-US-01`) — see constitution.md § User Story Conventions
 - Backend integration tests live in each app's `tests.py`; Playwright coverage (e2e and API-level) lives under `testing/[feature-id]-[slug]/test_[abbr].spec.ts` (`[abbr]` = lowercase story prefix, e.g. `test_ss.spec.ts`; Quality Step), run via the Playwright runner at `testing/playwright.config.ts` (`cd testing && npm install && npx playwright test`) — requires the frontend/backend dev servers already running
+- AIF-SDLC step skills (`.claude/skills/`): `/sdlc-init` once per feature, then `/sdlc-spec`, `/sdlc-design`, `/sdlc-quality`, `/sdlc-implement`, `/sdlc-deploy`, `/sdlc-verify` per story (`/sdlc` picks the next step, `/sdlc-status` shows progress); each runs on its own `feature/<us>-<step>-step` branch and never commits or merges

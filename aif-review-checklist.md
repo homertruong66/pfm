@@ -23,8 +23,8 @@
 - [ ] SDLC flow is followed in strict order: **Spec → Design → Quality → Implement → Deploy → Verification** — no step skipped or reordered (Quality may run in parallel with Implementation, per [aif-sdlc.md](aif-sdlc.md))
 - [ ] If implementation diverges from `plan.md`, the plan is redefined first — never deviate silently and patch the plan afterward
 - [ ] `spec.md` / `plan.md` are the artifacts under review here and do **not** need to match `SDS.md` / `SRS.md` verbatim — if `SDS.md` / `SRS.md` violate a constitution principle, that violation is not propagated into `spec.md` / `plan.md`
-- [ ] Step 6 closes the User Story directly — no separate verification ticket, because no tracker is used; a US is Done when it meets the [Definition of Done](constitution.md#definition-of-done) (DOD-01..05)
-- [ ] Cross-document inconsistency (SRS ↔ SDS ↔ code) is treated as a **defect, not a backlog item** ([constitution.md § Cross-Document Consistency](constitution.md#cross-document-consistency))
+- [ ] Step 6 closes the User Story directly — no separate verification ticket, because no tracker is used; a US is Done when it meets the [Definition of Done](.specify/memory/constitution.md#definition-of-done) (DOD-01..05)
+- [ ] Cross-document inconsistency (SRS ↔ SDS ↔ code) is treated as a **defect, not a backlog item** ([constitution.md § Cross-Document Consistency](.specify/memory/constitution.md#cross-document-consistency))
 - [ ] Every step branch is created from an up-to-date `develop` (never from another step's branch) and merged back into `develop` before the next step's branch is created
 
 ---
@@ -48,18 +48,18 @@
 ### `spec.md` Content
 - [ ] All acceptance criteria provided in the prompt are present in `spec.md`, cited as `AC-NN` / `EC-NN` (per `.specify/templates/testcase-template.md`) — not `FR-NNN`/`AS-N`/`SC-NNN`, which belong to the FR/Success-Criteria tables, not the AC citation shape
 - [ ] Every AC describes a **testable, observable outcome** — not an implementation detail
-- [ ] No technology names, endpoint paths, DB field/table names, serializer/model class names, or token formats leaked into ACs (those belong to `plan.md`) — per [constitution.md § Cross-Document Consistency](constitution.md#cross-document-consistency)
+- [ ] No technology names, endpoint paths, DB field/table names, serializer/model class names, or token formats leaked into ACs (those belong to `plan.md`) — per [constitution.md § Cross-Document Consistency](.specify/memory/constitution.md#cross-document-consistency)
 - [ ] No banned vague words from `spec-template.md` (e.g. "fast", "user-friendly", "appropriate", "seamless")
 - [ ] The 7 mandatory Edge Case categories (empty/null, boundary, concurrency, access control, dependency timeout, multi-language/currency, AI error) were each scanned — any omitted category has an inline "N/A" justification
 - [ ] No Domain Objects, no ERD, no sequence diagrams, no pre-defined table fields present — `spec.md` stays conceptual; those belong to the Design step
-- [ ] Domain entities/terms match [SRS §2 CDM](SRS.md) and the [constitution's Business Terminology](constitution.md#business-terminology) verbatim — no synonyms (e.g. `Wallet`, not "account"; `FinancialGoal`, not "Financial Goal")
+- [ ] Domain entities/terms match [SRS §2 CDM](SRS.md) and the [constitution's Business Terminology](.specify/memory/constitution.md#business-terminology) verbatim — no synonyms (e.g. `Wallet`, not "account"; `FinancialGoal`, not "Financial Goal")
 - [ ] `spec.md` contains exactly **one US** per block — heading includes the `(ACTOR)` suffix matching SRS §7 verbatim
 - [ ] `Status` in the spec header reflects reality (not left at `Draft` once the story ships)
 
 ### Traceability
-- [ ] This US can be traced to a CDM entity (SRS §2) or a Business Flow step (SRS §6) — per [constitution.md § Feature Derivation Method](constitution.md#feature-derivation-method)
+- [ ] This US can be traced to a CDM entity (SRS §2) or a Business Flow step (SRS §6) — per [constitution.md § Feature Derivation Method](.specify/memory/constitution.md#feature-derivation-method)
 - [ ] If a new Domain Entity is introduced, SRS §2 is updated, SDS §2.1 gets a traceability row in the same PR, and both "Last synced" dates are current
-- [ ] Story prefix and numbering follow [constitution.md § User Story Conventions](constitution.md#user-story-conventions) — uppercase initials of the Feature name, sequential with no gaps
+- [ ] Story prefix and numbering follow [constitution.md § User Story Conventions](.specify/memory/constitution.md#user-story-conventions) — uppercase initials of the Feature name, sequential with no gaps
 
 ---
 
@@ -79,9 +79,9 @@
 ### SDS §5 Entry
 - [ ] Plan link (`> Plan: [...]`) appears **once** on the Feature header (`§5.x`), not under a US sub-section
 - [ ] The SDS US sub-section (`§5.x.N`) contains **only** the Purpose field — ACs live in `spec.md`, flows/diagrams in `plan.md`
-- [ ] SDS Table of Contents is updated to include the new US sub-section, and stays 1:1 with the SRS §7 ToC (names and IDs identical, including any suffix such as `[MVP]`) per [constitution.md § User Story Conventions](constitution.md#user-story-conventions)
+- [ ] SDS Table of Contents is updated to include the new US sub-section, and stays 1:1 with the SRS §7 ToC (names and IDs identical, including any suffix such as `[MVP]`) per [constitution.md § User Story Conventions](.specify/memory/constitution.md#user-story-conventions)
 
-### `plan.md` — Layered Architecture ([constitution.md § Layered Architecture](constitution.md#layered-architecture))
+### `plan.md` — Layered Architecture ([constitution.md § Layered Architecture](.specify/memory/constitution.md#layered-architecture))
 - [ ] **AR-01** — Logic that spans more than one model, has a business rule beyond field validation, or has side effects is designed into a module-level service function (e.g. `transactions/services.py`); plain ownership-scoped CRUD stays in the View + Serializer
 - [ ] **AR-02** — Views only do HTTP binding, permission checks, ownership-scoped `get_queryset()` and delegation — no business logic
 - [ ] **AR-03** — No hand-written Repository class wrapping the Django ORM
@@ -99,8 +99,8 @@
 - [ ] Decisions with security impact (e.g. where tokens are stored on the client) are recorded with a rationale in Decisions & Rationale — not deferred to implementation
 
 ### `plan.md` — Technology & Complexity
-- [ ] No stack substitution outside [constitution.md § Technology Stack](constitution.md#technology-stack) (Django 6 / DRF / SimpleJWT / SQLite; Next.js 16 / React 19 / TypeScript / Tailwind v4) and no new core dependency without approval; no form/state/HTTP/icon/UI library added speculatively (FE-02, FE-04, FE-05)
-- [ ] Any complexity beyond the current validated requirement (new abstraction, new dependency, speculative generality) is logged in the plan's Complexity Tracking table with rationale ([constitution.md § Simplicity Over Premature Scale](constitution.md#simplicity-over-premature-scale))
+- [ ] No stack substitution outside [constitution.md § Technology Stack](.specify/memory/constitution.md#technology-stack) (Django 6 / DRF / SimpleJWT / SQLite; Next.js 16 / React 19 / TypeScript / Tailwind v4) and no new core dependency without approval; no form/state/HTTP/icon/UI library added speculatively (FE-02, FE-04, FE-05)
+- [ ] Any complexity beyond the current validated requirement (new abstraction, new dependency, speculative generality) is logged in the plan's Complexity Tracking table with rationale ([constitution.md § Simplicity Over Premature Scale](.specify/memory/constitution.md#simplicity-over-premature-scale))
 - [ ] Schema changes go through new Django migrations; no edit of a merged migration; additive changes preferred for SQLite (Technical Principle III)
 - [ ] Sequence diagrams follow the conventions in [aif-sdlc.md § Sequence Diagram Conventions](aif-sdlc.md#sequence-diagram-conventions): Happy → Alternative → Negative order, no DB queries, status codes only (no bodies or UI copy)
 - [ ] Technical Context and Project Structure describe the **current** repo (e.g. test tooling that already exists, files that already exist) — no stale "not yet created" notes
@@ -195,7 +195,7 @@
 - [ ] No new dependency (state, form, HTTP, icon, UI library) was added without justification
 
 ### Test Coverage
-- [ ] At least one `APITestCase` covers the happy path for every new endpoint (DOD-05), run against Django's real throwaway test database — no mocked models/querysets ([Integration Testing Over Mocking](constitution.md#integration-testing-over-mocking))
+- [ ] At least one `APITestCase` covers the happy path for every new endpoint (DOD-05), run against Django's real throwaway test database — no mocked models/querysets ([Integration Testing Over Mocking](.specify/memory/constitution.md#integration-testing-over-mocking))
 - [ ] Tests exist for key error cases: invalid input, unauthenticated (`401`), wrong role / not-owner (`403`/`404`), conflict, not found — and for state transitions where applicable
 - [ ] Tests live in the app's own `tests.py` and name the TC they implement (e.g. `test_tc05_…`)
 - [ ] `python manage.py test`, `npm run lint` and `npm run build` pass
@@ -204,7 +204,7 @@
 - [ ] No new Critical or High findings introduced by the implementation
 
 ### Document Sync (Definition of Done)
-- [ ] SRS §7 ACs refined if the implementation revealed edge cases ([constitution.md § AIF-SDLC Workflow](constitution.md#aif-sdlc-workflow))
+- [ ] SRS §7 ACs refined if the implementation revealed edge cases ([constitution.md § AIF-SDLC Workflow](.specify/memory/constitution.md#aif-sdlc-workflow))
 - [ ] SDS §5 design notes finalized — no "TBD"/"to be added" placeholders remaining; decisions made during implementation are written back into `plan.md`
 - [ ] SDS §2.1 traceability table updated with actual class/table names
 - [ ] SDS §4.3.3 DB schema updated with final column definitions
@@ -303,4 +303,4 @@
 5. **Review AI-generated test cases against `spec.md`, not from memory.**
    - Compare every generated test case against `spec.md` directly; if a scenario is unclear, ask the AI to explain its interpretation before approving, and instruct it to remove both the test case and its automation code together when a case turns out redundant or out of scope.
 
-*Reference: [aif-sdlc.md](aif-sdlc.md) · [constitution.md](constitution.md) · [RUNBOOK.md](RUNBOOK.md) · [aif-artifact-audit.md](aif-artifact-audit.md)*
+*Reference: [aif-sdlc.md](aif-sdlc.md) · [constitution.md](.specify/memory/constitution.md) · [RUNBOOK.md](RUNBOOK.md) · [aif-artifact-audit.md](aif-artifact-audit.md)*
