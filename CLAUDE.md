@@ -12,6 +12,10 @@
 
 Before writing any code, confirm a user story exists in the governing spec. If a task conflicts with the spec, amend the spec first — code does not lead, specs do.
 
+### Git: never commit
+
+Never run `git commit` (any form, including `--amend`) — `.claude/settings.json` denies it. Make the changes, show what changed, and stop: the user reviews and commits. `git push` and `git merge` run only when the user asks for them in that message (they prompt for confirmation).
+
 ### On-Demand Spec Reading
 
 Governing documents are too large to auto-load in full. Read only the relevant section when triggered by the type of change being made. See the project-specific trigger table in Part 2.
