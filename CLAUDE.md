@@ -22,18 +22,15 @@ Governing documents are too large to auto-load in full. Read only the relevant s
 
 <!-- PFM operational details: governing docs, file paths, ports, credentials, and common shortcuts -->
 
-<!-- Inlines the full project constitution into every session -->
-@.specify/memory/constitution.md
-
 ### Governing Documents
 
 <!-- Constitution/SRS/SDS are the ground truth for all decisions, in priority order -->
 Before any code or design decision, these documents take precedence in order:
-1. **[constitution.md](.specify/memory/constitution.md)** — Non-negotiable Principles, Development Workflow, Tech Stack Constraints
+1. **[constitution.md](.specify/memory/constitution.md)** — Non-negotiable Principles, Development Workflow, Tech Stack Constraints. **Not auto-loaded** (it is long): read the section the trigger table below names before acting; the spec-kit and `/sdlc-*` skills read what they need themselves
 2. **[SRS.md](SRS.md)** — what the system does and why (CDM, Business Flows, Features/User Stories...)
 3. **[SDS.md](SDS.md)** — how the system is designed (TDM, Architecture, ADRs, API Specs...)
 
-<!-- SRS and SDS are too large to auto-load; this table prevents both skipping them and wasteful full reads -->
+<!-- The constitution, SRS and SDS are too large to auto-load; this table prevents both skipping them and wasteful full reads -->
 | Trigger | Read |
 |---------|------|
 | Adding/renaming domain entities, actors, or business flows | [SRS.md](SRS.md) §2–§6 |
@@ -42,7 +39,12 @@ Before any code or design decision, these documents take precedence in order:
 | API design, sequence diagrams, or architecture decisions | [SDS.md](SDS.md) (relevant section) |
 | New routes, DTOs, or serializer changes | [SDS.md](SDS.md) §6 (API Design) |
 | Domain object / DB schema changes | [SDS.md](SDS.md) §2, §4.3.3 |
-| Tech stack constraints | [constitution.md](.specify/memory/constitution.md) (already loaded) |
+| Tech stack constraints | [constitution.md](.specify/memory/constitution.md) § Technology Stack |
+| Backend code (views, serializers, services, models, migrations) | [constitution.md](.specify/memory/constitution.md) § Layered Architecture (AR-01–05), Technical Principles, Access Control (AC-01–04), API Design Standards (API-01–07), Naming Conventions (NC-01–03, 05), Validation Rules, Logging & Audit |
+| Frontend code (pages, forms, API calls) | [constitution.md](.specify/memory/constitution.md) § Frontend Conventions (FE-01–08), Naming Conventions NC-04, Technical Principles IV |
+| Writing or reviewing tests | [constitution.md](.specify/memory/constitution.md) § Integration Testing Over Mocking, Definition of Done (DOD-01–05) |
+| User story IDs, ToCs, new Feature or story | [constitution.md](.specify/memory/constitution.md) § User Story Conventions, Feature Derivation Method, Cross-Document Consistency |
+| Secrets, config, deployment target | [constitution.md](.specify/memory/constitution.md) § Security Requirements, Development Workflow |
 
 ### Project Structure
 

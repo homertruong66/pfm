@@ -27,7 +27,7 @@ Source of truth for Step 1 of the AIF-SDLC (overview: `aif-sdlc.md` § Step 1). 
 
 4. **sdlc.yaml:** add `stories.{US_ID}` with `title` and `actor` if missing.
 
-5. **Spec work** — first read `.specify/memory/constitution.md` § User Story Conventions and § Feature Derivation Method (it is auto-loaded via `CLAUDE.md`, but re-check the numbering and traceability rules):
+5. **Spec work** — first read `.specify/memory/constitution.md` § User Story Conventions, § Feature Derivation Method and § Cross-Document Consistency (the constitution is **not** auto-loaded by `CLAUDE.md`; these hold the numbering, ToC and traceability rules):
    - **First US of the feature** (`{FEATURE_FOLDER}/spec.md` missing):
      - If `SRS.md` has no `### 7.x` section for the feature, create it (next free number, feature name with its `({PREFIX})`, one-line purpose) plus its SRS ToC entry, and the matching `### 5.x` section and ToC entry in `SDS.md`. The feature must trace to an SRS §2 entity or a §6 flow step — otherwise STOP and ask.
      - Add the spec link **once**, directly under the `### 7.x` header: `> Spec: [{FEATURE_FOLDER}/spec.md]({FEATURE_FOLDER}/spec.md)`.

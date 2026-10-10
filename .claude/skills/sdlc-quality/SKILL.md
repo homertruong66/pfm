@@ -24,7 +24,7 @@ Overview: `aif-sdlc.md` § Step 3. This skill never commits or merges.
 
 4. **Branch:** uncommitted changes → STOP. `git checkout develop`, `git pull origin develop` (skip offline), `git checkout -b feature/{us-lower}-quality-step` (switch if it exists).
 
-5. **Quality work** (follow `aif-sdlc.md` § Step 3 and its Testing-Code-Rule in full):
+5. **Quality work** (follow `aif-sdlc.md` § Step 3 and its Testing-Code-Rule in full). First read `.specify/memory/constitution.md` § Integration Testing Over Mocking, § Definition of Done (DOD-03, DOD-05) and Naming Conventions NC-04 — it is not auto-loaded:
    - Read `spec.md` and `plan.md` (its Element IDs table is the selector contract; its API Contracts give the status/body assertions).
    - Classify every AC/EC `[API]`, `[UI]` or `[BOTH]`.
    - Write the test cases per `.specify/templates/testcase-template.md` **Part 1** — the single source of truth for the TC structure (US / Given / When / Then / AC / Type / Severity / Note), the AC Classification table, the Coverage Matrix and its defect rule (a `[BOTH]`/`[UI]` AC with an empty E2E column, or an e2e that does not match its integration TC's facets, is a defect — say "e2e N/A: reason" instead), Negative-scenario applicability and the coverage checklist. Do not diverge from it.

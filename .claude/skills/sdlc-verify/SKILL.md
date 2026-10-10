@@ -20,7 +20,7 @@ Overview: `aif-sdlc.md` § Step 6. There is no tracker: a story is **Done** when
 
 2. **Load context:** find the `specs/*/sdlc.yaml` whose `stories` map has `US_ID`; extract `FEATURE_FOLDER`, `TESTING_FOLDER`, `FEATURE_ID`, `SLUG`, `TEST_ABBR`, `TEST_ENV_URL`, `API_URL`. None → STOP: "Run `/sdlc-init` first."
 
-3. **Pre-flight:** `/sdlc-deploy {US_ID}` reported success (servers up at `TEST_ENV_URL` / `API_URL`; `curl {API_URL}/health/` answers). Not deployed → STOP: "Run `/sdlc-deploy {US_ID}` first." The Playwright suites need an existing ADMIN: ask for `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` if they are not set (never invent or store credentials; `RUNBOOK.md` §9).
+3. **Pre-flight:** read `.specify/memory/constitution.md` § Definition of Done (DOD-01–05) — it is not auto-loaded and the verdict is judged against it. `/sdlc-deploy {US_ID}` reported success (servers up at `TEST_ENV_URL` / `API_URL`; `curl {API_URL}/health/` answers). Not deployed → STOP: "Run `/sdlc-deploy {US_ID}` first." The Playwright suites need an existing ADMIN: ask for `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` if they are not set (never invent or store credentials; `RUNBOOK.md` §9).
 
 4. **Branch:** uncommitted changes → STOP. `git checkout develop`, `git pull origin develop` (skip offline), `git checkout -b feature/{us-lower}-verification-step` (switch if it exists).
 

@@ -20,7 +20,7 @@ Overview: `aif-sdlc.md` § Step 5. PFM is a **single-machine home-LAN deployment
 
 2. **Load context:** find the `specs/*/sdlc.yaml` whose `stories` map has `US_ID`; extract `FEATURE_FOLDER`, `TEST_ENV_URL`, `API_URL`, `HOST_IP` (the argument overrides `sdlc.yaml`; if both are empty, deploy for `localhost` and say the run is local, not LAN). None → STOP: "Run `/sdlc-init` first."
 
-3. **Pre-flight:**
+3. **Pre-flight** (the constitution is not auto-loaded: skim `.specify/memory/constitution.md` § Development Workflow and § Security Requirements for the deploy rules — tests/lint/build must pass, `SECRET_KEY`/`DEBUG`/`ALLOWED_HOSTS` limits):
    - `{FEATURE_FOLDER}/spec.md` and `plan.md` exist and mention `{US_ID}`.
    - The Implementation Step branch for `{US_ID}` is **merged into `develop`**: `git branch --merged develop --list "feature/{us-lower}-implementation-step"` (or the merge commit in `git log develop --merges --grep "{us-lower}-implementation-step"`). Not merged → STOP: "Merge the Implementation branch into `develop` first."
    - The working tree is on `develop`, up to date (`git pull origin develop` if online).
