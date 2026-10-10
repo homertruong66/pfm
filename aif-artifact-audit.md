@@ -54,7 +54,7 @@
 | test_cases.md | Minor | All four self-check boxes are ticked by the author, with no independent review of the rubric items behind them. |
 | test_um.spec.ts | Minor | Each run leaves `TestQC-` accounts in the target database (no delete endpoint until UM-US-06) and needs ADMIN credentials in the environment. |
 | verification-report.md | Minor | Run on `localhost` against a **scratch** SQLite database, not the LAN host or the developer's `db.sqlite3`; the developer's database still needs `migrate` (now through `users` 0003) and a `createsuperuser` (which now asks for a full name) before UM-US-01 can be used there. |
-| verification-report.md | Minor | SS-US-01's e2e failed twice on one cold first run (before the e2e/doc fixes) and passed 3/3 on every later run, including a fresh cold start of both servers; the original failure message was never captured and the cause could not be reproduced or diagnosed. |
+| verification-report.md | Minor | SS-US-01's e2e failed twice on one cold first run (before the e2e and doc fixes) and passed 3/3 on every later run, including a fresh cold start of both servers; the original failure message was never captured and the cause could not be reproduced or diagnosed. |
 | Code-vs-plan | Minor | The Create User screen is reachable only by typing `/users/new` — no navigation entry and no role-aware hiding (FE-03; plan G9, spec Out of Scope). The ADMIN's primary way to use the story is undiscoverable until UM-US-03 provides the caller's role. |
 
 ### Project-level
@@ -72,4 +72,4 @@
 
 ---
 
-*Produced by Claude Code over `specs/`, `e2e/`, the templates, rubric, process and governing documents, with claims spot-checked against `backend/` and `frontend/`. Counts in the executive summary were tallied from the tables above (Critical 0, Major 0+0+1, Minor 3+6+1).*
+*Produced by Claude Code over `specs/`, `testing/`, the templates, rubric, process and governing documents, with claims spot-checked against `backend/` and `frontend/`. Counts in the executive summary were tallied from the tables above (Critical 0, Major 0+0+1, Minor 3+6+1).*

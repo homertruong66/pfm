@@ -9,7 +9,7 @@
     Part 1 — test_cases.md          specs/[feature-id]-[slug]/test_cases.md
              one file per Feature, next to spec.md / plan.md / tasks.md so the spec-kit commands
              find spec, plan and test cases in one folder; produced BEFORE Implementation.
-    Part 2 — verification-report.md e2e/[feature-id]-[slug]/[xx-us-nn-keyword]/verification-report.md
+    Part 2 — verification-report.md testing/[feature-id]-[slug]/[xx-us-nn-keyword]/verification-report.md
              one file per User Story (next to that US's Playwright index.html), produced AFTER
              Deployment.
 
@@ -165,7 +165,7 @@
     needs its own e2e case, or an explicit "e2e N/A: [reason]" Note on the one covering
     it — one generic e2e per AC does not cover facets it doesn't itself demonstrate.
 
-  Playwright automation for e2e cases goes in e2e/[feature-id]-[slug]/test_[abbr].spec.ts (not in this folder)
+  Playwright automation for e2e cases goes in testing/[feature-id]-[slug]/test_[abbr].spec.ts (not in this folder)
   ([abbr] = the lowercase story prefix, e.g. test_ss.spec.ts) and follows the
   Testing-Code-Rule in aif-sdlc.md Step 3 (selector priority, seeding, screenshot
   conventions) — not duplicated here since it governs the .spec.ts code, not this
@@ -187,8 +187,8 @@
 
 <!--
   ACTION REQUIRED: one file per User Story, saved next to that US's Playwright HTML report:
-  e2e/[feature-id]-[slug]/[xx-us-nn-keyword]/verification-report.md (e.g.
-  e2e/001-system-security/ss-us-01-login/verification-report.md). Produced after running the
+  testing/[feature-id]-[slug]/[xx-us-nn-keyword]/verification-report.md (e.g.
+  testing/001-system-security/ss-us-01-login/verification-report.md). Produced after running the
   Quality Step's Playwright automation (and the backend `python manage.py test`) against the
   deployed app from aif-sdlc.md Step 5. Any TC marked Type: integration or e2e that
   automation does NOT cover must be verified manually against the app, with the result

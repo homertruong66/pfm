@@ -184,7 +184,7 @@ Each USER needs their own account so their Wallets, Transactions, Budgets, and G
 
 The Django admin panel at `http://<HOST_IP>:8000/admin` remains available to superusers only.
 
-**Running the e2e tests** (`cd e2e && npx playwright test`) needs an existing ADMIN account: set `E2E_ADMIN_EMAIL` and `E2E_ADMIN_PASSWORD` in the shell first. The suites create their own throwaway `TestQC-` users through that ADMIN.
+**Running the e2e tests** (`cd testing && npx playwright test`) needs an existing ADMIN account: set `E2E_ADMIN_EMAIL` and `E2E_ADMIN_PASSWORD` in the shell first. The suites create their own throwaway `TestQC-` users through that ADMIN.
 
 The ADMIN role is for app/account setup only — it does not grant visibility into other family members' financial data.
 

@@ -264,7 +264,7 @@ sequenceDiagram
 | T8 | `APITestCase`s TC-01..TC-17 for UM-US-01 plus role/superuser tests | `backend/users/tests.py`, `backend/roles/tests.py` |
 | T9 | Re-base SS-US-01 backend tests: create fixtures with `User.objects.create_user`, not the (now ADMIN-only) endpoint | `backend/users/tests.py` |
 | T10 | Create User page with the Element IDs above, role-agnostic, `401` → `/login`, `403` → `#message-access-denied` | `frontend/src/app/users/new/page.tsx` |
-| T11 | e2e: UM suite + shared seeding helper that logs in as an ADMIN from `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD`; re-base SS-US-01 e2e seeding on it | `e2e/002-user-management/test_um.spec.ts`, `e2e/001-system-security/test_ss.spec.ts` |
+| T11 | e2e: UM suite + shared seeding helper that logs in as an ADMIN from `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD`; re-base SS-US-01 e2e seeding on it | `testing/002-user-management/test_um.spec.ts`, `testing/001-system-security/test_ss.spec.ts` |
 | T12 | Document sync: SDS §2.1 (User/Role/`user_roles` rows), §4.3.3 (columns, Migration Strategy, first-ADMIN wording), §5.2.1 Purpose, §6.2/§6.3/§6.4/§6.5/§6.6; constitution §V and CLAUDE.md public-route list; RUNBOOK §9; SS-US-01 `plan.md` quickstart (drops "or `POST /api/v1/users/`") | `SDS.md`, `constitution.md`, `CLAUDE.md`, `RUNBOOK.md`, `specs/001-system-security/plan.md` |
 
 ---
@@ -277,7 +277,7 @@ sequenceDiagram
 
 **Storage**: SQLite (MVP) — **migrations required**: `roles/0001` + `roles/0002` (seed), `users/0002` (`full_name`, `user_roles`)
 
-**Testing**: `python manage.py test` (DRF `APITestCase`, real throwaway test DB per Integration Testing Over Mocking); Playwright e2e under `e2e/002-user-management/` for the Create User screen; test cases in `specs/002-user-management/test_cases.md`
+**Testing**: `python manage.py test` (DRF `APITestCase`, real throwaway test DB per Integration Testing Over Mocking); Playwright e2e under `testing/002-user-management/` for the Create User screen; test cases in `specs/002-user-management/test_cases.md`
 
 **Target Platform**: Single-machine home-LAN deployment (RUNBOOK.md) — backend :8000, frontend :3000
 
@@ -346,7 +346,7 @@ backend/users/
 frontend/src/app/users/new/
 └── page.tsx             # NEW: Create User form
 
-e2e/002-user-management/
+testing/002-user-management/
 ├── test_um.spec.ts
 └── um-us-01-create-user/    # verification-report.md + Playwright HTML report
 ```

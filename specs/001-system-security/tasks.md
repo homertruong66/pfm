@@ -1,8 +1,8 @@
 # Tasks: System Security — SS-US-01 Login
 
-**Input**: Design documents from `specs/001-system-security/` (spec.md, plan.md — including its SS-US-01 Decisions & Rationale/Domain Objects/API Contracts/Quickstart Validation subsections — and test_cases.md) and `e2e/001-system-security/` (test_ss.spec.ts)
+**Input**: Design documents from `specs/001-system-security/` (spec.md, plan.md — including its SS-US-01 Decisions & Rationale/Domain Objects/API Contracts/Quickstart Validation subsections — and test_cases.md) and `testing/001-system-security/` (test_ss.spec.ts)
 
-**Tests**: Included — constitution.md DOD-05 requires at least one `APITestCase` per new/formalized endpoint; e2e Playwright automation for TC-02/TC-04/TC-08 already exists in `e2e/001-system-security/test_ss.spec.ts` from the Quality Step and is referenced, not duplicated.
+**Tests**: Included — constitution.md DOD-05 requires at least one `APITestCase` per new/formalized endpoint; e2e Playwright automation for TC-02/TC-04/TC-08 already exists in `testing/001-system-security/test_ss.spec.ts` from the Quality Step and is referenced, not duplicated.
 
 **Organization**: Single user story (SS-US-01) — no Setup/Foundational work is needed beyond confirming existing wiring, since `djangorestframework-simplejwt` is already installed and the endpoint already exists (plan.md's Summary).
 
@@ -12,7 +12,7 @@
 
 - [x] T001 Confirm `djangorestframework-simplejwt` is in `backend/requirements.txt` and `POST /api/v1/auth/login/` / `POST /api/v1/auth/refresh/` are wired to `TokenObtainPairView`/`TokenRefreshView` in `backend/config/api_router.py` (should require no change — flags drift if it does)
 
-- [x] T001b Added a Playwright runner (`playwright.config.ts` + `@playwright/test` devDependency in a `package.json`, `testDir: .`) under `e2e/` so `e2e/001-system-security/test_ss.spec.ts` can execute *(originally T017 in Phase 4, added after the fact; moved here because T018 and the Phase 3 checkpoint depend on it)*
+- [x] T001b Added a Playwright runner (`playwright.config.ts` + `@playwright/test` devDependency in a `package.json`, `testDir: .`) under `testing/` so `testing/001-system-security/test_ss.spec.ts` can execute *(originally T017 in Phase 4, added after the fact; moved here because T018 and the Phase 3 checkpoint depend on it)*
 
 ---
 
@@ -42,13 +42,13 @@
 ### Implementation for User Story 1
 
 - [x] T008 [US1] Run `cd backend && python manage.py test users` and confirm T002–T007 all pass with zero backend code changes (depends on T001–T007); if any fail, that's new information — stop and reconcile with plan.md before touching the view
-- [x] T009 [P] [US1] Create the login page shell in `frontend/src/app/login/page.tsx`: a form with `#login-email` and `#login-password` inputs, a `#btn-submit-login` submit button, and an empty `#message-error` container (NC-04 element ID contract, matches `e2e/001-system-security/test_ss.spec.ts`'s selectors)
+- [x] T009 [P] [US1] Create the login page shell in `frontend/src/app/login/page.tsx`: a form with `#login-email` and `#login-password` inputs, a `#btn-submit-login` submit button, and an empty `#message-error` container (NC-04 element ID contract, matches `testing/001-system-security/test_ss.spec.ts`'s selectors)
 - [x] T010 [US1] In `frontend/src/app/login/page.tsx`, add a pre-submit check: if either field is empty, show exactly `"Email and password are required."` in `#message-error` and do not call the API (EC-01, TC-07/TC-08) — depends on T009
 - [x] T011 [US1] In `frontend/src/app/login/page.tsx`, `POST` `email`/`password` to `` `${apiOrigin}/api/v1/auth/login/` `` where `apiOrigin` is `NEXT_PUBLIC_API_URL` (bare origin, matching the existing home page's `/health/` call convention) (FE-08 direct fetch, no proxy); on a `400`/`401` response show exactly `"Invalid email or password."` in `#message-error` and keep the User on the page; on any other status show `"Something went wrong. Please try again."`, and when the request itself fails show `"Could not reach the server. Please try again."` (neither is a credential error — corrected 2026-10-08) (AC-02, AC-03, TC-03/TC-04/TC-05) — depends on T009
 - [x] T012 [US1] In `frontend/src/app/login/page.tsx`, on a `200` response store the returned `access`/`refresh` tokens and redirect off `/login` (AC-01, TC-01/TC-02) — depends on T011
 - [x] T013 [US1] In `frontend/src/app/login/page.tsx`, disable `#btn-submit-login` and show a loading state while the request is in flight, per constitution FE-06 Form Feedback Standards — depends on T009
 
-**Checkpoint**: SS-US-01 is fully functional — backend behavior characterized by T002–T008, frontend login page built and wired by T009–T013, confirmed end-to-end by `e2e/001-system-security/test_ss.spec.ts` (TC-02, TC-04, TC-08) via the Playwright runner added in T001b.
+**Checkpoint**: SS-US-01 is fully functional — backend behavior characterized by T002–T008, frontend login page built and wired by T009–T013, confirmed end-to-end by `testing/001-system-security/test_ss.spec.ts` (TC-02, TC-04, TC-08) via the Playwright runner added in T001b.
 
 ---
 
@@ -57,7 +57,7 @@
 - [x] T014 [P] Add `POST /auth/login/` and `POST /auth/refresh/` entries to SDS.md §6.3 API Index and §6.4 API Specification (main flow, success response, error responses) — closes the DOD-02 gap flagged in plan.md's Constitution Check
 - [x] T015 [P] Correct SDS.md §4.3.3's BR-16 row to name Django's `ModelBackend.user_can_authenticate()` mechanism (invoked by `TokenObtainPairSerializer.validate()`) instead of the nonexistent `AuthenticationService` — closes the Cross-Document Consistency gap flagged in plan.md's Constitution Check
 - [x] T016 Run `cd backend && python manage.py test` (full suite) to confirm no regressions elsewhere
-- [x] T018 Validated `frontend/src/app/login/page.tsx` against live dev servers by running `e2e/001-system-security/test_ss.spec.ts` for real (not just manually) — caught and fixed a real bug: the login page built `${NEXT_PUBLIC_API_URL}/auth/login/` assuming the env var already included `/api/v1`, but the actual convention (matching the existing home page's `/health/` call) is a bare origin, so requests 404'd and always showed the generic error even for valid credentials. Fixed in `frontend/src/app/login/page.tsx` to build `${apiOrigin}/api/v1/auth/login/`; all 3 e2e cases (TC-02, TC-04, TC-08) pass after the fix
+- [x] T018 Validated `frontend/src/app/login/page.tsx` against live dev servers by running `testing/001-system-security/test_ss.spec.ts` for real (not just manually) — caught and fixed a real bug: the login page built `${NEXT_PUBLIC_API_URL}/auth/login/` assuming the env var already included `/api/v1`, but the actual convention (matching the existing home page's `/health/` call) is a bare origin, so requests 404'd and always showed the generic error even for valid credentials. Fixed in `frontend/src/app/login/page.tsx` to build `${apiOrigin}/api/v1/auth/login/`; all 3 e2e cases (TC-02, TC-04, TC-08) pass after the fix
 
 - [x] T019 *(added 2026-10-08)* Login success logging and 401/403 `WARN` logging: `backend/users/auth.py` (`LoginView`/`LoginSerializer`), `backend/config/exceptions.py`, `LOGGING` and `EXCEPTION_HANDLER` in `backend/config/settings.py` — closes the Logging & Audit gap (plan.md Pre-flight G3); covered by TC-11
 - [x] T020 *(added 2026-10-08)* TC-10 (unregistered email) and TC-11 (log lines carry no credentials) in `backend/users/tests.py`; TC-06 rewritten with real roles (T005); `test_ss.spec.ts` TC-02/TC-08 strengthened (Dashboard + stored tokens; no login request sent)

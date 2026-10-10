@@ -214,7 +214,7 @@ layer, not SQL statements or exact response payloads. Follow these rules:
 Quality Prompt
 
 Feature folder:  specs/[feature-id]-[slug]/
-Test folder:     e2e/[feature-id]-[slug]/   (Playwright suite + verification reports; mirrors Feature folder's [feature-id]-[slug]; created if missing)
+Test folder:     testing/[feature-id]-[slug]/   (Playwright suite — UI e2e and API-level — plus verification reports; mirrors Feature folder's [feature-id]-[slug]; created if missing)
 US being tested: [XX-US-NN]
 
 --- Pre-flight ---
@@ -265,7 +265,7 @@ Write test cases
 
 test_cases.md lives in [Feature folder] next to spec.md and plan.md — /speckit-tasks and
 /speckit-implement read spec, plan and test cases from that one folder. The Playwright suite
-(test_[abbr].spec.ts) and the verification reports live under [Test folder] (e2e/...).
+(test_[abbr].spec.ts) and the verification reports live under [Test folder] (testing/...).
 
 === IF [Feature folder]/test_cases.md does NOT exist yet (first US of this Feature) ===
 
@@ -279,7 +279,7 @@ test_cases.md lives in [Feature folder] next to spec.md and plan.md — /speckit
 
 === IF [Test folder] does NOT exist yet (first US of this Feature) ===
 
-4. Create [Test folder] (mkdir e2e/[feature-id]-[slug]/) and, inside it,
+4. Create [Test folder] (mkdir testing/[feature-id]-[slug]/) and, inside it,
    test_[abbr].spec.ts ([abbr] = lowercase story prefix, e.g. test_ss.spec.ts) with
    Playwright automation for all e2e test cases. Following Testing-Code-Rule
 
@@ -324,7 +324,7 @@ E2E:
 Implementation Prompt
 
 Feature folder:        specs/[feature-id]-[slug]/
-Test folder:           e2e/[feature-id]-[slug]/
+Test folder:           testing/[feature-id]-[slug]/
 US being implemented:  [XX-US-NN]
 
 --- Pre-flight ---
@@ -475,7 +475,7 @@ Host LAN IP:        [<HOST_IP> — from RUNBOOK.md §2]
 Verification Prompt
 
 Feature folder:   specs/[feature-id]-[slug]/
-Test folder:      e2e/[feature-id]-[slug]/
+Test folder:      testing/[feature-id]-[slug]/
 US to verify:     [XX-US-NN]
 App URL:          [http://<HOST_IP>:3000 — confirmed by SE in Step 5]
 
@@ -503,7 +503,7 @@ App URL:          [http://<HOST_IP>:3000 — confirmed by SE in Step 5]
    Document results inline.
 
 5. Create a Playwright report after finishing testing as [Test folder]/[xx-us-nn-keyword]
-   (e.g. e2e/001-system-security/ss-us-01-login/) with result screenshots for e2e cases —
+   (e.g. testing/001-system-security/ss-us-01-login/) with result screenshots for e2e cases —
    the folder name alone should make clear it's this US's test report, no intermediate
    "reports/" wrapper needed.
    Note: Playwright's HTML reporter empties its output folder when it writes, so generate the

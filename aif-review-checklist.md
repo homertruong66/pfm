@@ -114,7 +114,7 @@
 
 ## Step 3 — Quality Step · QC Reviews
 
-**Artifacts:** `test_cases.md` in `specs/[feature-id]-[slug]/` (next to `spec.md`/`plan.md`, ex: `specs/002-wallet-management/`) + `test_[abbr].spec.ts` in `e2e/[feature-id]-[slug]/`
+**Artifacts:** `test_cases.md` in `specs/[feature-id]-[slug]/` (next to `spec.md`/`plan.md`, ex: `specs/002-wallet-management/`) + `test_[abbr].spec.ts` in `testing/[feature-id]-[slug]/`
 
 ### Git
 - [ ] Branch is checked out: `feature/[us-id-lowercase]-quality-step` (ex: `feature/wm-us-01-quality-step`)
@@ -159,7 +159,7 @@
 ### Playwright Code — General
 - [ ] All test-created records are prefixed: `TestQC-[entity]-${Date.now()}`, and created in a way that can be cleaned up (or the leftover data is acknowledged in the report)
 - [ ] Existing helpers are **reused**, not duplicated; unused parameters/return values are not left behind
-- [ ] New Playwright tests are **appended** to the existing `.spec.ts` under `e2e/[feature-id]-[slug]/` — existing tests are untouched, and no `.spec.ts` copy exists under `specs/`
+- [ ] New Playwright tests are **appended** to the existing `.spec.ts` under `testing/[feature-id]-[slug]/` — existing tests are untouched, and no `.spec.ts` copy exists under `specs/`
 - [ ] Spec file name follows the convention in [aif-sdlc.md](aif-sdlc.md) (`test_[abbr].spec.ts`) and comments in the file/config describe where it actually lives
 
 ---
@@ -237,14 +237,14 @@
 
 ## Step 6 — Verification Step · QC Reviews
 
-**Artifact:** Verification report (e.g. `verification-report.md`) + Playwright HTML report, in `e2e/[feature-id]-[slug]/[xx-us-nn-keyword]/` (ex: `e2e/001-system-security/ss-us-01-login/`)
+**Artifact:** Verification report (e.g. `verification-report.md`) + Playwright HTML report, in `testing/[feature-id]-[slug]/[xx-us-nn-keyword]/` (ex: `testing/001-system-security/ss-us-01-login/`)
 
 ### Pre-flight
 - [ ] SE's Step 5 report shows deployment succeeded with no failing tests
 - [ ] Branch is checked out: `feature/[us-id-lowercase]-verification-step`
 
 ### Playwright Run
-- [ ] Test run targets the correct spec file (`e2e/[feature-id]-[slug]/test_[abbr].spec.ts`) against the confirmed App URL (`BASE_URL`) and covers the correct US
+- [ ] Test run targets the correct spec file (`testing/[feature-id]-[slug]/test_[abbr].spec.ts`) against the confirmed App URL (`BASE_URL`) and covers the correct US
 - [ ] Every **e2e test case** in `test_cases.md` for this US has a recorded result (PASS / FAIL / BLOCKED)
 - [ ] Every **integration test case** not covered by Playwright is covered by an `APITestCase` run fresh, or manually verified and documented
 - [ ] Disposable `test-results/` output is removed after the run (it is git-ignored and regenerated each run)

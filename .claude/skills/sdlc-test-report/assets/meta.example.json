@@ -1,0 +1,67 @@
+{
+  "reportMeta": {
+    "project": "OBMS — Brand Management",
+    "environment": "Test Environment (agentic-ai, :8081)",
+    "browser": "Chrome 150.0.7871.181"
+  },
+  "timezoneOffsetHours": 7,
+  "tests": {
+    "TC-010": {
+      "type": "E2E",
+      "module": "Brand Creation",
+      "precondition": [
+        "An authenticated Admin has the Create Brand form open",
+        "No Site has been added yet"
+      ],
+      "descriptionLong": "Verify the Save button stays disabled until at least one Site is configured for the Brand."
+    },
+    "TC-011": {
+      "type": "E2E",
+      "module": "Brand Creation",
+      "precondition": [
+        "An authenticated Admin has filled all required Brand fields"
+      ],
+      "descriptionLong": "Verify a new Brand is created with status Active and appears in the Brand list immediately after save."
+    },
+    "TC-012": {
+      "type": "E2E",
+      "module": "Brand Creation",
+      "precondition": [
+        "An authenticated Admin has selected an existing Brand code"
+      ],
+      "descriptionLong": "Verify an inline error is shown when the submitted Brand code already exists, without a full-page reload."
+    },
+    "TC-013": {
+      "type": "Integration",
+      "module": "Brand API",
+      "precondition": [
+        "An authenticated Admin submits directly via API, bypassing the UI"
+      ],
+      "descriptionLong": "Verify creating a Brand with a duplicate code is rejected with 409 and error code BRAND_CODE_ALREADY_EXISTS."
+    },
+    "TC-014": {
+      "type": "Integration",
+      "module": "Brand API",
+      "precondition": [
+        "A Brand exists with status Inactive"
+      ],
+      "descriptionLong": "Verify an inactive Brand cannot be referenced by a new Signal Config — the API returns 409 with a clear error code."
+    },
+    "TC-015": {
+      "type": "E2E",
+      "module": "Brand List",
+      "precondition": [
+        "At least one Active and one Inactive Brand exist"
+      ],
+      "descriptionLong": "Verify the Brand list can be filtered by status and shows the correct badge colour for each state."
+    },
+    "TC-016": {
+      "type": "Integration",
+      "module": "Brand API",
+      "precondition": [
+        "A Brand exists with one or more Sites configured"
+      ],
+      "descriptionLong": "Verify the Brand read model returns its full list of Sites with EcomConfig, matching what was persisted on create."
+    }
+  }
+}

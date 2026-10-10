@@ -1,6 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 
-// Runner for every feature: each e2e/[feature-id]-[slug]/ folder (relative to this file) holds its
+// Runner for every feature: each testing/[feature-id]-[slug]/ folder (relative to this file) holds its
 // test_[abbr].spec.ts and per-story verification evidence; test_cases.md lives in specs/[feature-id]-[slug]/.
 export default defineConfig({
   testDir: ".",

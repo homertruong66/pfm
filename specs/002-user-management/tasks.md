@@ -1,6 +1,6 @@
 # Tasks: User Management — UM-US-01 Create a User
 
-**Input**: Design documents from `specs/002-user-management/` (spec.md, plan.md — including its UM-US-01 Open tasks T1–T12 — and test_cases.md) and `e2e/002-user-management/` (test_um.spec.ts)
+**Input**: Design documents from `specs/002-user-management/` (spec.md, plan.md — including its UM-US-01 Open tasks T1–T12 — and test_cases.md) and `testing/002-user-management/` (test_um.spec.ts)
 
 **Tests**: Included — constitution.md DOD-05 requires at least one `APITestCase` for the happy path plus key error cases. The Playwright suite for TC-02/04/06/11/13 already exists from the Quality Step and is referenced, not duplicated.
 
@@ -58,7 +58,7 @@
 ## Phase 4: Polish & Cross-Cutting Concerns
 
 - [x] T014 Re-base SS-US-01 backend tests: fixtures via `User.objects.create_user` instead of the now ADMIN-only endpoint, in `backend/users/tests.py` (plan T9)
-- [x] T015 Re-base SS-US-01 e2e seeding on `e2e/support/api.ts` (`createUserAsAdmin`) in `e2e/001-system-security/test_ss.spec.ts` (plan T11); document `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` in RUNBOOK.md
+- [x] T015 Re-base SS-US-01 e2e seeding on `testing/support/api.ts` (`createUserAsAdmin`) in `testing/001-system-security/test_ss.spec.ts` (plan T11); document `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` in RUNBOOK.md
 - [x] T016 [P] SDS sync (plan T12): §2.1 traceability rows for `User` / `Role` / `user_roles`, §4.3.3 `users` columns and Migration Strategy (first-ADMIN wording), §6.2.1 DTO Registry, §6.3 API Index (`API-UM-01`), §6.4 API Specification, §6.5 traceability, §6.6 error code `USER_ALREADY_EXISTS`, "Last synced" dates
 - [x] T017 [P] constitution.md §V and CLAUDE.md: drop `POST /api/v1/users/` from the public routes and the "register a USER via POST /api/v1/users/" hint; RUNBOOK.md §9 rewritten (ADMIN via `createsuperuser`, family accounts created through the app); `specs/001-system-security/plan.md` quickstart no longer offers `POST /api/v1/users/` as a seeding option
 - [x] T018 Run the full suites: `python manage.py test`, `npm run lint`, `npm run build`

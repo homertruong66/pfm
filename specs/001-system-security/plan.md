@@ -182,7 +182,7 @@ sequenceDiagram
 | T2 | `APITestCase`s for AC-01..AC-04, EC-01, EC-02, the unregistered-email case and login logging (`tasks.md` T002–T008; TC-10/TC-11 added 2026-10-08) | `backend/users/tests.py` |
 | T3 | Login page with the Element IDs above (`tasks.md` T009–T013) | `frontend/src/app/login/page.tsx` |
 | T4 | Login success log line and 401/403 `WARN` logging | `backend/users/auth.py`, `backend/config/exceptions.py` |
-| T5 | SDS §6.3/§6.4 and §4.3.3 BR-16 doc sync; Playwright runner and e2e suite (`tasks.md` T014–T018) | `SDS.md`, `e2e/` |
+| T5 | SDS §6.3/§6.4 and §4.3.3 BR-16 doc sync; Playwright runner and e2e suite (`tasks.md` T014–T018) | `SDS.md`, `testing/` |
 
 ### SS-US-02: Logout
 
@@ -196,7 +196,7 @@ sequenceDiagram
 
 **Storage**: SQLite (MVP) — `users` table already exists (`AUTH_USER_MODEL = 'users.User'`), no schema change required for this US
 
-**Testing**: `python manage.py test` (DRF `APITestCase`, real throwaway test DB per constitution's Integration Testing Over Mocking); Playwright e2e (`e2e/001-system-security/test_ss.spec.ts`, runner `e2e/playwright.config.ts`) for the login page
+**Testing**: `python manage.py test` (DRF `APITestCase`, real throwaway test DB per constitution's Integration Testing Over Mocking); Playwright e2e (`testing/001-system-security/test_ss.spec.ts`, runner `testing/playwright.config.ts`) for the login page
 
 **Target Platform**: Single-machine home-LAN deployment (RUNBOOK.md) — backend :8000, frontend :3000
 

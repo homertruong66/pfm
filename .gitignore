@@ -1,4 +1,4 @@
-# Node.js (Playwright test runner lives under e2e/, per aif-sdlc.md Quality/Verification Steps)
+# Node.js (Playwright test runner lives under testing/, per aif-sdlc.md Quality/Verification Steps)
 node_modules/
 test-results/
 playwright-report/

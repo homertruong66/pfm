@@ -93,13 +93,13 @@ Deployment (Step 5) produced no new files — it only ran the existing test suit
 | When | Read by the Implementation Step to know exactly which backend `APITestCase`s to write, and by the Verification Step to build the pass/fail results table. |
 | How | Each `TC-NN` cites the spec.md `AC-NN`/`EC-NN` it verifies, its `Type` (`integration` or `e2e`), and a Given/When/Then. A coverage matrix at the bottom proves every `[BOTH]` item has both an integration and an e2e test case — an empty e2e column there would be a defect. |
 
-### [e2e/001-system-security/test_ss.spec.ts](../e2e/001-system-security/test_ss.spec.ts)
+### [testing/001-system-security/test_ss.spec.ts](../testing/001-system-security/test_ss.spec.ts)
 
 | Aspect | Detail |
 |---|---|
 | What | The Playwright end-to-end test automation for the 3 e2e-typed test cases (TC-02, TC-04, TC-08). |
 | Why | So the UI-facing behavior (redirect on success, exact inline error text) is automatically checked in a real browser, not just asserted by hand. |
-| When | Run by the Implementation Step (to verify the login page as it's built), the Deployment Step (regression check), and the Verification Step (final sign-off) — via `npx playwright test e2e/001-system-security/test_ss.spec.ts`. |
+| When | Run by the Implementation Step (to verify the login page as it's built), the Deployment Step (regression check), and the Verification Step (final sign-off) — via `npx playwright test testing/001-system-security/test_ss.spec.ts`. |
 | How | Seeds a test user directly via `POST /api/v1/users/` (never a DB shortcut), then drives a real Chromium browser against `#login-email`/`#login-password`/`#btn-submit-login`/`#message-error` — the exact element IDs the Implementation Step was contractually required to use. It was this file, run for real against live dev servers, that caught a genuine bug: the login page's API URL was missing its `/api/v1` prefix. |
 
 ### [aif-sdlc.md](../aif-sdlc.md)
@@ -107,7 +107,7 @@ Deployment (Step 5) produced no new files — it only ran the existing test suit
 | Aspect | Detail |
 |---|---|
 | What | The AIF-SDLC process document — the 6-step prompt templates this entire workflow follows (existing document). |
-| Why | Modified multiple times, each time a workflow gap surfaced while actually running the process on SS-US-01: (a) added an explicit `develop`-as-parent-branch rule to every step's `--- Git ---` section, since Design Step had accidentally branched off the Spec Step branch instead of `develop`; (b) changed the Quality/Implementation/Verification prompts to put test artifacts under a new `e2e/[feature-id]-[slug]/` tree instead of inside `specs/`; (c) fixed the Verification Prompt's Playwright-report path to drop an unnecessary `reports/` wrapper folder; (d) added a `test-results/` cleanup step so Playwright's disposable run artifacts don't linger after every Verification run. |
+| Why | Modified multiple times, each time a workflow gap surfaced while actually running the process on SS-US-01: (a) added an explicit `develop`-as-parent-branch rule to every step's `--- Git ---` section, since Design Step had accidentally branched off the Spec Step branch instead of `develop`; (b) changed the Quality/Implementation/Verification prompts to put test artifacts under a new `testing/[feature-id]-[slug]/` tree instead of inside `specs/`; (c) fixed the Verification Prompt's Playwright-report path to drop an unnecessary `reports/` wrapper folder; (d) added a `test-results/` cleanup step so Playwright's disposable run artifacts don't linger after every Verification run. |
 | When | Read at the start of every future AIF-SDLC step, for every future US — this file *is* the process, so its accuracy matters for SS-US-02 (Logout) and every subsequent story. |
 | How | Each fix was applied directly to the relevant prompt template's `--- Git ---` or numbered-step text, so the next time someone (or Claude) follows the prompt verbatim, they get the corrected behavior automatically rather than needing to remember a past correction. |
 
@@ -116,7 +116,7 @@ Deployment (Step 5) produced no new files — it only ran the existing test suit
 | Aspect | Detail |
 |---|---|
 | What | The project instructions file auto-loaded into every Claude Code session (existing document). |
-| Why | Its Project Structure section and Key Conventions previously said "no `specs/` or E2E test folder exists yet" — no longer true once this US created both; updated to describe the new `specs/`/`e2e/` split and that a Playwright runner now exists. |
+| Why | Its Project Structure section and Key Conventions previously said "no `specs/` or E2E test folder exists yet" — no longer true once this US created both; updated to describe the new `specs/`/`testing/` split and that a Playwright runner now exists. |
 | When | Every session, automatically, before any task — it's the first thing establishing project context. |
 | How | A repo-layout tree plus short bullet points; kept intentionally brief since the point is fast orientation, not exhaustive documentation. |
 
@@ -151,32 +151,32 @@ Deployment (Step 5) produced no new files — it only ran the existing test suit
 | When | Every time a User opens `http://<host>:3000/login` — it's the literal feature being delivered. |
 | How | A `"use client"` component with `useState` for `email`/`password`/`error`/`loading`. On submit: if either field is empty, shows `"Email and password are required."` without calling the API (EC-01); otherwise `fetch`es `POST ${apiOrigin}/api/v1/auth/login/` (native fetch, no HTTP client library, per constitution FE-08); on failure shows `"Invalid email or password."` (AC-02/AC-03); on success stores the `access`/`refresh` tokens in `localStorage` and redirects via `useRouter().push('/')` (AC-01). The submit button disables and shows "Logging in..." while the request is in flight (FE-06). |
 
-### [package.json](../e2e/package.json) (e2e/)
+### [package.json](../testing/package.json) (testing/)
 
 | Aspect | Detail |
 |---|---|
-| What | A Node.js manifest for the `e2e/` tree — the repo previously had none (only `frontend/package.json`). Originally created at the repo root, later moved into `e2e/` so all Playwright tooling is self-contained alongside the spec files it runs. |
-| Why | To hold `@playwright/test` as a devDependency for the `e2e/` tree, which lives as a sibling to `frontend/`, not inside it. |
-| When | Whenever `npx playwright test` is run from `e2e/` (Quality/Implementation/Deployment/Verification Steps). |
+| What | A Node.js manifest for the `testing/` tree — the repo previously had none (only `frontend/package.json`). Originally created at the repo root, later moved into `testing/` so all Playwright tooling is self-contained alongside the spec files it runs. |
+| Why | To hold `@playwright/test` as a devDependency for the `testing/` tree, which lives as a sibling to `frontend/`, not inside it. |
+| When | Whenever `npx playwright test` is run from `testing/` (Quality/Implementation/Deployment/Verification Steps). |
 | How | Auto-generated by `npm init -y` then `npm install -D @playwright/test`; its only real purpose is declaring that one devDependency (plus a `test` script that runs `playwright test`). |
 
-### [package-lock.json](../e2e/package-lock.json) (e2e/)
+### [package-lock.json](../testing/package-lock.json) (testing/)
 
 | Aspect | Detail |
 |---|---|
-| What | The exact dependency-version lockfile paired with `e2e/package.json`. |
+| What | The exact dependency-version lockfile paired with `testing/package.json`. |
 | Why | Automatically, by `npm install` — ensures the same `@playwright/test` version installs deterministically on any other machine (e.g. the actual home-LAN host). |
 | When | Read by `npm install`/`npm ci`, never edited by hand. |
 | How | Standard npm lockfile format; not meant to be human-read, just committed so installs are reproducible. |
 
-### [playwright.config.ts](../e2e/playwright.config.ts) (e2e/)
+### [playwright.config.ts](../testing/playwright.config.ts) (testing/)
 
 | Aspect | Detail |
 |---|---|
 | What | The Playwright test-runner configuration. |
 | Why | Without it, `npx playwright test` doesn't know what `--project=chromium` should map to. |
-| When | Loaded implicitly every time `npx playwright test` runs from `e2e/`. |
-| How | Sets `testDir: "."` (its own directory, i.e. `e2e/`), `testMatch: "**/*.spec.ts"`, a `chromium` project using `devices["Desktop Chrome"]`, and a `baseURL` that defaults to `http://localhost:3000` but can be overridden via the `BASE_URL` env var (matching aif-sdlc.md's Verification Prompt convention). |
+| When | Loaded implicitly every time `npx playwright test` runs from `testing/`. |
+| How | Sets `testDir: "."` (its own directory, i.e. `testing/`), `testMatch: "**/*.spec.ts"`, a `chromium` project using `devices["Desktop Chrome"]`, and a `baseURL` that defaults to `http://localhost:3000` but can be overridden via the `BASE_URL` env var (matching aif-sdlc.md's Verification Prompt convention). |
 
 ### [.gitignore](../.gitignore) (repo root)
 
@@ -191,7 +191,7 @@ Deployment (Step 5) produced no new files — it only ran the existing test suit
 
 ## Step 6 — Verification Step
 
-### [e2e/001-system-security/ss-us-01-login/index.html](../e2e/001-system-security/ss-us-01-login/index.html)
+### [testing/001-system-security/ss-us-01-login/index.html](../testing/001-system-security/ss-us-01-login/index.html)
 
 | Aspect | Detail |
 |---|---|
@@ -200,7 +200,7 @@ Deployment (Step 5) produced no new files — it only ran the existing test suit
 | When | Opened in a browser by anyone (QC role) wanting to see the visual proof each e2e test passed, including the attached before/after screenshots. |
 | How | Generated by `npx playwright test --reporter=html`; it's a self-contained single-page app that reads the sibling `data/` folder for screenshots and trace data. |
 
-### [e2e/001-system-security/ss-us-01-login/data/](../e2e/001-system-security/ss-us-01-login/data/)
+### [testing/001-system-security/ss-us-01-login/data/](../testing/001-system-security/ss-us-01-login/data/)
 
 | Aspect | Detail |
 |---|---|
@@ -209,7 +209,7 @@ Deployment (Step 5) produced no new files — it only ran the existing test suit
 | When | Loaded by `index.html` when you click into a test's details. |
 | How | Content-hashed filenames (e.g. `0643f90e...png`) that `index.html`'s JavaScript maps back to the right test step — not meant to be opened directly. |
 
-### [e2e/001-system-security/ss-us-01-login/verification-report.md](../e2e/001-system-security/ss-us-01-login/verification-report.md)
+### [testing/001-system-security/ss-us-01-login/verification-report.md](../testing/001-system-security/ss-us-01-login/verification-report.md)
 
 | Aspect | Detail |
 |---|---|
@@ -228,7 +228,7 @@ Deployment (Step 5) produced no new files — it only ran the existing test suit
 | 2. Design | `plan.md` (folds in Decisions & Rationale, Domain Objects, API Contracts, Quickstart Validation — no sibling files) | `SDS.md` |
 | 3. Quality | `test_cases.md`, `test_ss.spec.ts` | `aif-sdlc.md`, `CLAUDE.md` |
 | 4. Implementation | `tasks.md`, `frontend/src/app/login/page.tsx`, `package.json`, `package-lock.json`, `playwright.config.ts` | `backend/users/tests.py`, `SDS.md`, `plan.md`, `.gitignore` |
-| 5. Deployment | *(none)* | *(none — ran existing e2e/servers)* |
+| 5. Deployment | *(none)* | *(none — ran existing testing/servers)* |
 | 6. Verification | `ss-us-01-login/index.html`, `ss-us-01-login/data/`, `ss-us-01-login/verification-report.md` | `aif-sdlc.md` |
 
 ---
@@ -241,7 +241,7 @@ The tables above list *outputs*. This section lists the *inputs* — every docum
 
 | Document | When Read | What's Used |
 |---|---|---|
-| [CLAUDE.md](../CLAUDE.md) | First — automatically, at the start of every session, before any task. | The Project Structure tree (where each app/folder lives), the trigger table (which SRS/SDS section to open for a given kind of change, so Claude doesn't read whole documents unnecessarily), and Dev Commands (exact commands to run e2e/migrations/dev servers rather than guessing). It also pulls in `constitution.md` via an `@constitution.md` reference, which is why that file loads next, automatically, in the same pass. |
+| [CLAUDE.md](../CLAUDE.md) | First — automatically, at the start of every session, before any task. | The Project Structure tree (where each app/folder lives), the trigger table (which SRS/SDS section to open for a given kind of change, so Claude doesn't read whole documents unnecessarily), and Dev Commands (exact commands to run testing/migrations/dev servers rather than guessing). It also pulls in `constitution.md` via an `@constitution.md` reference, which is why that file loads next, automatically, in the same pass. |
 | [constitution.md](../constitution.md) | Second — loaded automatically by CLAUDE.md's `@constitution.md` reference, and re-consulted before generating any artifact at every step after that. | The Layered Architecture rules (AR-01..05, e.g. "login is stock `djangorestframework-simplejwt`, no service layer needed"), API Design Standards (API-01..07, e.g. status-code mapping, JWT header format), Naming Conventions (NC-01..05, e.g. serializer/field naming), Frontend Conventions (FE-01..08, e.g. no form library, native `fetch`), Validation Rules (VL-01..05), and the Definition of Done (DOD-01..05) checklist used to confirm the US is actually finished. This is the authority every other document's content is checked against. |
 | [aif-sdlc.md](../aif-sdlc.md) | Next, at the start of each of the 6 steps, once it's clear which AIF-SDLC step is being run. | The exact prompt template for that step — its numbered instructions, required output files, and `--- Git ---` branching rules (e.g. branch off `develop`, not off the previous step's branch) — so every step's process is followed the same way for every future US. |
 | [SRS.md](../SRS.md) | At the start of the Spec Step (Step 1), per CLAUDE.md's trigger table and aif-sdlc.md's Spec Prompt. | §2 CDM for domain entity names/fields (`User.email`, `is_active`) so code never invents synonyms; §2.4 Business Rules (e.g. BR-16, authentication mechanism); §6 Business Flows to check a flow step maps to a story; §7 for the existing (empty) `SS-US-01` header and its place in the ToC, so the new story slots into the right Feature/prefix. |
@@ -280,5 +280,5 @@ The tables above list *outputs*. This section lists the *inputs* — every docum
 | `constitution.md` | AR-01 (no service layer needed for a stock JWT view), FE-02/FE-06/FE-08 (native `fetch`, no form library, loading/error states) while writing `frontend/src/app/login/page.tsx`, and NC-04 (element-ID conventions like `#login-email`, `#btn-submit-login`) so the Playwright spec's selectors would have stable hooks. |
 | `CLAUDE.md` | The exact Dev Commands (`python manage.py test`, `npm run dev`) used to run and verify the new code. |
 
-**Not document-derived:** `package.json`/`package-lock.json` (e2e/), `playwright.config.ts`, and the `.gitignore` update are tooling/process artifacts generated by running `npm init`/`npm install` and hand-written config — they don't trace back to content in any spec/design document.
+**Not document-derived:** `package.json`/`package-lock.json` (testing/), `playwright.config.ts`, and the `.gitignore` update are tooling/process artifacts generated by running `npm init`/`npm install` and hand-written config — they don't trace back to content in any spec/design document.
 </content>

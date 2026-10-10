@@ -64,7 +64,7 @@ pfm/
 ├── ui/                   # Wireframe screenshots referenced from SDS §3.2
 ├── docs/                 # Supporting docs: debug-guide.md, ss-us-01-What-AI-produces-and-How.md
 ├── specs/                # spec-kit feature folders: specs/[feature-id]-[slug]/spec.md, plan.md, test_cases.md, tasks.md
-├── e2e/                  # Quality/Verification Step code + evidence, mirrors specs/: e2e/[feature-id]-[slug]/test_[abbr].spec.ts, [xx-us-nn-keyword]/verification-report.md
+├── testing/              # Playwright UI (e2e) + API-level test code and verification evidence, mirrors specs/: testing/[feature-id]-[slug]/test_[abbr].spec.ts, [xx-us-nn-keyword]/verification-report.md
 ├── aif-sdlc.md           # AI-First SDLC
 ├── SRS.md                # Software Requirements Specification
 ├── SDS.md                # Software Design Specification
@@ -72,7 +72,7 @@ pfm/
 ├── RUNBOOK.md            # Operational reference (home-LAN setup/deploy/troubleshoot)
 └── README.md
 ```
-`specs/` holds every document the spec-kit commands read for a feature — `spec.md`, `plan.md`, `test_cases.md`, `tasks.md` — so `/speckit-tasks` and `/speckit-implement` find spec, plan and test cases in one folder; `e2e/` holds the Playwright code (`test_[abbr].spec.ts`, `[abbr]` = lowercase story prefix) and the per-story verification evidence (`[xx-us-nn-keyword]/verification-report.md` + HTML report) for the same `[feature-id]-[slug]` — kept separate so generated test code doesn't mix with design documents.
+`specs/` holds every document the spec-kit commands read for a feature — `spec.md`, `plan.md`, `test_cases.md`, `tasks.md` — so `/speckit-tasks` and `/speckit-implement` find spec, plan and test cases in one folder; `testing/` holds the Playwright code — UI (e2e) and API-level checks — (`test_[abbr].spec.ts`, `[abbr]` = lowercase story prefix) and the per-story verification evidence (`[xx-us-nn-keyword]/verification-report.md` + HTML report) for the same `[feature-id]-[slug]` — kept separate so generated test code doesn't mix with design documents.
 
 ### Dev Commands
 
@@ -86,7 +86,7 @@ cd backend && python manage.py makemigrations && python manage.py migrate   # sc
 cd frontend && npm run dev                                             # frontend dev server → :3000
 cd frontend && npm run build                                           # frontend type-check + build
 cd frontend && npm run lint                                            # frontend lint
-cd e2e && npx playwright test                                        # e2e tests (needs both dev servers running)
+cd testing && npx playwright test                                        # e2e tests (needs both dev servers running)
 ```
 
 ### Service URLs
@@ -102,4 +102,4 @@ cd e2e && npx playwright test                                        # e2e tests
 <!-- High-frequency rules that affect almost every task but aren't prominent enough in the constitution -->
 - One Django app per domain entity under `backend/` (SDS §2.1) — a new entity gets a new app, not a new module inside an existing one
 - Feature/User Story IDs use the `{ABBR}-US-{NN}` convention (e.g. `WM-US-01`) — see constitution.md § User Story Conventions
-- Backend integration tests live in each app's `tests.py`; e2e coverage lives under `e2e/[feature-id]-[slug]/test_[abbr].spec.ts` (`[abbr]` = lowercase story prefix, e.g. `test_ss.spec.ts`; Quality Step), run via the Playwright runner at `e2e/playwright.config.ts` (`cd e2e && npm install && npx playwright test`) — requires the frontend/backend dev servers already running
+- Backend integration tests live in each app's `tests.py`; Playwright coverage (e2e and API-level) lives under `testing/[feature-id]-[slug]/test_[abbr].spec.ts` (`[abbr]` = lowercase story prefix, e.g. `test_ss.spec.ts`; Quality Step), run via the Playwright runner at `testing/playwright.config.ts` (`cd testing && npm install && npx playwright test`) — requires the frontend/backend dev servers already running

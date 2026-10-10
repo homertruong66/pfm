@@ -14,7 +14,7 @@ SIBLING-FILE SET (this project): a spec-kit feature folder here produces spec.md
 plan.md, then test_cases.md (Quality Step) and tasks.md (/speckit-tasks) — all four live in
 specs/[feature-id]-[slug]/ so the spec-kit commands read spec, plan and test cases from one
 folder. The Playwright code, test_[abbr].spec.ts, and the verification reports live under
-e2e/[feature-id]-[slug]/ (CLAUDE.md's specs/ vs. e2e/ split). Unlike a more generic
+testing/[feature-id]-[slug]/ (CLAUDE.md's specs/ vs. testing/ split). Unlike a more generic
 spec-kit scaffold, this project's template set does not generate research.md,
 data-model.md, contracts/, or quickstart.md as separate files — those concerns (technical
 decisions, domain objects, API contracts, a runnable validation guide) are folded directly
