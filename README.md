@@ -79,7 +79,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-> **No default login exists.** Create the first ADMIN account yourself with `python manage.py createsuperuser` (see [Useful Commands](#useful-commands)); the ADMIN then creates every family member's account (`POST /api/v1/users/`, or the Create User screen at `/users/new`). There is no self-service sign-up.
+> **No default login exists.** Create the first ADMIN account yourself with `python manage.py createsuperuser` (see [Useful Commands](#useful-commands)). There is no self-service sign-up — account creation and login are built story by story (SS-US-01, UM-US-01) following the SDLC skills.
 
 ---
 
@@ -100,9 +100,6 @@ All backend API routes are prefixed with `/api/v1/`.
 
 | Endpoint | Method | Description | Auth |
 |----------|--------|-------------|------|
-| `/api/v1/auth/login/` | POST | Obtain JWT access + refresh tokens | Public |
-| `/api/v1/auth/refresh/` | POST | Refresh access token | Public |
-| `/api/v1/users/` | POST | Create a user account | ADMIN only |
 | `/api/v1/wallets/` | GET, POST | List / create wallets | Required |
 | `/api/v1/categories/` | GET, POST | List / create categories | Required |
 | `/api/v1/budgets/` | GET, POST | List / create budgets | Required |

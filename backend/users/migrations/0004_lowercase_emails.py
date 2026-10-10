@@ -2,7 +2,7 @@ from django.db import migrations
 
 
 def lowercase_emails(apps, schema_editor):
-    """Bring existing accounts in line with UM-US-01 EC-10 (emails stored in lower case).
+    """Bring existing accounts in line with the rule that emails are stored in lower case.
 
     An account is left untouched if another account already holds its lower-case spelling, so the
     unique constraint can never be violated; `username` follows the email only where it was the same address in another capitalization.

@@ -11,7 +11,7 @@ from .models import Role
 
 
 class RoleTests(TestCase):
-    """UM-US-01 support: the two fixed roles exist and `createsuperuser` produces an ADMIN."""
+    """Project setup: the two fixed roles exist and `createsuperuser` produces an ADMIN."""
 
     def test_admin_and_user_roles_are_seeded(self):
         self.assertCountEqual(Role.objects.values_list('code', flat=True), ['ADMIN', 'USER'])

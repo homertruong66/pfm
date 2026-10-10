@@ -1,12 +1,6 @@
 from django.urls import path, include
-from rest_framework_simplejwt.views import TokenRefreshView
-
-from users.auth import LoginView
 
 urlpatterns = [
-    # Auth
-    path('auth/login/', LoginView.as_view(), name='token_obtain_pair'),
-    path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     # Domain apps
     path('users/', include('users.urls')),
     path('wallets/', include('wallets.urls')),

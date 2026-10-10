@@ -169,7 +169,7 @@ The first time each server starts, Windows may prompt to allow the connection �
 
 ## 9. Creating family member accounts (ADMIN task)
 
-Each USER needs their own account so their Wallets, Transactions, Budgets, and Goals stay private (SRS §4.4.2). There is no self-service sign-up (SRS §1.6) — only an ADMIN can create accounts (UM-US-01):
+Each USER needs their own account so their Wallets, Transactions, Budgets, and Goals stay private (SRS §4.4.2). There is no self-service sign-up (SRS §1.6) — only an ADMIN can create accounts (built by UM-US-01):
 
 1. Create the first ADMIN once, after `python manage.py migrate`. `createsuperuser` also grants the `ADMIN` role in PFM:
 
@@ -180,7 +180,7 @@ Each USER needs their own account so their Wallets, Transactions, Budgets, and G
 
    It asks for a username, email, **full name** and password. (Non-interactively: `--noinput --username … --email … --full_name …` with `DJANGO_SUPERUSER_PASSWORD` set.)
 
-2. Log in as that ADMIN, open `http://<HOST_IP>:3000/users/new`, and create each family member's account (full name, email, initial password). They log in with that email and password. (The ADMIN can also call `POST /api/v1/users/` with a Bearer token.)
+2. Once Login (SS-US-01) and Create a User (UM-US-01) are built, log in as that ADMIN and create each family member's account (full name, email, initial password) with `POST /api/v1/users/` or the Create User screen. They log in with that email and password.
 
 The Django admin panel at `http://<HOST_IP>:8000/admin` remains available to superusers only.
 

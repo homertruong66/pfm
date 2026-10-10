@@ -194,7 +194,7 @@ Supporting framework: `.specify/templates/` (7 templates), `.specify/memory/cons
 | Project skills cover the full lifecycle | ✅ | Spec → Design → Quality → Implement → Deploy → Verify, plus orchestrator, init and status |
 | Skills are the source of truth for the process | ✅ | `aif-sdlc.md` is the overview; each `SKILL.md` holds the procedure and points at the matching section of the review checklist |
 | Skills committed and shared | ✅ | All 20 tracked |
-| Skills exercised end to end | ❌ | The two shipped stories (SS-US-01, UM-US-01) were produced by hand from the templates; the adapted `/sdlc-*` skills and the spec-kit skills have **not yet been run on a real story** — a dry run on the next story is the real test |
+| Skills exercised end to end | ❌ | The two earlier stories (SS-US-01, UM-US-01) were produced by hand from the templates and have since been removed to re-run them through the `/sdlc-*` skills; the skills have **not yet been run on a real story** — that re-run is the real test |
 | Process drift controlled | ⚠️ | [aif-artifact-audit.md](../aif-artifact-audit.md) lists open items (last scan: 0 Critical / 0 Major / 13 Minor) |
 
 ---

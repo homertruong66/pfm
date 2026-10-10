@@ -58,7 +58,7 @@ pfm/
 ├── frontend/            # Next.js 16 · React 19 · TypeScript · Tailwind CSS v4 (port 3000)
 ├── backend/              # Django 6 · DRF · SimpleJWT (JWT) · SQLite (port 8000)
 │   ├── config/            # settings.py, urls.py, api_router.py — all routes under /api/v1/
-│   ├── users/              # AUTH_USER_MODEL + ADMIN-only account creation (UM-US-01)
+│   ├── users/              # AUTH_USER_MODEL (User ↔ Role); login and account-creation endpoints are built by SS-US-01 / UM-US-01
 │   ├── roles/               # Role (ADMIN | USER), seeded by migration; User ↔ Role via user_roles
 │   ├── wallets/             # one Django app per Aggregate Root / entity (SDS §2.1)
 │   ├── categories/
@@ -68,7 +68,7 @@ pfm/
 │                              #   are designed in SDS §2.2 but not yet scaffolded as apps —
 │                              #   assets is its own app (system-level, ADMIN-only, SRS §7.9), not nested under investment_portfolios
 ├── ui/                   # Wireframe screenshots referenced from SDS §3.2
-├── docs/                 # Supporting docs (debug guide, SS-US-01 walkthrough, harness engineering, onboarding, …)
+├── docs/                 # Supporting docs (debug guide, harness engineering, onboarding, …)
 ├── specs/                # spec-kit feature folders: specs/[feature-id]-[slug]/spec.md, plan.md, test_cases.md, tasks.md
 ├── testing/              # Playwright UI (e2e) + API-level test code and verification evidence, mirrors specs/: testing/[feature-id]-[slug]/test_[abbr].spec.ts, [xx-us-nn-keyword]/verification-report.md
 ├── .claude/skills/       # /sdlc-* step skills (init, spec, design, quality, implement, deploy, verify, status) + speckit-* skills
@@ -101,8 +101,8 @@ cd testing && npx playwright test                                        # e2e t
 <!-- Ports and credentials needed for verification tasks; not derivable from code or constitution -->
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8000/api/v1/ · Health: http://localhost:8000/health/ · Admin: http://localhost:8000/admin/
-- Auth: JWT Bearer — `POST /api/v1/auth/login/` to obtain a token pair, `POST /api/v1/auth/refresh/` to refresh; send `Authorization: Bearer <access_token>`
-- No seeded default credentials — create the first ADMIN via `python manage.py createsuperuser` (RUNBOOK §9); the ADMIN then creates family accounts with `POST /api/v1/users/` (ADMIN-only, UM-US-01)
+- Auth: JWT Bearer (SimpleJWT is configured; the `/api/v1/auth/` login and refresh routes arrive with SS-US-01); send `Authorization: Bearer <access_token>`
+- No seeded default credentials — create the first ADMIN via `python manage.py createsuperuser` (RUNBOOK §9); family accounts are created by the ADMIN once UM-US-01 (`POST /api/v1/users/`) is built
 
 ### Key Conventions
 

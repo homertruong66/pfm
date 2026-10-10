@@ -26,8 +26,7 @@
       "Bash(chromium-cli --help)",
       "Bash(npx --no-install playwright --version)",
       "Bash(python -c \"import playwright\")",
-      "Bash(pip show *)",
-      "Bash(curl -s http://localhost:3000/)"
+      "Bash(pip show *)"
     ],
     "additionalDirectories": [],
     "ask": [

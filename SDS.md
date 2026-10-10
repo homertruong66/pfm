@@ -137,9 +137,6 @@
     - [6.4.4 POST /categories](#644-post-categories)
     - [6.4.5 POST /budgets](#645-post-budgets)
     - [6.4.6 POST /transactions](#646-post-transactions)
-    - [6.4.7 POST /auth/login/](#647-post-authlogin)
-    - [6.4.8 POST /auth/refresh/](#648-post-authrefresh)
-    - [6.4.9 POST /users/](#649-post-users)
   - [6.5 API → User Story Traceability](#65-api--user-story-traceability)
   - [6.6 Error Response Catalog](#66-error-response-catalog)
 - [7. Security Design](#7-security-design)
@@ -926,12 +923,9 @@ This chapter provides build-ready design details per Feature and User Story, ali
 
 ### 5.1 System Security (SS)
 
-> Plan: [specs/001-system-security/plan.md](specs/001-system-security/plan.md)
-
 #### 5.1.1 SS-US-01: Login (ADMIN, USER) [MVP]
 
-**Purpose**
-Authenticates an ADMIN or USER by email and password and issues a JWT access/refresh credential pair, giving the caller entry to their own account and the data/actions their role(s) permit — the prerequisite for every other protected action in the System. Reuses `djangorestframework-simplejwt`'s `TokenObtainPairView` (wired at `POST /api/v1/auth/login/` through a thin subclass that only adds a success log line); Django's default authentication backend already rejects deactivated accounts (BR-16), so no custom service module is introduced.
+*(Details to be defined)*
 
 #### 5.1.2 SS-US-02: Logout (ADMIN, USER) [MVP]
 
@@ -939,12 +933,9 @@ Authenticates an ADMIN or USER by email and password and issues a JWT access/ref
 
 ### 5.2 User Management (UM)
 
-> Plan: [specs/002-user-management/plan.md](specs/002-user-management/plan.md)
-
 #### 5.2.1 UM-US-01: Create a User (ADMIN)
 
-**Purpose**
-Lets the ADMIN create the account of a family member with a full name, an email and an initial password, so that person can log in and use PFM as a USER. There is no self-service registration, so this is the only way a new account comes into existence. The account is created active and holds the USER role; a duplicate email (in any capitalization) is rejected as an existing account. Creation is a single all-or-nothing operation.
+*(Details to be defined)*
 
 #### 5.2.2 UM-US-02: Update a User Profile (USER)
 
@@ -1392,60 +1383,12 @@ Lets the ADMIN create the account of a family member with a full name, an email 
 - `403 WALLET_ACCESS_DENIED`
 - `404 WALLET_NOT_FOUND`
 
-#### 6.4.7 POST /auth/login/
-
-`djangorestframework-simplejwt`'s `TokenObtainPairView`/serializer with one addition — `users.auth.LoginView`/`LoginSerializer` log a success line at `INFO` (constitution § Logging & Audit); no custom authentication logic (AR-01, Simplicity Over Premature Scale). Failures (`401`) are logged at `WARN` by the project's DRF exception handler. No log line carries the email, password or token.
-
-**Main Flow**
-1. Client submits `email` + `password`.
-2. `TokenObtainPairSerializer` calls Django's `authenticate()`, which delegates to the project's `users.backends.EmailBackend` (a `ModelBackend` subclass that matches the email case-insensitively, SS-US-01 EC-04).
-3. The backend verifies the password hash and calls `user_can_authenticate()`, which rejects `is_active=False` accounts (BR-16).
-4. On success, the serializer issues a JWT access/refresh pair.
-
-**Success Response** — `200`
-- `access` (JWT, 1 hour lifetime)
-- `refresh` (JWT, 7 day lifetime)
-
-**Error Responses**
-- `400` — `email` or `password` missing (DRF default `{field: [messages]}`)
-- `401` — credentials do not match an active account, **or** the account is deactivated — one generic body, `{"detail": "No active account found with the given credentials"}`, does not distinguish the two cases or which field was wrong
-
-#### 6.4.8 POST /auth/refresh/
-
-Stock `TokenObtainPairView`'s companion `TokenRefreshView` — exchanges a valid `refresh` token for a new `access` token. No AC in SS-US-01 references this endpoint directly; documented here as the paired endpoint login's response is used against.
-
-**Success Response** — `200`: `access` (new JWT)
-
-**Error Responses**
-- `401` — `refresh` token missing, invalid, or expired
-
-#### 6.4.9 POST /users/
-
-Creates a User account. ADMIN only (UM-US-01); there is no self-service registration (SRS §1.6).
-
-**Main Flow**
-1. Client submits `full_name`, `email` and `password` with a Bearer access token.
-2. The `IsAdmin` permission rejects the request unless the caller holds the `ADMIN` role.
-3. The serializer validates the three fields.
-4. `users.services.create_user` — in one transaction — lower-cases the email, rejects an existing email (case-insensitive), creates the active User with a hashed password and links the `USER` role.
-
-**Success Response** — `201`
-- `id`, `full_name`, `email`, `is_active`, `created_at` (never `password`)
-
-**Error Responses**
-- `400` — DRF default `{field: [messages]}`: `Email is required`, `Full name is required`, `Password is required`, `Enter a valid email address`, `Password must be at least 8 characters`, `Full name must be at most 150 characters`
-- `401` — missing/invalid/expired token
-- `403` — caller does not hold the `ADMIN` role
-- `409` `USER_ALREADY_EXISTS` — `{"detail": "Account already exists", "code": "USER_ALREADY_EXISTS"}`
-
 ### 6.5 API → User Story Traceability
 
 > Ensures every endpoint exists to fulfill a specific requirement from the SRS.
 
 | API | Endpoint | Feature | User Story |
 |-----|----------|---------|------------|
-| API-SS-01 | `POST /auth/login/` | System Security | SS-US-01 |
-| API-UM-01 | `POST /users/` | User Management | UM-US-01 |
 | API-WAL-01 | `POST /wallets` | Wallet Management | WM-US-01 |
 | API-TRX-01 | `POST /transactions` | Transaction Management | TM-US-01 |
 
@@ -1458,7 +1401,6 @@ Creates a User account. ADMIN only (UM-US-01); there is no self-service registra
 | 400 | `INVALID_INPUT` | Request payload fails validation | Check required fields and formats. |
 | 403 | `WALLET_ACCESS_DENIED` | User does not own the referenced Wallet | Verify wallet ownership. |
 | 404 | `WALLET_NOT_FOUND` | Provided wallet ID does not exist | Verify ID and retry. |
-| 409 | `USER_ALREADY_EXISTS` | A User account with this email (compared case-insensitively) already exists (UM-US-01) | Use a different email. |
 
 ---
 

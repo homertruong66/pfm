@@ -621,13 +621,9 @@ This flow describes how the System communicates important events.
 
 ### 7.1 System Security (SS)
 
-> Spec: [specs/001-system-security/spec.md](specs/001-system-security/spec.md)
-
 Ensures secure access to the System by allowing Users to log in and log out safely, protecting personal financial data. Moreover, each User is authorized to see only his/her financial data.
 
 #### 7.1.1 SS-US-01: Login (ADMIN, USER) [MVP]
-
-**As a/an** ADMIN or USER, **I want to** log in to the System with my email and password **so that** I can securely access my own account and the data/actions permitted to my role(s).
 
 #### 7.1.2 SS-US-02: Logout (ADMIN, USER) [MVP]
 
@@ -635,13 +631,9 @@ Ensures secure access to the System by allowing Users to log in and log out safe
 
 ### 7.2 User Management (UM)
 
-> Spec: [specs/002-user-management/spec.md](specs/002-user-management/spec.md)
-
 Provides User account provisioning and lifecycle oversight by the ADMIN, and profile management by the User. There is no self-service registration (§1.6 Out of Scope) — a User account can only be created by the ADMIN.
 
 #### 7.2.1 UM-US-01: Create a User (ADMIN)
-
-**As an** ADMIN, **I want to** create a new User account for a family member **so that** they can log in and use the PFM application.
 
 #### 7.2.2 UM-US-02: Update a User Profile (USER)
 
