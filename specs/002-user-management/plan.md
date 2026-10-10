@@ -87,7 +87,7 @@ Reviewed `spec.md` and the existing implementation (`backend/users/`, `backend/c
 
 | Domain Entity (SRS §2) | Model / Table | Key Fields | Notes |
 |--------|-------|------------|-------|
-| `User` | `users.User` / `users` | `id`, `full_name` (**new**, `CharField(150)`), `email` (unique, ≤150), `username` (from `AbstractUser`, set to the email), `password` (hashed), `is_active` (default `True`), `date_joined` (serialized as `created_at`), `roles` (**new** many-to-many → `roles.Role`, join table `user_roles`) | Migration `users/0002`: add `full_name` (existing rows backfilled with `''`) and the `roles` relation. A new account is always `is_active = true` (SDS §2.4 User STD initial state). |
+| `User` | `users.User` / `users` | `id`, `full_name` (**new**, `CharField(150)`, required), `username` (from `AbstractUser`, set to the email), `password` (hashed), `is_active` (default `True`), `date_joined` (serialized as `created_at`), `roles` (**new** many-to-many → `roles.Role`, join table `user_roles`) | Migrations: `users/0002` adds `full_name` (existing rows backfilled with `''`) and the `roles` relation. A new account is always `is_active = true` (SDS §2.4 User STD initial state). |
 | `Role` (SRS §1.5; SDS §2.2.11) | `roles.Role` / `roles` | `id`, `code` (`ADMIN` \| `USER`, unique) | **New app.** Migration `roles/0001` creates the table; `roles/0002` seeds the two rows. Join table `user_roles` has `user_id`, `role_id` and a unique pair (Django adds its own integer `id`; SDS describes a composite PK — equivalent for uniqueness). |
 
 **State Transitions**: creation puts a User in `ACTIVE`; later transitions belong to UM-US-05.
@@ -112,7 +112,7 @@ Reviewed `spec.md` and the existing implementation (`backend/users/`, `backend/c
 
 | Status | Body | Maps to |
 |---|---|---|
-| 201 | `{"id", "full_name", "email", "is_active", "created_at"}` — never `password` | AC-01, AC-04, AC-05, EC-08 |
+| 201 | `{"id", "full_name", "email" (stored and returned in lower case), "is_active", "created_at"}` — never `password` | AC-01, AC-04, AC-05, EC-08, EC-10 |
 | 400 | DRF default `{field: [messages]}` — e.g. `{"email": ["Email is required"]}`, `{"full_name": ["Full name is required"]}`, `{"password": ["Password is required"]}`, `{"email": ["Enter a valid email address"]}`, `{"password": ["Password must be at least 8 characters"]}`, `{"full_name": ["Full name must be at most 150 characters"]}` | AC-02, EC-03, EC-04, EC-05, EC-06 |
 | 401 | `{"detail": "Authentication credentials were not provided."}` (SimpleJWT/DRF default) | EC-01 |
 | 403 | `{"detail": "You do not have permission to perform this action."}` (DRF default) | EC-02 |
@@ -144,7 +144,7 @@ sequenceDiagram
 
     Admin->>FE: fill full name, email, initial password, click Create
 
-    alt Happy Case — AC-01, AC-04, AC-05, EC-08
+    alt Happy Case — AC-01, AC-04, AC-05, EC-08, EC-10
         FE->>View: POST /api/v1/users/
         View->>Perm: check caller holds ADMIN
         Perm-->>View: allowed
@@ -245,6 +245,7 @@ sequenceDiagram
 - **EC-06**: `full_name` of 151 characters → `400 {"full_name": ["Full name must be at most 150 characters"]}`.
 - **EC-07**: after AC-01, repeat with `"email":"Homer@Example.com"` → `409`.
 - **EC-08**: `"full_name":"Trương Văn Hòa"` → `201`, the same string in the response.
+- **EC-10**: `"email":"Homer.Mixed@Example.COM"` → `201`, response `email` is `homer.mixed@example.com`; logging in with either spelling returns `200`.
 - **EC-09**: not reproducible by hand; covered by the backend test that removes the `USER` role row and asserts no User is left behind.
 - **Frontend**: `cd frontend && npm run dev` → log in as the ADMIN → open `http://localhost:3000/users/new` → submit valid values → `#message-success` reads "User account created"; submit with an empty email → `#user-email-error` reads "Email is required"; submit an existing email → `#message-error` reads "Account already exists"; log in as a USER and open the page, submit → `#message-access-denied` is shown.
 
@@ -255,16 +256,17 @@ sequenceDiagram
 | ID | Task | File |
 |----|------|------|
 | T1 | New `roles` app: `Role` model (`code` unique, choices `ADMIN`/`USER`, `db_table = 'roles'`), `AppConfig`, register in `INSTALLED_APPS`; migration `0001_initial`; data migration `0002_seed_roles` inserting `ADMIN` and `USER` | `backend/roles/{models,apps,migrations/0001_initial,migrations/0002_seed_roles}.py`, `backend/config/settings.py` |
-| T2 | `User`: add `full_name`, `roles` many-to-many (`db_table='user_roles'`), a `UserManager` whose `create_superuser` also grants `ADMIN`, and a `has_role(code)` helper; migration `0002` | `backend/users/models.py`, `backend/users/migrations/0002_*.py` |
+| T2 | `User`: add `full_name`, `roles` many-to-many (`db_table='user_roles'`), a `UserManager` whose `create_superuser` also grants `ADMIN` and lower-cases the email, `REQUIRED_FIELDS` including `full_name`, and a `has_role(code)` helper; migrations `0002` (field + relation), `0003_require_full_name` (no blank default), `0004_lowercase_emails` (existing emails) | `backend/users/models.py`, `backend/users/migrations/0002_*.py`, `0003_*.py`, `0004_*.py` |
 | T3 | `IsAdmin` permission (authenticated + holds `ADMIN`) | `backend/config/permissions.py` |
 | T4 | `UserAlreadyExists` (`409`, code `USER_ALREADY_EXISTS`) and `create_user(full_name, email, password)` — atomic, case-insensitive duplicate check, `IntegrityError` → same error, assigns `USER` role, `username` = email | `backend/users/exceptions.py`, `backend/users/services.py` |
 | T5 | `UserSerializer`: explicit `fields` (`id`, `full_name`, `email`, `is_active`, `created_at`, write-only `password`), required/invalid/length messages from spec, no `UniqueValidator`, `create()` delegates to the service | `backend/users/serializers.py` |
 | T6 | `UserListCreateView` → `UserCreateView` (`CreateAPIView`, `IsAdmin`); route name `user-create`; remove the public list **and `UserDetailView` / `users/<id>/`** | `backend/users/views.py`, `backend/users/urls.py` |
 | T7 | ~~Register `User`/`Role` in the Django admin~~ — skipped, no AC needs it | — |
-| T8 | `APITestCase`s TC-01..TC-17 for UM-US-01 plus role/superuser tests | `backend/users/tests.py`, `backend/roles/tests.py` |
+| T8 | `APITestCase`s for every integration TC (TC-01..TC-22 in `test_cases.md`) plus role/superuser tests | `backend/users/tests.py`, `backend/roles/tests.py` |
 | T9 | Re-base SS-US-01 backend tests: create fixtures with `User.objects.create_user`, not the (now ADMIN-only) endpoint | `backend/users/tests.py` |
 | T10 | Create User page with the Element IDs above, role-agnostic, `401` → `/login`, `403` → `#message-access-denied` | `frontend/src/app/users/new/page.tsx` |
 | T11 | e2e: UM suite + shared seeding helper that logs in as an ADMIN from `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD`; re-base SS-US-01 e2e seeding on it | `testing/002-user-management/test_um.spec.ts`, `testing/001-system-security/test_ss.spec.ts` |
+| T13 | *(added 2026-10-08)* EC-10: lower-case the email in `create_user` and `create_superuser`, migration `0004_lowercase_emails`, TC-22 — `tasks.md` T019 | `backend/users/services.py`, `backend/users/models.py`, `backend/users/migrations/0004_lowercase_emails.py`, `backend/users/tests.py` |
 | T12 | Document sync: SDS §2.1 (User/Role/`user_roles` rows), §4.3.3 (columns, Migration Strategy, first-ADMIN wording), §5.2.1 Purpose, §6.2/§6.3/§6.4/§6.5/§6.6; constitution §V and CLAUDE.md public-route list; RUNBOOK §9; SS-US-01 `plan.md` quickstart (drops "or `POST /api/v1/users/`") | `SDS.md`, `constitution.md`, `CLAUDE.md`, `RUNBOOK.md`, `specs/001-system-security/plan.md` |
 
 ---
@@ -304,7 +306,7 @@ sequenceDiagram
 | NC-04/FE-01 Element IDs | PASS | see Element IDs |
 | NC-05 Enum casing | JUSTIFIED EXCEPTION | `Role.code` upper-case — D2, Complexity Tracking |
 | FE-02/FE-06/FE-08 | PASS | native form, inline errors, loading state, direct fetch |
-| FE-03 Role-aware navigation | OPEN (deferred) | no role source on the client yet — G9, spec Out of Scope |
+| FE-03 Role-aware navigation | OPEN (deferred, tracked) | no role source on the client yet — G9, spec Out of Scope, Complexity Tracking row |
 | VL-01/VL-02/VL-03 Validation | PASS | serializer authoritative; uniqueness → clear `409` |
 | Logging & Audit | PASS | `create_user` logs success at `INFO` and a rejected duplicate at `WARN` with the acting ADMIN's id, never a password or token; `401`/`403` are logged at `WARN` with the acting User id by `config.exceptions.api_exception_handler` (added 2026-10-08, asserted in TC-10) |
 | Security Requirements | PASS | no credentials in a migration (D3); password hashed by `create_user` |
@@ -340,7 +342,7 @@ backend/users/
 ├── serializers.py       # explicit fields, messages, delegates to service
 ├── views.py             # UserCreateView (ADMIN only); public list removed
 ├── urls.py              # route name user-create
-├── migrations/0002_*.py
+├── migrations/0002_*.py … 0004_*.py   # full_name + roles, require full_name, lower-case emails
 └── tests.py             # UM-US-01 integration tests; SS-US-01 fixtures re-based
 
 frontend/src/app/users/new/
@@ -358,3 +360,4 @@ testing/002-user-management/
 | Violation | US | Why Needed | Simpler Alternative Rejected Because |
 |-----------|----|-----------|-----------------------------------|
 | `Role.code` values upper-case, against NC-05's lower-case enum rule | UM-US-01 | `ADMIN`/`USER` are the literal role names in SRS §1.5, SDS §2.2.11 (`CHECK (code IN ('ADMIN','USER'))`) and the constitution's Access Control table | Lower-case `admin`/`user` would make the API/docs/DB disagree on the role's own name and need translation wherever a role is mentioned |
+| The Create User screen is reachable by URL and shown to any logged-in User (FE-03 asks that a control a role cannot use be hidden); a non-ADMIN gets an access-denied message and the backend still enforces `ADMIN` (AC-02) | UM-US-01 | The client has no way to know the caller's role: login returns only tokens and no profile endpoint exists until UM-US-03. The screen is deliberately not linked from any menu. | Adding a role claim to the token or a roles endpoint here would widen SS-US-01's design for one screen. **Revisit trigger:** UM-US-03 (View My Profile) — then hide the entry and gate the page by role |

@@ -53,7 +53,7 @@ System Security controls who can enter the System and what they can reach once i
   **Then** a field-level validation error is shown,  
     &nbsp;&nbsp;**and** no authentication is attempted.
 - **EC-02 — Repeated failed attempts:**  
-  **Given** the account holder has submitted incorrect credentials several times in a row,  
+  **Given** the account holder has submitted incorrect credentials three or more times in a row,  
   **When** they submit incorrect credentials again,  
   **Then** the attempt is rejected with the same generic error as AC-02,  
     &nbsp;&nbsp;**and** no lockout or rate limiting is applied.

@@ -6,7 +6,7 @@
 
 **Organization**: One user story (UM-US-01). Phase 1 sets up the new `roles` app, Phase 2 the shared pieces every later User Management/ADMIN story reuses, Phase 3 the story itself, Phase 4 re-bases the SS-US-01 tests and syncs the documents.
 
-**Plan ↔ task mapping**: plan.md's *Open tasks* T1–T12 correspond to these tasks as follows — T1 → T001–T002, T2 → T003, T3 → T004, T4 → T008–T009, T5 → T010, T6 → T011, T7 → *(skipped)*, T8 → T005–T007 + T012, T9 → T014, T10 → T013, T11 → T015, T12 → T016–T017.
+**Plan ↔ task mapping**: plan.md's *Open tasks* T1–T13 correspond to these tasks as follows — T13 → T019, T1 → T001–T002, T2 → T003, T3 → T004, T4 → T008–T009, T5 → T010, T6 → T011, T7 → *(skipped)*, T8 → T005–T007 + T012, T9 → T014, T10 → T013, T11 → T015, T12 → T016–T017.
 
 **Order note**: the tests below are listed before the implementation, but in practice the service, serializer and view were written first and the tests after, so there is no red-then-green record for T005–T007.
 
@@ -36,11 +36,11 @@
 
 ### Tests for User Story 1
 
-> Written against `specs/002-user-management/test_cases.md` (TC-01, 03, 05, 07, 08, 09, 10, 12, 14..19 are integration cases). Expected to FAIL until T008–T010 land.
+> Written against `specs/002-user-management/test_cases.md` (the integration cases are TC-01, 03, 05, 07, 08, 09, 10, 12, 14..22). Expected to FAIL until T008–T010 land.
 
 - [x] T005 [P] [US1] TC-01, TC-08, TC-18: success path — `201` body shape, no `password` key, new User can log in, non-English full name round-trips — in `backend/users/tests.py` (`CreateUserTests`)
 - [x] T006 [P] [US1] TC-03, TC-12, TC-14, TC-15, TC-16: validation — `400` with the spec's exact messages, boundary values accepted at 8-character password / 150-character name — in `backend/users/tests.py`
-- [x] T007 [P] [US1] TC-05, TC-17, TC-07, TC-09, TC-10, TC-19: `409` duplicate (exact and different capitalization), `401`, `403` for USER-only and for the freshly created User, atomic rollback when the `USER` role row is missing — in `backend/users/tests.py`; plus `backend/roles/tests.py` for the seeded roles and `createsuperuser` granting `ADMIN`
+- [x] T007 [P] [US1] TC-05, TC-17, TC-21, TC-07, TC-09, TC-10, TC-19, TC-20: `409` duplicate (and its database-level variant) (exact and different capitalization), `401`, `403` for USER-only and for the freshly created User, atomic rollback when the `USER` role row is missing — in `backend/users/tests.py`; plus `backend/roles/tests.py` for the seeded roles and `createsuperuser` granting `ADMIN`
 
 ### Implementation for User Story 1
 

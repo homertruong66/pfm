@@ -81,7 +81,7 @@ Login does not read or branch on Role: the token it issues carries no role infor
 
 **`POST /api/v1/auth/login/`**
 
-Maps to spec.md AC-01, AC-02, AC-03, EC-01, EC-04. Already implemented (stock `TokenObtainPairView`) — documented here for traceability into SDS §6.4.
+Maps to spec.md AC-01, AC-02, AC-03, EC-01, EC-04. Implemented by `users.auth.LoginView` (a thin `TokenObtainPairView` subclass that logs success) with `users.backends.EmailBackend` (case-insensitive email) — documented here for traceability into SDS §6.4.
 
 | Field | Type | Notes |
 |---|---|---|
@@ -112,13 +112,13 @@ Covers AC-01 (success), AC-02/AC-03 (generic rejection — wrong credentials and
 sequenceDiagram
     actor User
     participant FE as page.tsx (frontend/src/app/login)
-    participant View as TokenObtainPairView
+    participant View as LoginView (TokenObtainPairView subclass)
     participant Ser as TokenObtainPairSerializer
     participant Auth as Django authenticate() / ModelBackend
 
     User->>FE: fill email + password, click Log in
 
-    alt Happy Case — AC-01: active user, correct credentials
+    alt Happy Case — AC-01, EC-04: active user, correct credentials (email in any capitalization)
         FE->>View: POST /api/v1/auth/login/
         View->>Ser: validate(attrs)
         Ser->>Auth: authenticate(email, password)
@@ -158,6 +158,7 @@ sequenceDiagram
 
 **Prerequisites**: Backend running (`cd backend && .venv\Scripts\activate && python manage.py runserver`); at least one active User account exists (an ADMIN via `python manage.py createsuperuser`, then the account under test created by that ADMIN with `POST /api/v1/users/` — UM-US-01; the endpoint is no longer public).
 
+- **EC-04 — email capitalization ignored**: after AC-01, repeat the call with the email typed in a different capitalization (e.g. `HOMER@EXAMPLE.COM`) and the same password → `200` with a token pair; a wrong password in that capitalization → `401`.
 - **AC-01 — successful login issues credentials**:
   `curl -X POST http://localhost:8000/api/v1/auth/login/ -H "Content-Type: application/json" -d '{"email": "<existing-active-user-email>", "password": "<correct-password>"}'`
   Expected: `200`, body contains `access` and `refresh` tokens.
@@ -273,5 +274,7 @@ frontend/
 
 ## Complexity Tracking
 
-*No violations — table intentionally empty.*
+| Violation | US | Why Needed | Simpler Alternative Rejected Because |
+|-----------|----|-----------|-----------------------------------|
+| FE-06 asks for inline *field-level* validation feedback; the login form shows one form-level message (`#message-error`) | SS-US-01 | AC-02 requires that the error not reveal which field was wrong or whether the email is registered; a per-field message would | Per-field messages would break AC-02 and enable account enumeration. Field-level feedback remains for every other form |
 </content>
